@@ -103,10 +103,12 @@ mod tests {
 
     #[test]
     fn compute_commitments_works() {
+        // initialize backend, choosing between GPU and CPU
         let ret_init = init_backend(Backend::GPU);
 
         assert_eq!(ret_init, 0);
     
+        // generate input table
         let mut table: Vec<Sequence> = Vec::new();
         
         table.push(Sequence::Bytes16(
@@ -147,6 +149,7 @@ mod tests {
             ] as [u8; 32])
         );
 
+        // verify if commitment results are correct
         assert_eq!(commitments[0], commit1);
         assert_eq!(commitments[1], commit2);
         assert_eq!(commitments[2], commit3);
