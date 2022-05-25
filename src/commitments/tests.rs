@@ -59,6 +59,14 @@ fn commit_a_plus_commit_b_equal_to_commit_c() {
 
     let commit_c = (commit_a + commit_b).compress();
 
+    // checking if commits are non-zero and different from each other
+    // we know that all data differ, then all commits must differ too
+    for i in 0..commitments.len() {
+        for j in (i + 1)..commitments.len() {
+            assert_ne!(commitments[i], commitments[j]);
+        }
+    }
+
     // verify if commitment results are correct
     assert_eq!(commit_c, expected_commit_c);
 }
@@ -102,6 +110,10 @@ fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
     let expected_commit_d = commitments[3];
 
     let commit_d = (commit_a + commit_b + commit_c).compress();
+
+    // checking if commits are non-zero and different from each other
+    // we know that all data differ, then all commits must differ too
+    assert_ne!(commitments[0], commitments[3]);
 
     // verify if commitment results are correct
     assert_eq!(commit_d, expected_commit_d);
@@ -147,6 +159,14 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
 
     let commit_c = (ristretto_sc * commit_a + commit_b).compress();
 
+    // checking if commits are non-zero and different from each other
+    // we know that all data differ, then all commits must differ too
+    for i in 0..commitments.len() {
+        for j in (i + 1)..commitments.len() {
+            assert_ne!(commitments[i], commitments[j]);
+        }
+    }
+
     // verify if commitment results are correct
     assert_eq!(commit_c, expected_commit_c);
 }
@@ -186,7 +206,9 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
 
     let commit_c = (commit_a + commit_b).compress();
 
-    println!("Val: {:?}", data_b);
+    // checking if commits are non-zero and different from each other
+    // we know that all data differ, then all commits must differ too
+    assert_ne!(commitments[0], commitments[2]);
 
     // verify if commitment results are correct
     assert_eq!(commit_c, expected_commit_c);
@@ -243,7 +265,13 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
 
     let commit_d = (commit_a + commit_b + commit_c).compress();
 
-    println!("Val: {:?}", data_b);
+    // checking if commits are non-zero and different from each other
+    // we know that all data differ, then all commits must differ too
+    for i in 0..commitments.len() {
+        for j in (i + 1)..commitments.len() {
+            assert_ne!(commitments[i], commitments[j]);
+        }
+    }
 
     // verify if commitment results are correct
     assert_eq!(commit_d, expected_commit_d);
