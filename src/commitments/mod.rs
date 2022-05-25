@@ -2,24 +2,38 @@
 extern crate proofs_gpu;
 extern crate curve25519_dalek;
 
+use std::sync::Once;
+
 use crate::enums::Backend;
 use crate::enums::Sequence;
 
 pub type Commitment = curve25519_dalek::ristretto::CompressedRistretto;
 
-pub fn init_backend(curr_backend: Backend) {
-    let ret_init;
-    let config: proofs_gpu::sxt_config = proofs_gpu::sxt_config {
-        backend: curr_backend.value() as i32
-    };
+static mut INIT_STATE: i32 = 0;
+static INIT: Once = Once::new();
 
+fn init_backend() {
     unsafe {
-        ret_init = proofs_gpu::sxt_init(&config);
-    };
+        INIT.call_once(|| {
+            let curr_backend;
+            
+            if cfg!(feature = "cpu") {
+                curr_backend = Backend::CPU;
+            } else {
+                curr_backend = Backend::GPU;
+            }
 
-    if ret_init != 0 {
-        panic!("Error during backend initialization");
-    }
+            let config: proofs_gpu::sxt_config = proofs_gpu::sxt_config {
+                backend: curr_backend.value() as i32
+            };
+        
+            INIT_STATE = proofs_gpu::sxt_init(&config);
+        });
+        
+        if INIT_STATE != 0 {
+            panic!("Error during backend initialization");
+        }
+    };
 }
 
 fn to_sxt_commitments(num_sequences: usize)
@@ -82,6 +96,8 @@ pub fn compute_commitments(commitments: & mut[Commitment], data: & [Sequence])  
     let num_sequences = data.len();
     let mut sxt_descriptors = to_sxt_descriptors(data);
     let mut sxt_commitments = to_sxt_commitments(num_sequences);
+
+    init_backend();
 
     unsafe {
         ret_compute = proofs_gpu::sxt_compute_pedersen_commitments(

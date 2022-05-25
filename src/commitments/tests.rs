@@ -3,9 +3,6 @@ use super::*;
 
 #[test]
 fn compute_commitments_works() {
-    // initialize backend, choosing between GPU and CPU
-    init_backend(Backend::GPU);
-
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
     
@@ -32,9 +29,6 @@ fn compute_commitments_works() {
 
 #[test]
 fn commit_a_plus_commit_b_equal_to_commit_c() {
-    // initialize backend, choosing between GPU and CPU
-    init_backend(Backend::GPU);
-
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
     
@@ -71,9 +65,6 @@ fn commit_a_plus_commit_b_equal_to_commit_c() {
 
 #[test]
 fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
-    // initialize backend, choosing between GPU and CPU
-    init_backend(Backend::GPU);
-
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
     
@@ -118,9 +109,6 @@ fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
 
 #[test]
 fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
-    // initialize backend, choosing between GPU and CPU
-    init_backend(Backend::GPU);
-
     // generate input table
     let sc: u64 = 52;
     let mut table: Vec<Sequence> = Vec::new();
@@ -166,9 +154,6 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
 
 #[test]
 fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
-    // initialize backend, choosing between GPU and CPU
-    init_backend(Backend::GPU);
-
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
 
@@ -210,9 +195,6 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
 
 #[test]
 fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to_commit_d() {
-    // initialize backend, choosing between GPU and CPU
-    init_backend(Backend::GPU);
-
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
 

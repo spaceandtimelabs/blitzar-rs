@@ -10,3 +10,8 @@ curve25519-dalek = "3.2.1"
 
 [dependencies.proofs_gpu]
 path = "../rust/proofs-gpu-sys/"
+
+[features]
+default = ["gpu"]
+cpu = []
+gpu = []
