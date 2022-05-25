@@ -1,13 +1,19 @@
+#![allow(unused_imports)]
 #[cfg(test)]
 use super::*;
+use crate::enums::DenseSequence;
+use byte_slice_cast::AsByteSlice;
 
 #[test]
 fn compute_commitments_works() {
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
     
-    let data1 = vec![2000, 7500, 5000, 1500];
-    table.push(Sequence::Bits16(&data1));
+    let data1: Vec<u32> = vec![2000, 7500, 5000, 1500];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data1.as_byte_slice(),
+        element_size: std::mem::size_of::<u32>()
+    }));
 
     let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
     
@@ -32,14 +38,23 @@ fn commit_a_plus_commit_b_equal_to_commit_c() {
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
     
-    let data_a = vec![2000, 7500, 5000, 1500];
-    table.push(Sequence::Bits16(&data_a));
+    let data_a: Vec<u16> = vec![2000, 7500, 5000, 1500];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_a.as_byte_slice(),
+        element_size: std::mem::size_of::<u16>()
+    }));
 
-    let data_b = vec![5000, 0, 400000, 10, 0, 0];
-    table.push(Sequence::Bits32(&data_b));
+    let data_b: Vec<u32> = vec![5000, 0, 400000, 10, 0, 0];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_b.as_byte_slice(),
+        element_size: std::mem::size_of::<u32>()
+    }));
 
-    let data_c = vec![2000 + 5000, 7500 + 0, 5000 + 400000, 1500 + 10];
-    table.push(Sequence::Bits64(&data_c));
+    let data_c: Vec<u64> = vec![2000 + 5000, 7500 + 0, 5000 + 400000, 1500 + 10];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_c.as_byte_slice(),
+        element_size: std::mem::size_of::<u64>()
+    }));
 
     let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
     
@@ -76,17 +91,29 @@ fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
     
-    let data_a = vec![1];
-    table.push(Sequence::Bits16(&data_a));
+    let data_a: Vec<u16> = vec![1];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_a.as_byte_slice(),
+        element_size: std::mem::size_of::<u16>()
+    }));
 
-    let data_b = vec![1];
-    table.push(Sequence::Bits32(&data_b));
+    let data_b: Vec<u32> = vec![1];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_b.as_byte_slice(),
+        element_size: std::mem::size_of::<u32>()
+    }));
 
-    let data_c = vec![1];
-    table.push(Sequence::Bits64(&data_c));
+    let data_c: Vec<u64> = vec![1];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_c.as_byte_slice(),
+        element_size: std::mem::size_of::<u64>()
+    }));
 
-    let data_d = vec![3];
-    table.push(Sequence::Bits64(&data_d));
+    let data_d: Vec<u64> = vec![3];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_d.as_byte_slice(),
+        element_size: std::mem::size_of::<u64>()
+    }));
 
     let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
     
@@ -125,15 +152,24 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
     let sc: u64 = 52;
     let mut table: Vec<Sequence> = Vec::new();
     
-    let data_a = vec![2000, 7500, 5000, 1500];
-    table.push(Sequence::Bits16(&data_a));
+    let data_a: Vec<u16> = vec![2000, 7500, 5000, 1500];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_a.as_byte_slice(),
+        element_size: std::mem::size_of::<u16>()
+    }));
 
-    let data_b = vec![5000, 0, 400000, 10, 0, 0];
-    table.push(Sequence::Bits32(&data_b));
+    let data_b: Vec<u32> = vec![5000, 0, 400000, 10, 0, 0];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_b.as_byte_slice(),
+        element_size: std::mem::size_of::<u32>()
+    }));
 
-    let data_c = vec![sc * 2000 + 5000, 
+    let data_c: Vec<u64> = vec![sc * 2000 + 5000, 
         sc * 7500 + 0, sc * 5000 + 400000, sc * 1500 + 10];
-    table.push(Sequence::Bits64(&data_c));
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_c.as_byte_slice(),
+        element_size: std::mem::size_of::<u64>()
+    }));
 
     let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
     
@@ -178,15 +214,24 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
     let mut table: Vec<Sequence> = Vec::new();
 
     let a = -128;
-    let data_a = vec![a as u16];
-    table.push(Sequence::Bits16(&data_a));
+    let data_a: Vec<u16> = vec![a as u16];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_a.as_byte_slice(),
+        element_size: std::mem::size_of::<u16>()
+    }));
 
     let b = -128;
-    let data_b = vec![b as u16];
-    table.push(Sequence::Bits16(&data_b));
+    let data_b: Vec<u16> = vec![b as u16];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_b.as_byte_slice(),
+        element_size: std::mem::size_of::<u16>()
+    }));
 
-    let data_c = vec![130816];
-    table.push(Sequence::Bits32(&data_c));
+    let data_c: Vec<u32> = vec![130816];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_c.as_byte_slice(),
+        element_size: std::mem::size_of::<u32>()
+    }));
 
     let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
     
@@ -220,27 +265,39 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
 
-    let data_a = vec![
+    let data_a: Vec<u64> = vec![
         6346243789798364141,
         1503914060200516822,
         1,
         1152921504606846976
     ];
-    table.push(Sequence::Bits64(&data_a));
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_a.as_byte_slice(),
+        element_size: std::mem::size_of::<u64>()
+    }));
 
-    let data_b = vec![123, 733];
-    table.push(Sequence::Bits32(&data_b));
+    let data_b: Vec<u32> = vec![123, 733];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_b.as_byte_slice(),
+        element_size: std::mem::size_of::<u32>()
+    }));
 
-    let data_c = vec![121, 200, 135];
-    table.push(Sequence::Bits8(&data_c));
+    let data_c: Vec<u8> = vec![121, 200, 135];
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_c.as_byte_slice(),
+        element_size: std::mem::size_of::<u8>()
+    }));
 
-    let data_d = vec![
+    let data_d: Vec<u64> = vec![
         6346243789798364385,
         1503914060200517755,
         136,
         1152921504606846976
     ];
-    table.push(Sequence::Bits64(&data_d));
+    table.push(Sequence::Dense(DenseSequence {
+        data_slice: &data_d.as_byte_slice(),
+        element_size: std::mem::size_of::<u64>()
+    }));
 
     let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
     

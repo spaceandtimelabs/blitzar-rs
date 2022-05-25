@@ -61,13 +61,16 @@ fn to_sxt_descriptors(data: & [Sequence])
     }
 
     for i in 0..num_sequences {
-        let num_bytes = data[i].num_bytes();
-        let num_rows = data[i].len() as u64;
+        let curr_data = match &data[i] {
+            Sequence::Dense(x) => x
+        };
+
+        let num_rows = curr_data.data_slice.len() / curr_data.element_size;
 
         let descriptor = proofs_gpu::sxt_dense_sequence_descriptor {
-            element_nbytes: num_bytes,  // number bytes
-            n: num_rows,            // number rows
-            data: data[i].as_ptr()   // data pointer
+            element_nbytes: curr_data.element_size as u8,  // number bytes
+            n: num_rows as u64,            // number rows
+            data: curr_data.data_slice.as_ptr()   // data pointer
         };
 
         cbinding_descriptors[i] = proofs_gpu::sxt_sequence_descriptor {

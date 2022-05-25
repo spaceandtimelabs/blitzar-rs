@@ -12,42 +12,11 @@ impl Backend {
     }
 }
 
-pub enum Sequence<'a> {
-    Bits8(&'a [u8]),
-    Bits16(&'a [u16]),
-    Bits32(&'a [u32]),
-    Bits64(&'a [u64]),
-    Bits128(&'a [u128]),
+pub struct DenseSequence<'a> {
+    pub data_slice: &'a [u8],
+    pub element_size: usize
 }
 
-impl Sequence<'_> {
-    pub fn num_bytes(&self) -> u8 {
-        match &self {
-            Sequence::Bits8(_v) => 1,
-            Sequence::Bits16(_v) => 2,
-            Sequence::Bits32(_v) => 4,
-            Sequence::Bits64(_v) => 8,
-            Sequence::Bits128(_v) => 8,
-        }
-    }
-    
-    pub fn as_ptr(&self) -> *const u8 {
-        match &self {
-            Sequence::Bits8(v) => v.as_ptr() as *const u8,
-            Sequence::Bits16(v) => v.as_ptr() as *const u8,
-            Sequence::Bits32(v) => v.as_ptr() as *const u8,
-            Sequence::Bits64(v) => v.as_ptr() as *const u8,
-            Sequence::Bits128(v) => v.as_ptr() as *const u8,
-        }
-    }
-
-    pub fn len(&self) -> usize {
-        match &self {
-            Sequence::Bits8(v) => v.len(),
-            Sequence::Bits16(v) => v.len(),
-            Sequence::Bits32(v) => v.len(),
-            Sequence::Bits64(v) => v.len(),
-            Sequence::Bits128(v) => v.len(),
-        }
-    }
+pub enum Sequence<'a> {
+    Dense(DenseSequence<'a>)
 }
