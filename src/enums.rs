@@ -12,14 +12,14 @@ impl Backend {
     }
 }
 
-pub enum Sequence {
-    Bytes8(Vec<u8>),
-    Bytes16(Vec<u16>),
-    Bytes32(Vec<u32>),
-    Bytes64(Vec<u64>),
+pub enum Sequence<'a> {
+    Bytes8(&'a [u8]),
+    Bytes16(&'a [u16]),
+    Bytes32(&'a [u32]),
+    Bytes64(&'a [u64]),
 }
 
-impl Sequence {
+impl Sequence<'_> {
     pub fn sizeof(&self) -> u8 {
         match &self {
             Sequence::Bytes8(_v) => 1,

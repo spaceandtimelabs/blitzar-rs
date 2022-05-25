@@ -2,14 +2,12 @@
 extern crate proofs_gpu;
 extern crate curve25519_dalek;
 
-#[path = "./enums.rs"]
-mod enums;
-use enums::Backend;
-use enums::Sequence;
+use crate::enums::Backend;
+use crate::enums::Sequence;
 
 pub type Commitment = curve25519_dalek::ristretto::CompressedRistretto;
 
-pub fn init_backend(curr_backend: Backend) -> i32 {
+pub fn init_backend(curr_backend: Backend) {
     let ret_init;
     let config: proofs_gpu::sxt_config = proofs_gpu::sxt_config {
         backend: curr_backend.value() as i32
@@ -19,7 +17,9 @@ pub fn init_backend(curr_backend: Backend) -> i32 {
         ret_init = proofs_gpu::sxt_init(&config);
     };
 
-    return ret_init;
+    if ret_init != 0 {
+        panic!("Error during backend initialization");
+    }
 }
 
 fn to_sxt_commitments(num_sequences: usize)
@@ -35,7 +35,7 @@ fn to_sxt_commitments(num_sequences: usize)
     return cbinding_commitments;
 }
 
-fn to_sxt_descriptors(data: & Vec<Sequence>)
+fn to_sxt_descriptors(data: & [Sequence])
      -> Vec<proofs_gpu::sxt_sequence_descriptor> {
 
     let num_sequences = data.len();
@@ -67,20 +67,17 @@ fn to_sxt_descriptors(data: & Vec<Sequence>)
     return cbinding_descriptors;
 }
 
-fn to_commitments(sxt_commitments: Vec<proofs_gpu::sxt_commitment>) -> Vec<Commitment> {
+fn to_commitments(commitments: & mut[Commitment], sxt_commitments: &[proofs_gpu::sxt_commitment]) {
     let num_sequences = sxt_commitments.len();
-    let mut commitments = Vec::with_capacity(num_sequences);
-
+    
     // copy results back to commitments vector
     for i in 0..num_sequences {
-        commitments.push(Commitment::
-                from_slice(&sxt_commitments[i].ristretto_bytes));
+        commitments[i] = Commitment::
+                from_slice(&sxt_commitments[i].ristretto_bytes);
     }
-
-    return commitments;
 }
 
-pub fn compute_commitments(data: & Vec<Sequence>) -> (i32, Vec<Commitment>)  {
+pub fn compute_commitments(commitments: & mut[Commitment], data: & [Sequence])  {
     let ret_compute;
     let num_sequences = data.len();
     let mut sxt_descriptors = to_sxt_descriptors(data);
@@ -94,33 +91,31 @@ pub fn compute_commitments(data: & Vec<Sequence>) -> (i32, Vec<Commitment>)  {
         );
     }
 
-    return (ret_compute, to_commitments(sxt_commitments));
+    if ret_compute != 0 {
+        panic!("Error during commitments computation");
+    }
+
+    to_commitments(commitments, &sxt_commitments);
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::commitments::*;
+#[test]
+mod test_commitments {
+    use super::*;
 
-    #[test]
     fn compute_commitments_works() {
         // initialize backend, choosing between GPU and CPU
-        let ret_init = init_backend(Backend::GPU);
+        init_backend(Backend::GPU);
 
-        assert_eq!(ret_init, 0);
-    
         // generate input table
+        let data1 = vec![2000, 7500, 5000, 1500];
+        let data2 = vec![5000, 0, 400000, 10, 0, 0];
+        let data3 = vec![2000 + 5000, 7500 + 0, 5000 + 400000, 1500 + 10];
+
         let mut table: Vec<Sequence> = Vec::new();
         
-        table.push(Sequence::Bytes16(
-            vec![2000, 7500, 5000, 1500]));
-        table.push(Sequence::Bytes32(
-            vec![5000, 0, 400000, 10, 0, 0]));
-        table.push(Sequence::Bytes64(
-            vec![2000 + 5000, 7500 + 0, 5000 + 400000, 1500 + 10]));
-
-        let (ret_compute, commitments) = compute_commitments(&table);
-
-        assert_eq!(ret_compute, 0);
+        table.push(Sequence::Bytes16(&data1));
+        table.push(Sequence::Bytes32(&data2));
+        table.push(Sequence::Bytes64(&data3));
 
         let commit1 = Commitment::from_slice(
             &([
@@ -130,6 +125,10 @@ mod tests {
                 251,192,146,244,54,169,199,97
             ] as [u8; 32])
         );
+
+        let mut commitments = vec![commit1; table.len()];
+        
+        compute_commitments(& mut commitments[..], &table);
 
         let commit2 = Commitment::from_slice(
             &([
