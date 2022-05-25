@@ -47,7 +47,7 @@ fn to_sxt_descriptors(data: & [Sequence])
     }
 
     for i in 0..num_sequences {
-        let num_bytes = data[i].sizeof();
+        let num_bytes = data[i].num_bytes();
         let num_rows = data[i].len() as u64;
 
         let descriptor = proofs_gpu::sxt_dense_sequence_descriptor {

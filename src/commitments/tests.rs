@@ -7,15 +7,14 @@ fn compute_commitments_works() {
     init_backend(Backend::GPU);
 
     // generate input table
-    let data1 = vec![2000, 7500, 5000, 1500];
-    let data2 = vec![5000, 0, 400000, 10, 0, 0];
-    let data3 = vec![2000 + 5000, 7500 + 0, 5000 + 400000, 1500 + 10];
-
     let mut table: Vec<Sequence> = Vec::new();
     
-    table.push(Sequence::Bytes16(&data1));
-    table.push(Sequence::Bytes32(&data2));
-    table.push(Sequence::Bytes64(&data3));
+    let data1 = vec![2000, 7500, 5000, 1500];
+    table.push(Sequence::Bits16(&data1));
+
+    let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
+    
+    compute_commitments(& mut commitments, &table);
 
     let commit1 = Commitment::from_slice(
         &([
@@ -26,30 +25,244 @@ fn compute_commitments_works() {
         ] as [u8; 32])
     );
 
-    let mut commitments = vec![commit1; table.len()];
-    
-    compute_commitments(& mut commitments[..], &table);
-
-    let commit2 = Commitment::from_slice(
-        &([
-            2,254,178,195,198,238,44,156,
-            24,29,88,196,37,63,157,50,
-            236,159,61,49,153,181,79,126,
-            55,188,67,1,228,248,72,51
-        ] as [u8; 32])
-    );
-
-    let commit3 = Commitment::from_slice(
-        &([
-            30,237,163,234,252,111,45,133,
-            235,227,21,117,229,188,88,149,
-            240,109,205,90,6,130,199,152,
-            5,221,57,231,168,9,141,122
-        ] as [u8; 32])
-    );
-
     // verify if commitment results are correct
     assert_eq!(commitments[0], commit1);
-    assert_eq!(commitments[1], commit2);
-    assert_eq!(commitments[2], commit3);
+}
+
+
+#[test]
+fn commit_a_plus_commit_b_equal_to_commit_c() {
+    // initialize backend, choosing between GPU and CPU
+    init_backend(Backend::GPU);
+
+    // generate input table
+    let mut table: Vec<Sequence> = Vec::new();
+    
+    let data_a = vec![2000, 7500, 5000, 1500];
+    table.push(Sequence::Bits16(&data_a));
+
+    let data_b = vec![5000, 0, 400000, 10, 0, 0];
+    table.push(Sequence::Bits32(&data_b));
+
+    let data_c = vec![2000 + 5000, 7500 + 0, 5000 + 400000, 1500 + 10];
+    table.push(Sequence::Bits64(&data_c));
+
+    let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
+    
+    compute_commitments(& mut commitments, &table);
+
+    let commit_a = match commitments[0].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let commit_b = match commitments[1].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let expected_commit_c = commitments[2];
+
+    let commit_c = (commit_a + commit_b).compress();
+
+    // verify if commitment results are correct
+    assert_eq!(commit_c, expected_commit_c);
+}
+
+#[test]
+fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
+    // initialize backend, choosing between GPU and CPU
+    init_backend(Backend::GPU);
+
+    // generate input table
+    let mut table: Vec<Sequence> = Vec::new();
+    
+    let data_a = vec![1];
+    table.push(Sequence::Bits16(&data_a));
+
+    let data_b = vec![1];
+    table.push(Sequence::Bits32(&data_b));
+
+    let data_c = vec![1];
+    table.push(Sequence::Bits64(&data_c));
+
+    let data_d = vec![3];
+    table.push(Sequence::Bits64(&data_d));
+
+    let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
+    
+    compute_commitments(& mut commitments, &table);
+
+    let commit_a = match commitments[0].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let commit_b = match commitments[1].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let commit_c = match commitments[2].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let expected_commit_d = commitments[3];
+
+    let commit_d = (commit_a + commit_b + commit_c).compress();
+
+    // verify if commitment results are correct
+    assert_eq!(commit_d, expected_commit_d);
+}
+
+#[test]
+fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
+    // initialize backend, choosing between GPU and CPU
+    init_backend(Backend::GPU);
+
+    // generate input table
+    let sc: u64 = 52;
+    let mut table: Vec<Sequence> = Vec::new();
+    
+    let data_a = vec![2000, 7500, 5000, 1500];
+    table.push(Sequence::Bits16(&data_a));
+
+    let data_b = vec![5000, 0, 400000, 10, 0, 0];
+    table.push(Sequence::Bits32(&data_b));
+
+    let data_c = vec![sc * 2000 + 5000, 
+        sc * 7500 + 0, sc * 5000 + 400000, sc * 1500 + 10];
+    table.push(Sequence::Bits64(&data_c));
+
+    let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
+    
+    compute_commitments(& mut commitments, &table);
+
+    let commit_a = match commitments[0].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let commit_b = match commitments[1].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let mut scalar_bytes: [u8; 32] = [0; 32];
+    scalar_bytes[0] = sc as u8;
+
+    // Construct a Scalar by reducing a 256-bit little-endian integer modulo the group order ℓ.
+    let ristretto_sc = curve25519_dalek::scalar::Scalar::from_bytes_mod_order(scalar_bytes);
+
+    let expected_commit_c = commitments[2];
+
+    let commit_c = (ristretto_sc * commit_a + commit_b).compress();
+
+    // verify if commitment results are correct
+    assert_eq!(commit_c, expected_commit_c);
+}
+
+
+#[test]
+fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
+    // initialize backend, choosing between GPU and CPU
+    init_backend(Backend::GPU);
+
+    // generate input table
+    let mut table: Vec<Sequence> = Vec::new();
+
+    let a = -128;
+    let data_a = vec![a as u16];
+    table.push(Sequence::Bits16(&data_a));
+
+    let b = -128;
+    let data_b = vec![b as u16];
+    table.push(Sequence::Bits16(&data_b));
+
+    let data_c = vec![130816];
+    table.push(Sequence::Bits32(&data_c));
+
+    let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
+    
+    compute_commitments(& mut commitments, &table);
+
+    let commit_a = match commitments[0].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let commit_b = match commitments[1].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+    
+    let expected_commit_c = commitments[2];
+
+    let commit_c = (commit_a + commit_b).compress();
+
+    println!("Val: {:?}", data_b);
+
+    // verify if commitment results are correct
+    assert_eq!(commit_c, expected_commit_c);
+}
+
+
+#[test]
+fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to_commit_d() {
+    // initialize backend, choosing between GPU and CPU
+    init_backend(Backend::GPU);
+
+    // generate input table
+    let mut table: Vec<Sequence> = Vec::new();
+
+    let data_a = vec![
+        6346243789798364141,
+        1503914060200516822,
+        1,
+        1152921504606846976
+    ];
+    table.push(Sequence::Bits64(&data_a));
+
+    let data_b = vec![123, 733];
+    table.push(Sequence::Bits32(&data_b));
+
+    let data_c = vec![121, 200, 135];
+    table.push(Sequence::Bits8(&data_c));
+
+    let data_d = vec![
+        6346243789798364385,
+        1503914060200517755,
+        136,
+        1152921504606846976
+    ];
+    table.push(Sequence::Bits64(&data_d));
+
+    let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
+    
+    compute_commitments(& mut commitments, &table);
+
+    let commit_a = match commitments[0].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let commit_b = match commitments[1].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+    
+    let commit_c = match commitments[2].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let expected_commit_d = commitments[3];
+
+    let commit_d = (commit_a + commit_b + commit_c).compress();
+
+    println!("Val: {:?}", data_b);
+
+    // verify if commitment results are correct
+    assert_eq!(commit_d, expected_commit_d);
 }
