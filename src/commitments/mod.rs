@@ -118,4 +118,5 @@ pub fn compute_commitments(commitments: & mut[Commitment], data: & [Sequence])  
     to_commitments(commitments, &sxt_commitments);
 }
 
+#[cfg(test)]
 mod tests;

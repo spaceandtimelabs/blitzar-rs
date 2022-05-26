@@ -1,5 +1,4 @@
 #![allow(unused_imports)]
-#[cfg(test)]
 
 use super::*;
 use byte_slice_cast::AsByteSlice;
