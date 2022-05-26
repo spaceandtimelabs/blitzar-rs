@@ -4,27 +4,26 @@ extern crate curve25519_dalek;
 
 use std::sync::Once;
 
-use crate::enums::Backend;
-use crate::enums::Sequence;
+use crate::sequence::Sequence;
 
 pub type Commitment = curve25519_dalek::ristretto::CompressedRistretto;
 
 static mut INIT_STATE: i32 = 0;
 static INIT: Once = Once::new();
 
-fn init_backend() {
+pub fn init_backend() {
     unsafe {
         INIT.call_once(|| {
             let curr_backend;
             
             if cfg!(feature = "cpu") {
-                curr_backend = Backend::CPU;
+                curr_backend = proofs_gpu::SXT_BACKEND_CPU;
             } else {
-                curr_backend = Backend::GPU;
+                curr_backend = proofs_gpu::SXT_BACKEND_GPU;
             }
 
             let config: proofs_gpu::sxt_config = proofs_gpu::sxt_config {
-                backend: curr_backend.value() as i32
+                backend: curr_backend as i32
             };
         
             INIT_STATE = proofs_gpu::sxt_init(&config);
@@ -64,6 +63,8 @@ fn to_sxt_descriptors(data: & [Sequence])
         let curr_data = match &data[i] {
             Sequence::Dense(x) => x
         };
+
+        debug_assert!(curr_data.data_slice.len() % curr_data.element_size == 0);
 
         let num_rows = curr_data.data_slice.len() / curr_data.element_size;
 

@@ -1,8 +1,9 @@
 #![allow(unused_imports)]
 #[cfg(test)]
+
 use super::*;
-use crate::enums::DenseSequence;
 use byte_slice_cast::AsByteSlice;
+use crate::sequence::DenseSequence;
 
 #[test]
 fn compute_commitments_works() {
@@ -213,14 +214,14 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
 
-    let a = -128;
+    let a: i8 = -128;
     let data_a: Vec<u16> = vec![a as u16];
     table.push(Sequence::Dense(DenseSequence {
         data_slice: &data_a.as_byte_slice(),
         element_size: std::mem::size_of::<u16>()
     }));
 
-    let b = -128;
+    let b: i8 = -128;
     let data_b: Vec<u16> = vec![b as u16];
     table.push(Sequence::Dense(DenseSequence {
         data_slice: &data_b.as_byte_slice(),
