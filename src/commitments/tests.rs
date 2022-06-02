@@ -1,7 +1,12 @@
+// -*- mode: rust; -*-
+//
+// Authors:
+// - Joe <jose@spaceandtime.io>
+// - Ryan Burn <ryan@spaceandtime.io>
+
 #![allow(unused_imports)]
 
 use super::*;
-use byte_slice_cast::AsByteSlice;
 use crate::sequence::DenseSequence;
 
 #[test]
@@ -31,7 +36,6 @@ fn compute_commitments_works() {
     // verify if commitment results are correct
     assert_eq!(commitments[0], commit1);
 }
-
 
 #[test]
 fn commit_a_plus_commit_b_equal_to_commit_c() {
