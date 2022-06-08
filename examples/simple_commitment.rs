@@ -35,31 +35,31 @@ fn main() {
     /////////////////////////////////////////////
     table.push(Sequence::Dense(DenseSequence {
         data_slice: &data1.as_byte_slice(),
-        element_size: std::mem::size_of::<u16>()
+        element_size: std::mem::size_of_val(&data1[0])
     }));
 
     table.push(Sequence::Dense(DenseSequence {
         data_slice: &data2.as_byte_slice(),
-        element_size: std::mem::size_of::<u32>()
+        element_size: std::mem::size_of_val(&data2[0])
     }));
 
     table.push(Sequence::Dense(DenseSequence {
         data_slice: &data3.as_byte_slice(),
-        element_size: std::mem::size_of::<u64>()
+        element_size: std::mem::size_of_val(&data3[0])
     }));
 
     /////////////////////////////////////////////
     // We need to define a commitment vector which 
     // will store all the commitment results
     /////////////////////////////////////////////
-    let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
     compute_commitments(& mut commitments, &table);
 
-    for i in 0..table.len() {
+    for i in 0..commitments.len() {
         println!("commitment {}: {:?}\n", i, commitments[i]);
     }
 }

@@ -17,7 +17,7 @@
 /// automatically can be cast to this kind of 
 /// slice view, by using `byte-slice-cast` trait extension.
 pub struct DenseSequence<'a> {
-    /// `data_slice` represents a slice
+    /// Represents a slice
     /// view of any region of memory
     /// converted to a u8 slice view.
     ///
@@ -37,7 +37,7 @@ pub struct DenseSequence<'a> {
     /// unsigned bytes.
     pub data_slice: &'a [u8],
 
-    /// `element_size` represents the total number of 
+    /// Represents the total number of 
     /// bytes of each element encoded in the
     /// `data_slice` view
     ///
@@ -59,7 +59,7 @@ pub struct DenseSequence<'a> {
     pub element_size: usize
 }
 
-/// This defines multiple wrappers so that all of them
+/// Defines multiple wrappers so that all of them
 /// can be stored in the same vector array.
 /// We currently only support `Dense` structures,
 /// but in the future, we intend to add `Sparse` structures

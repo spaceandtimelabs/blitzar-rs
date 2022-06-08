@@ -15,16 +15,12 @@ mod pedersen_benches {
     fn run_benchmark(num_commits: usize, num_rows: usize, c: &mut Criterion) {
         init_backend();
 
-        let mut data = Vec::with_capacity(num_commits*num_rows);
+        let mut data: Vec<u32> = Vec::with_capacity(num_commits*num_rows);
         let mut table = Vec::with_capacity(num_commits);
         let mut commitments = Vec::with_capacity(num_commits);
 
-        for i in 0..num_commits {
-            for j in 0..num_rows {
-                data.push(i * num_rows + j);
-            }
-
-            commitments.push(Commitment::from_slice(&[0 as u8; 32]));
+        for i in 0..(num_commits * num_rows) {
+            data.push(i as u32);
         }
 
         for i in 0..num_commits {
@@ -32,14 +28,17 @@ mod pedersen_benches {
                 data_slice: &data[i * num_rows .. (i + 1) * num_rows].as_byte_slice(),
                 element_size: std::mem::size_of::<u32>()
             }));
+
+            commitments.push(CompressedRistretto::from_slice(&[0 as u8; 32]));
         }
 
         let label1: String = num_commits.to_string() + &" commits".to_owned();
         let label2: String = num_rows.to_string() + &" rows".to_owned();
-            
+        
         let mut group = c.benchmark_group(&label1);
         group.throughput(criterion::Throughput::Elements((num_commits * num_rows) as u64));
-        group.measurement_time(std::time::Duration::from_millis(100));
+        group.measurement_time(std::time::Duration::from_micros(1));
+        group.sample_size(10);
         group.sampling_mode(criterion::SamplingMode::Flat);
         group.bench_function(&label2, |b| b.iter(|| compute_commitments(& mut commitments, &table)));
         group.finish();

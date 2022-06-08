@@ -41,24 +41,24 @@ fn main() {
 
     table.push(Sequence::Dense(DenseSequence {
         data_slice: &weekly_pay_data.as_byte_slice(),
-        element_size: std::mem::size_of::<u16>()
+        element_size: std::mem::size_of_val(&weekly_pay_data[0])
     }));
 
     table.push(Sequence::Dense(DenseSequence {
         data_slice: &yearly_bonus_data.as_byte_slice(),
-        element_size: std::mem::size_of::<u32>()
+        element_size: std::mem::size_of_val(&yearly_bonus_data[0])
     }));
     
     table.push(Sequence::Dense(DenseSequence {
         data_slice: &total_compensation_data.as_byte_slice(),
-        element_size: std::mem::size_of::<u64>()
+        element_size: std::mem::size_of_val(&total_compensation_data[0])
     }));
 
     /////////////////////////////////////////////
     // We need to define a commitment vector which 
     // will store all the commitment results
     /////////////////////////////////////////////
-    let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
     /////////////////////////////////////////////
     // Do the actual commitment computation (either in cpu / gpu)
@@ -111,7 +111,7 @@ fn main() {
     // computed by our gpu / cpu code
     /////////////////////////////////////////////
     if commit_total_compensation == expected_commit_total_compensation {
-        println!("Commitments are equal:\n\t{:?}\n\t{:?}", 
+        println!("Commitments are equal:\n\tComputed - {:?}\n\tExpected - {:?}", 
             commit_total_compensation, expected_commit_total_compensation);
     } else {
         println!("Commitments differ:\n\t{:?}\n\t{:?}",

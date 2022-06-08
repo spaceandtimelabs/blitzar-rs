@@ -1,6 +1,6 @@
 [package]
 name = "pedersen"
-version = "1.2.3" # This version will be automatically updated
+version = "0.0.0" # This version will be automatically updated
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,6 +15,7 @@ path = "proofs-gpu-sys/"
 # this sections is shared by tests, benchmarks, and examples
 [dev-dependencies]
 criterion = "0.3"
+rand_core = "0.5"
 
 [[bench]]
 name = "pedersen_benchmarks"

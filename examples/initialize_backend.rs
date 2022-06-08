@@ -20,13 +20,13 @@ fn main() {
     /////////////////////////////////////////////
     table.push(Sequence::Dense(DenseSequence {
         data_slice: &data.as_byte_slice(),
-        element_size: std::mem::size_of::<u16>()
+        element_size: std::mem::size_of_val(&data[0])
     }));
 
     /////////////////////////////////////////////
     // Define a commitment vector to store all the results
     /////////////////////////////////////////////
-    let mut commitments = vec![Commitment::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
 
     /////////////////////////////////////////////
     // Do the actual commitment computation
