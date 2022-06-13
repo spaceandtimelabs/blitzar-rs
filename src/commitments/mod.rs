@@ -15,6 +15,7 @@ use std::sync::Once;
 use crate::sequence::Sequence;
 
 pub use byte_slice_cast::AsByteSlice;
+pub use curve25519_dalek::scalar::Scalar;
 pub use curve25519_dalek::ristretto::RistrettoPoint;
 pub use curve25519_dalek::ristretto::CompressedRistretto;
 
@@ -133,14 +134,14 @@ fn to_sxt_ristretto_generators(generators: &[CompressedRistretto])
     return cbinding_generators;
 }
 
-/// `to_sxt_descriptors` converts the data table from the 
+/// `from_sequences_to_sxt_descriptors` converts the data table from the 
 /// sequence slice to the lower-level sys crate 
 /// `sxt_sequence_descriptor` vector struct.
 ///
 /// # Panics
 ///
 /// If some data_slice has a `data_slice.len()` that is not a multiple of `element_size`
-fn to_sxt_descriptors(data: & [Sequence])
+fn from_sequences_to_sxt_descriptors(data: & [Sequence])
      -> (Vec<proofs_gpu::sxt_sequence_descriptor>, usize) {
 
     let mut longest_row: usize = 0;
@@ -184,6 +185,49 @@ fn to_sxt_descriptors(data: & [Sequence])
     return (cbinding_descriptors, longest_row);
 }
 
+/// `from_sequences_to_sxt_descriptors` converts the data table from the 
+/// sequence slice to the lower-level sys crate 
+/// `sxt_sequence_descriptor` vector struct.
+///
+/// # Panics
+///
+/// If some data_slice has a `data_slice.len()` that is not a multiple of `element_size`
+fn from_scalars_to_sxt_descriptors(data: & [&[Scalar]])
+     -> (Vec<proofs_gpu::sxt_sequence_descriptor>, usize) {
+
+    let mut longest_row: usize = 0;
+    let num_sequences = data.len();
+    let mut cbinding_descriptors: Vec<proofs_gpu::
+        sxt_sequence_descriptor> = Vec::with_capacity(num_sequences);
+
+    unsafe {
+        // sets the correct size for the `cbinding_descriptors` vector
+        cbinding_descriptors.set_len(num_sequences);
+    }
+
+    // populate the `cbinding_descriptors` vector array
+    for i in 0..num_sequences {
+        let num_rows = data[i].len();
+
+        longest_row = cmp::max(longest_row, num_rows);
+
+        let descriptor = proofs_gpu::sxt_dense_sequence_descriptor {
+            element_nbytes: 32,  // number bytes
+            n: num_rows as u64,            // number rows
+            data: data[i].as_ptr() as *const u8  // data pointer
+        };
+
+        cbinding_descriptors[i] = proofs_gpu::sxt_sequence_descriptor {
+            sequence_type: proofs_gpu::SXT_DENSE_SEQUENCE_TYPE as u8,
+            __bindgen_anon_1: proofs_gpu::sxt_sequence_descriptor__bindgen_ty_1 {
+                dense: descriptor
+            }
+        };
+    }
+
+    return (cbinding_descriptors, longest_row);
+}
+
 /// Converts the computed `sxt_ristretto_elements` commitments from the
 /// lower-level sys crate structure to the higher-level `CompressedRistretto` structure.
 ///
@@ -205,6 +249,31 @@ fn to_pedersen_commitments(commitments: & mut[CompressedRistretto],
         commitments[i] = CompressedRistretto::
                 from_slice(&sxt_ristretto_elements[i].ristretto_bytes);
     }
+}
+
+fn process_compute_commitments(
+    commitments: & mut[CompressedRistretto],
+    sxt_descriptors: &[proofs_gpu::sxt_sequence_descriptor]) {
+
+    let num_sequences = sxt_descriptors.len();
+    let mut sxt_ristretto_elements = to_sxt_ristretto_elements(num_sequences);
+
+    init_backend();
+
+    unsafe {
+        // computes the commitments using the lower-level rust sys crate
+        let ret_compute = proofs_gpu::sxt_compute_pedersen_commitments(
+            sxt_ristretto_elements.as_mut_ptr(),
+            num_sequences as u32,
+            sxt_descriptors.as_ptr(),
+        );
+
+        if ret_compute != 0 {
+            panic!("Error during commitments computation");
+        }
+    }
+
+    to_pedersen_commitments(commitments, &sxt_ristretto_elements);
 }
 
 /// Computes the Pedersen commitment for a given input data.
@@ -332,19 +401,46 @@ fn to_pedersen_commitments(commitments: & mut[CompressedRistretto],
 ///```text
 ///cargo run --features gpu --example add_mult_commitments
 ///```
-pub fn compute_commitments(commitments: & mut[CompressedRistretto], data: & [Sequence])  {
-    let num_sequences = data.len();
-    let (mut sxt_descriptors, _longest_row) = to_sxt_descriptors(data);
+pub fn compute_commitments_with_sequences(
+    commitments: & mut[CompressedRistretto], data: & [Sequence])  {
+
+    let (sxt_descriptors, _longest_row) = from_sequences_to_sxt_descriptors(data);
+
+    process_compute_commitments(commitments, &sxt_descriptors);
+}
+
+///
+pub fn compute_commitments_with_scalars(
+    commitments: & mut[CompressedRistretto], data: & [&[Scalar]])  {
+
+    let (sxt_descriptors, _longest_row) = from_scalars_to_sxt_descriptors(data);
+    
+    process_compute_commitments(commitments, &sxt_descriptors);
+}
+
+fn process_compute_commitments_with_generators(
+    commitments: & mut[CompressedRistretto], 
+    sxt_descriptors: &[proofs_gpu::sxt_sequence_descriptor],
+    longest_row: usize,
+    generators: &[CompressedRistretto]) {
+
+    let num_sequences = sxt_descriptors.len();
     let mut sxt_ristretto_elements = to_sxt_ristretto_elements(num_sequences);
+    let mut sxt_ristretto_generators = to_sxt_ristretto_generators(generators);
+
+    if longest_row > generators.len() {
+        panic!("Generator slice has a length smaller than the longest sequence in the input data.");
+    }
 
     init_backend();
 
     unsafe {
         // computes the commitments using the lower-level rust sys crate
-        let ret_compute = proofs_gpu::sxt_compute_pedersen_commitments(
+        let ret_compute = proofs_gpu::sxt_compute_pedersen_commitments_with_generators(
             sxt_ristretto_elements.as_mut_ptr(),
             num_sequences as u32,
-            sxt_descriptors.as_mut_ptr(),
+            sxt_descriptors.as_ptr(),
+            sxt_ristretto_generators.as_mut_ptr()
         );
 
         if ret_compute != 0 {
@@ -456,36 +552,33 @@ pub fn compute_commitments(commitments: & mut[CompressedRistretto], data: & [Seq
 /// ```text
 /// cargo run --features cpu --example pass_generators_to_commitment
 /// ```
-pub fn compute_commitments_with_generators(
+pub fn compute_commitments_with_sequences_and_generators(
     commitments: & mut[CompressedRistretto], 
     data: & [Sequence], generators: &[CompressedRistretto])  {
 
-    let num_sequences = data.len();
-    let (mut sxt_descriptors, _longest_row) = to_sxt_descriptors(data);
-    let mut sxt_ristretto_elements = to_sxt_ristretto_elements(num_sequences);
-    let mut sxt_ristretto_generators = to_sxt_ristretto_generators(generators);
+    let (sxt_descriptors, longest_row) = from_sequences_to_sxt_descriptors(data);
 
-    if _longest_row > generators.len() {
-        panic!("Generator slice has a length smaller than the longest sequence in the input data.");
-    }
+    process_compute_commitments_with_generators(
+        commitments,
+        &sxt_descriptors,
+        longest_row,
+        generators
+    );
+}
 
-    init_backend();
+///
+pub fn compute_commitments_with_scalars_and_generators(
+    commitments: & mut[CompressedRistretto],
+    data: & [&[Scalar]], generators: &[CompressedRistretto])  {
 
-    unsafe {
-        // computes the commitments using the lower-level rust sys crate
-        let ret_compute = proofs_gpu::sxt_compute_pedersen_commitments_with_generators(
-            sxt_ristretto_elements.as_mut_ptr(),
-            num_sequences as u32,
-            sxt_descriptors.as_mut_ptr(),
-            sxt_ristretto_generators.as_mut_ptr()
-        );
-
-        if ret_compute != 0 {
-            panic!("Error during commitments computation");
-        }
-    }
-
-    to_pedersen_commitments(commitments, &sxt_ristretto_elements);
+    let (sxt_descriptors, longest_row) = from_scalars_to_sxt_descriptors(data);
+    
+    process_compute_commitments_with_generators(
+        commitments,
+        &sxt_descriptors,
+        longest_row,
+        generators
+    );
 }
 
 /// Gets the generators used in the `compute_commitments` function

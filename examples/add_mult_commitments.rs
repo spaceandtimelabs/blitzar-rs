@@ -63,7 +63,7 @@ fn main() {
     /////////////////////////////////////////////
     // Do the actual commitment computation (either in cpu / gpu)
     /////////////////////////////////////////////
-    compute_commitments(& mut commitments, &table);
+    compute_commitments_with_sequences(& mut commitments, &table);
     
     /////////////////////////////////////////////
     // Converts the commitment results from dalek

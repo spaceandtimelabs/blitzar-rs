@@ -40,7 +40,7 @@ mod pedersen_benches {
         group.measurement_time(std::time::Duration::from_micros(1));
         group.sample_size(10);
         group.sampling_mode(criterion::SamplingMode::Flat);
-        group.bench_function(&label2, |b| b.iter(|| compute_commitments(& mut commitments, &table)));
+        group.bench_function(&label2, |b| b.iter(|| compute_commitments_with_sequences(& mut commitments, &table)));
         group.finish();
     }
 

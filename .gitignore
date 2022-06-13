@@ -20,4 +20,5 @@ node_modules/
 *.tar
 *.tar.gz
 rust/
-proofs-gpu-sys/
+proofs_gpu*/
+*.crate

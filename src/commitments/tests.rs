@@ -27,7 +27,7 @@ fn compute_commitments_works() {
 
     let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
-    compute_commitments(& mut commitments, &table);
+    compute_commitments_with_sequences(& mut commitments, &table);
 
     let expected_commit = CompressedRistretto::from_slice(
         &([
@@ -68,7 +68,7 @@ fn commit_a_plus_commit_b_equal_to_commit_c() {
 
     let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
-    compute_commitments(& mut commitments, &table);
+    compute_commitments_with_sequences(& mut commitments, &table);
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -128,7 +128,7 @@ fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
 
     let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
-    compute_commitments(& mut commitments, &table);
+    compute_commitments_with_sequences(& mut commitments, &table);
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -185,7 +185,7 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
 
     let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
-    compute_commitments(& mut commitments, &table);
+    compute_commitments_with_sequences(& mut commitments, &table);
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -248,7 +248,7 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
 
     let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
-    compute_commitments(& mut commitments, &table);
+    compute_commitments_with_sequences(& mut commitments, &table);
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -315,7 +315,7 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
 
     let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
-    compute_commitments(& mut commitments, &table);
+    compute_commitments_with_sequences(& mut commitments, &table);
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -371,7 +371,7 @@ fn get_generators_is_the_same_used_in_commitment_computation() {
         0 as u64
     );
 
-    compute_commitments(
+    compute_commitments_with_sequences(
         &mut commitments,
         &table
     );
@@ -425,7 +425,7 @@ fn get_generators_with_offset_is_the_same_used_in_commitment_computation() {
         offset_generators as u64
     );
 
-    compute_commitments(
+    compute_commitments_with_sequences(
         &mut commitments,
         &table
     );
@@ -474,7 +474,7 @@ fn sending_generators_to_gpu_produces_correct_commitment_results() {
         (0..data.len()).map(|_| RistrettoPoint::random(&mut rng).compress()).collect();
     let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
 
-    compute_commitments_with_generators(
+    compute_commitments_with_sequences_and_generators(
         &mut commitments,
         &table,
         &generator_points
