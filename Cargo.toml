@@ -1,17 +1,30 @@
 [package]
-name = "pedersen"
 version = "0.0.0" # This version will be automatically updated
+readme = "README.md"
+name = "pedersen"
 edition = "2021"
+repository = "https://github.com/spaceandtimelabs/pedersen"
+authors = [
+    "Joe <joseribeiro1017@gmail.com>",
+    "Ryan Burn <ryan@spaceandtime.io>"
+]
+keywords = ["gpu-cryptography", "gpu-crypto", "gpu-ristretto", "gpu-curve25519", "gpu-ristretto255"]
+description = "A GPU implementation of group operations on ristretto255 and Curve25519"
+exclude = [
+    "**/.gitignore",
+    ".gitignore"
+]
 
 [dependencies]
-byte-slice-cast = {version = "1.2.1"}
-curve25519-dalek = {version = "3.2.1"}
-proofs_gpu = {version = "2.0.1", registry = "proofs_gpu_reg"}
+byte-slice-cast = {version = "1.2"}
+proofs_gpu = {version = "2", registry = "proofs_gpu_reg"}
+curve25519-dalek = { version = "3" }
 
 # this sections is shared by tests, benchmarks, and examples
 [dev-dependencies]
-criterion = "0.3"
+criterion = {version = "0.3", features = ["html_reports"]}
 rand_core = "0.5"
+rand = "0.7"
 
 [[bench]]
 name = "pedersen_benchmarks"

@@ -1,7 +1,7 @@
 // -*- mode: rust; -*-
 //
 // Authors:
-// - Joe <jose@spaceandtime.io>
+// - Joe <joseribeiro1017@gmail.com>
 // - Ryan Burn <ryan@spaceandtime.io>
 
 #![allow(unused_imports)]
@@ -12,7 +12,6 @@ use crate::sequence::DenseSequence;
 extern crate rand_core;
 
 use rand_core::OsRng;
-
 
 #[test]
 fn compute_commitments_works() {
@@ -28,6 +27,38 @@ fn compute_commitments_works() {
     let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
     compute_commitments_with_sequences(& mut commitments, &table);
+
+    let expected_commit = CompressedRistretto::from_slice(
+        &([
+            4,105,58,131,59,69,150,106,
+            120,137,32,225,175,244,82,115,
+            216,180,206,150,21,250,240,98,
+            251,192,146,244,54,169,199,97
+        ] as [u8; 32])
+    );
+
+    // verify if commitment results are correct
+    assert_eq!(commitments[0], expected_commit);
+    assert_ne!(CompressedRistretto::from_slice(&[0 as u8; 32]), commitments[0]);
+}
+
+#[test]
+fn compute_commitments_with_scalars_works() {
+    // generate input table
+    let mut table: Vec<&[Scalar]> = Vec::new();
+    
+    let mut data: Vec<Scalar> = vec![Scalar::zero(); 4];
+    
+    for _i in 0..2000 { data[0] = data[0] + Scalar::one(); }
+    for _i in 0..7500 { data[1] = data[1] + Scalar::one(); }
+    for _i in 0..5000 { data[2] = data[2] + Scalar::one(); }
+    for _i in 0..1500 { data[3] = data[3] + Scalar::one(); }
+
+    table.push(&data);
+
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    
+    compute_commitments_with_scalars(& mut commitments, &table);
 
     let expected_commit = CompressedRistretto::from_slice(
         &([
@@ -498,6 +529,51 @@ fn sending_generators_to_gpu_produces_correct_commitment_results() {
         };
 
         expected_commit = expected_commit + ristretto_sc * g_i;
+    }
+
+    assert_eq!(commitments[0], expected_commit.compress());
+    assert_ne!(CompressedRistretto::from_slice(&[0 as u8; 32]), commitments[0]);
+}
+
+#[test]
+fn sending_generators_and_scalars_to_gpu_produces_correct_commitment_results() {
+    // generate input table
+    let mut table: Vec<&[Scalar]> = Vec::new();
+
+    let data: Vec<Scalar> = vec![
+        curve25519_dalek::scalar::Scalar::from_bytes_mod_order([1; 32]),
+        curve25519_dalek::scalar::Scalar::from_bytes_mod_order([2; 32]),
+        curve25519_dalek::scalar::Scalar::from_bytes_mod_order([3; 32]),
+        curve25519_dalek::scalar::Scalar::from_bytes_mod_order([4; 32]),
+    ];
+
+    table.push(&data);
+
+    let mut rng = OsRng;
+
+    // randomly obtain the generator points
+    let generator_points: Vec<CompressedRistretto> =
+        (0..data.len()).map(|_| RistrettoPoint::random(&mut rng).compress()).collect();
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+
+    compute_commitments_with_scalars_and_generators(
+        &mut commitments,
+        &table,
+        &generator_points
+    );
+
+    let mut expected_commit = match CompressedRistretto::from_slice(&[0 as u8; 32]).decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    for i in 0..generator_points.len() {
+        let g_i = match generator_points[i].decompress() {
+            Some(pt) => pt,
+            None => panic!("Invalid ristretto point decompression")
+        };
+
+        expected_commit = expected_commit + data[i] * g_i;
     }
 
     assert_eq!(commitments[0], expected_commit.compress());

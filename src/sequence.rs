@@ -1,7 +1,7 @@
 // -*- mode: rust; -*-
 //
 // Authors:
-// - Joe <jose@spaceandtime.io>
+// - Joe <joseribeiro1017@gmail.com>
 // - Ryan Burn <ryan@spaceandtime.io>
 
 //! Wrappers for data table

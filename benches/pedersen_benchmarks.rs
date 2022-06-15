@@ -1,92 +1,154 @@
 // -*- mode: rust; -*-
 //
 // Authors:
-// - Joe <jose@spaceandtime.io>
+// - Joe <joseribeiro1017@gmail.com>
 // - Ryan Burn <ryan@spaceandtime.io>
+
+extern crate rand;
+use crate::rand::Rng;
+use rand::thread_rng;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 
 use pedersen::sequence::*;
 use pedersen::commitments::*;
 
+use curve25519_dalek::constants;
+
 mod pedersen_benches {
     use super::*;
+    
+    fn construct_scalars_data(num_commits: usize, num_rows: usize) -> Vec<Vec<Scalar>> {
+        let mut rng = thread_rng();
 
-    fn run_benchmark(num_commits: usize, num_rows: usize, c: &mut Criterion) {
-        init_backend();
+        (0..num_commits)
+            .map(|_| ((0..num_rows).map(|_| Scalar::random(&mut rng)).collect()))
+            .collect()
+    }
 
-        let mut data: Vec<u32> = Vec::with_capacity(num_commits*num_rows);
-        let mut table = Vec::with_capacity(num_commits);
-        let mut commitments = Vec::with_capacity(num_commits);
+    fn construct_sequences_data(num_commits: usize, num_rows: usize) -> Vec<Vec<u32>> {
+        let mut rng = rand::thread_rng();
 
-        for i in 0..(num_commits * num_rows) {
-            data.push(i as u32);
-        }
+        (0..num_commits)
+            .map(|_| ((0..num_rows).map(|_| rng.gen::<u32>()).collect()))
+            .collect()
+            
+    }
 
-        for i in 0..num_commits {
-            table.push(Sequence::Dense(DenseSequence {
-                data_slice: &data[i * num_rows .. (i + 1) * num_rows].as_byte_slice(),
-                element_size: std::mem::size_of::<u32>()
-            }));
+    fn construct_generators(n: usize) -> Vec<CompressedRistretto> {
+        let mut rng = thread_rng();
+        (0..n)
+            .map(|_| (&Scalar::random(&mut rng) * &constants::RISTRETTO_BASEPOINT_TABLE).compress())
+            .collect()
+    }
 
-            commitments.push(CompressedRistretto::from_slice(&[0 as u8; 32]));
-        }
+    fn run_computation(
+        num_commits: usize, num_rows: usize, c: &mut Criterion, use_scalars: bool) {
 
-        let label1: String = num_commits.to_string() + &" commits".to_owned();
-        let label2: String = num_rows.to_string() + &" rows".to_owned();
+        let generators = construct_generators(num_rows);
+        let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); num_commits];
+
+        let num_commits_label: String = num_commits.to_string() + &" commits".to_owned();
+
+        let without_generators_label: String =
+            num_rows.to_string() + &" rows".to_owned() +
+            &" - use scalars (".to_owned() + if use_scalars {"yes"} else {"no"} +
+            &") - use generators (no)".to_owned();
+
+        let wit_generators_label: String =
+            num_rows.to_string() + &" rows".to_owned() +
+            &" - use scalars (".to_owned() + if use_scalars {"yes"} else {"no"} +
+            &") - use generators (yes)".to_owned();
         
-        let mut group = c.benchmark_group(&label1);
+        let mut group = c.benchmark_group(&num_commits_label);
+        
         group.throughput(criterion::Throughput::Elements((num_commits * num_rows) as u64));
-        group.measurement_time(std::time::Duration::from_micros(1));
-        group.sample_size(10);
-        group.sampling_mode(criterion::SamplingMode::Flat);
-        group.bench_function(&label2, |b| b.iter(|| compute_commitments_with_sequences(& mut commitments, &table)));
+        
+        if use_scalars {
+            let data = construct_scalars_data(num_commits, num_rows);
+            let table: Vec<&[Scalar]> = (0..num_commits).map(|i| (&data[i][..])).collect();
+
+            group.bench_function(
+                &without_generators_label, |b| {
+                    b.iter(
+                        || compute_commitments_with_scalars(
+                            & mut commitments, &table
+                        )
+                    )
+                }
+            );
+    
+            group.bench_function(
+                &wit_generators_label, |b| {
+                    b.iter(
+                        || compute_commitments_with_scalars_and_generators(
+                            & mut commitments, &table, &generators
+                        )
+                    )
+                }
+            );
+        } else {
+            let data = construct_sequences_data(num_commits, num_rows);
+            let table: Vec<Sequence> = (0..num_commits).map(|i| (
+                Sequence::Dense(DenseSequence {
+                    data_slice: &data[i].as_byte_slice(),
+                    element_size: std::mem::size_of_val(&data[i][0])
+                }))
+            ).collect();
+
+            group.bench_function(
+                &without_generators_label, |b| {
+                    b.iter(
+                        || compute_commitments_with_sequences(
+                            & mut commitments, &table
+                        )
+                    )
+                }
+            );
+
+            group.bench_function(
+                &wit_generators_label, |b| {
+                    b.iter(
+                        || compute_commitments_with_sequences_and_generators(
+                            & mut commitments, &table, &generators
+                        )
+                    )
+                }
+            );
+        }
+
         group.finish();
     }
+    
+    fn batch_commitment_computation_with_scalars(c: &mut Criterion) {
+        init_backend();
 
-    fn batch_1_commitment_computation(c: &mut Criterion) {
-        let rows = vec![1, 10, 100, 1000, 10000, 100000, 1000000];
+        let bench_runs = vec![
+            (1, vec![1, 10, 100, 1000, 10000, 100000, 1000000]), // 1 commits
+            (10, vec![10, 100, 1000]), // 10 commits
+            (100, vec![10, 100, 1000]), // 100 commits
+            (1000, vec![10, 100, 1000]), // 1000 commits
+        ];
 
-        for i in rows {
-            run_benchmark(1, i, c);
-        }
-    }
-
-    fn batch_10_commitments_computation(c: &mut Criterion) {
-        let rows = vec![10, 100, 1000];
-
-        for i in rows {
-            run_benchmark(10, i, c);
-        }
-    }
-
-    fn batch_100_commitments_computation(c: &mut Criterion) {
-        let rows = vec![10, 100, 1000];
-
-        for i in rows {
-            run_benchmark(100, i, c);
-        }
-    }
-
-    fn batch_1000_commitments_computation(c: &mut Criterion) {
-        let rows = vec![10, 100, 1000];
-
-        for i in rows {
-            run_benchmark(1000, i, c);
+        // iterate through the num_commits
+        for curr_bench in bench_runs {
+            // iterate through the num_rows
+            for i in curr_bench.1 {
+                run_computation(curr_bench.0, i, c, false);
+                run_computation(curr_bench.0, i, c, true);
+            }
         }
     }
 
     criterion_group! {
-        name = pedersen_benches;
-        config = Criterion::default();
+        name = pedersen_compute_commitments;
+        // Lower the sample size to run the benchmarks faster
+        config = Criterion::default().sample_size(15);
         targets =
-            batch_1_commitment_computation,
-            batch_10_commitments_computation,
-            batch_100_commitments_computation,
-            batch_1000_commitments_computation
+            batch_commitment_computation_with_scalars
     }
 }
 
 criterion_main!(
-    pedersen_benches::pedersen_benches
+    pedersen_benches::pedersen_compute_commitments
 );
