@@ -54,7 +54,7 @@ fn main() {
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments_with_scalars_and_generators(
+    compute_commitments_with_generators(
         &mut commitments,
         &table,
         &gs

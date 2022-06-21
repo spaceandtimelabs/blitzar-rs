@@ -6,6 +6,8 @@
 
 //! Wrappers for data table
 
+use std::ptr;
+
 /// This `DenseSequence` stores the slice view
 /// of a contiguous column data table.
 /// It doesn't matter how the data is represented.
@@ -59,6 +61,46 @@ pub struct DenseSequence<'a> {
     pub element_size: usize
 }
 
+impl<'a> DenseSequence<'_> {
+    pub(super) fn to_data_properties(& self) -> (u8, usize,  *const u8,  *const u64) {
+        if (*self).data_slice.len() % (*self).element_size != 0 {
+            panic!("Error: data_slice length is not a multiple of element_size in the dense object");
+        }
+        
+        let num_rows = (*self).data_slice.len() / (*self).element_size;
+
+        ((*self).element_size as u8, num_rows as usize, (*self).data_slice.as_ptr(), ptr::null())
+    }
+}
+
+///
+pub struct SparseSequence<'a> {
+    ///
+    pub data_slice: &'a [u8],
+
+    ///
+    pub element_size: usize,
+
+    ///
+    pub data_indices: &'a [u64]
+}
+
+impl<'a> SparseSequence<'_> {
+    pub(super) fn to_data_properties(& self) -> (u8, usize,  *const u8,  *const u64) {
+        if (*self).data_slice.len() % (*self).element_size != 0 {
+            panic!("Error: data_slice length is not a multiple of element_size in the sparse object");
+        }
+        
+        let num_rows = (*self).data_slice.len() / (*self).element_size;
+
+        if num_rows != (*self).data_indices.len() {
+            panic!("Error: Number of rows differs from the data_indices length in the sparse object");
+        }
+
+        ((*self).element_size as u8, num_rows as usize, (*self).data_slice.as_ptr(), (*self).data_indices.as_ptr())
+    }
+}
+
 /// Defines multiple wrappers so that all of them
 /// can be stored in the same vector array.
 /// We currently only support `Dense` structures,
@@ -79,5 +121,7 @@ pub struct DenseSequence<'a> {
 /// ```
 pub enum Sequence<'a> {
     /// A simple enum wrapper to a DenseSequence structure
-    Dense(DenseSequence<'a>)
+    Dense(DenseSequence<'a>),
+    ///
+    Sparse(SparseSequence<'a>)
 }

@@ -9,6 +9,7 @@
 extern crate proofs_gpu;
 extern crate curve25519_dalek;
 
+use std::ptr;
 use std::cmp;
 use std::sync::Once;
 
@@ -115,7 +116,6 @@ fn to_sxt_ristretto_elements(num_sequences: usize)
     return cbinding_commitments;
 }
 
-
 fn to_sxt_ristretto_generators(generators: &[CompressedRistretto])
     -> Vec<proofs_gpu::sxt_ristretto_element> {
 
@@ -134,65 +134,55 @@ fn to_sxt_ristretto_generators(generators: &[CompressedRistretto])
     return cbinding_generators;
 }
 
-/// `from_sequences_to_sxt_descriptors` converts the data table from the 
-/// sequence slice to the lower-level sys crate 
-/// `sxt_sequence_descriptor` vector struct.
-///
-/// # Panics
-///
-/// If some data_slice has a `data_slice.len()` that is not a multiple of `element_size`
-fn from_sequences_to_sxt_descriptors(data: & [Sequence])
-     -> (Vec<proofs_gpu::sxt_sequence_descriptor>, usize) {
-
-    let mut longest_row: usize = 0;
-    let num_sequences = data.len();
-    let mut cbinding_descriptors: Vec<proofs_gpu::
-        sxt_sequence_descriptor> = Vec::with_capacity(num_sequences);
-
-    unsafe {
-        // sets the correct size for the `cbinding_descriptors` vector
-        cbinding_descriptors.set_len(num_sequences);
+// sealed trait from the outside package
+mod private {
+    pub trait Descriptor {
+        fn to_sxt_descriptor(& self) -> (usize, proofs_gpu::sxt_sequence_descriptor);
     }
-
-    // populate the `cbinding_descriptors` vector array
-    for i in 0..num_sequences {
-        let curr_data = match &data[i] {
-            Sequence::Dense(x) => x
-        };
-
-        if curr_data.data_slice.len() % curr_data.element_size != 0 {
-            panic!("Error computing the number of rows in the data_slice");
-        }
-        
-        let num_rows = curr_data.data_slice.len() / curr_data.element_size;
-
-        longest_row = cmp::max(longest_row, num_rows);
-
-        let descriptor = proofs_gpu::sxt_dense_sequence_descriptor {
-            element_nbytes: curr_data.element_size as u8,  // number bytes
-            n: num_rows as u64,            // number rows
-            data: curr_data.data_slice.as_ptr()   // data pointer
-        };
-
-        cbinding_descriptors[i] = proofs_gpu::sxt_sequence_descriptor {
-            sequence_type: proofs_gpu::SXT_DENSE_SEQUENCE_TYPE as u8,
-            __bindgen_anon_1: proofs_gpu::sxt_sequence_descriptor__bindgen_ty_1 {
-                dense: descriptor
-            }
-        };
-    }
-
-    return (cbinding_descriptors, longest_row);
 }
 
-/// `from_sequences_to_sxt_descriptors` converts the data table from the 
+impl<'a> private::Descriptor for Sequence<'a> {
+    fn to_sxt_descriptor(& self) -> (usize, proofs_gpu::sxt_sequence_descriptor) {
+        let (element_nbytes, num_rows, data, indices) = match self {
+            Sequence::Dense(x) => x.to_data_properties(),
+            Sequence::Sparse(y) => y.to_data_properties()
+        };
+
+        let descriptor = proofs_gpu::sxt_sequence_descriptor {
+            element_nbytes: element_nbytes,
+            n: num_rows as u64,
+            data: data,
+            indices: indices
+        };
+
+        return (num_rows, descriptor);
+    }
+}
+
+impl private::Descriptor for &[Scalar] {
+    fn to_sxt_descriptor(& self) -> (usize, proofs_gpu::sxt_sequence_descriptor) {
+        println!("Hellow world");
+        let num_rows = (*self).len();
+
+        let descriptor = proofs_gpu::sxt_sequence_descriptor {
+            element_nbytes: 32,  // number bytes
+            n: num_rows as u64,            // number rows
+            data: (*self).as_ptr() as *const u8,  // data pointer
+            indices: ptr::null()
+        };
+
+        return (num_rows, descriptor);
+    }
+}
+
+/// `to_sxt_descriptors` converts the data table from the 
 /// sequence slice to the lower-level sys crate 
 /// `sxt_sequence_descriptor` vector struct.
 ///
 /// # Panics
 ///
 /// If some data_slice has a `data_slice.len()` that is not a multiple of `element_size`
-fn from_scalars_to_sxt_descriptors(data: & [&[Scalar]])
+fn to_sxt_descriptors<T: private::Descriptor>(data: & [T])
      -> (Vec<proofs_gpu::sxt_sequence_descriptor>, usize) {
 
     let mut longest_row: usize = 0;
@@ -207,22 +197,11 @@ fn from_scalars_to_sxt_descriptors(data: & [&[Scalar]])
 
     // populate the `cbinding_descriptors` vector array
     for i in 0..num_sequences {
-        let num_rows = data[i].len();
+        let (num_rows, descriptor) = data[i].to_sxt_descriptor();
 
         longest_row = cmp::max(longest_row, num_rows);
 
-        let descriptor = proofs_gpu::sxt_dense_sequence_descriptor {
-            element_nbytes: 32,  // number bytes
-            n: num_rows as u64,            // number rows
-            data: data[i].as_ptr() as *const u8  // data pointer
-        };
-
-        cbinding_descriptors[i] = proofs_gpu::sxt_sequence_descriptor {
-            sequence_type: proofs_gpu::SXT_DENSE_SEQUENCE_TYPE as u8,
-            __bindgen_anon_1: proofs_gpu::sxt_sequence_descriptor__bindgen_ty_1 {
-                dense: descriptor
-            }
-        };
+        cbinding_descriptors[i] = descriptor;
     }
 
     return (cbinding_descriptors, longest_row);
@@ -274,238 +253,6 @@ fn process_compute_commitments(
     }
 
     to_pedersen_commitments(commitments, &sxt_ristretto_elements);
-}
-
-/// Computes the Pedersen commitment for a given input data.
-///
-/// In total, the function computes `data.len()` commitments,
-/// which is related with the total number of columns in the data table. The commitment
-/// results are stored as 256-bit Ristretto points in the `commitments` variable.
-///
-/// The j-th Pedersen commitment is a 256-bit Ristretto point C_j over the
-/// curve25519 elliptic curve that is cryptographically binded to a data message vector M_j:
-/// 
-/// ```text
-/// let el_size = data[j].element_size; // sizeof of each element in the current j-th column
-/// let num_rows = data[j].data_slice.len() / el_size; // number of rows in the j-th column
-///
-/// let M_j = [
-///    data[j].data_slice[0:el_size],
-///    data[j].data_slice[el_size:2*el_size],
-///    data[j].data_slice[2*el_size:3*el_size],
-///    .,
-///    .,
-///    .,
-///    data[j].data_slice[(num_rows-1)*el_size:num_rows*el_size]
-/// ];
-/// ```
-///
-/// This message M_j cannot be decrypted from C_j. The curve point C_j
-/// is generated in a unique way using M_j and a
-/// set of random 1280-bit curve25519 points G_i, called row generators.
-/// The total number of generators used to compute C_j is equal to 
-/// the number of `num_rows` in the data\[j] sequence. The following formula
-/// is specified to obtain the C_j commitment:
-///
-/// ```text
-/// let C_j_temp = 0; // this is a 1280-bit curve25519 point
-///
-/// for j in 0..num_rows {
-///     let G_i = get_random_ristretto_point(j);
-///     let curr_data_ji = data[j].data_slice[i*el_size:(i + 1)*el_size];
-///     C_j_temp = C_j_temp + curr_data_ji * G_i;
-/// }
-///
-/// let C_j = convert_to_ristretto(C_j_temp); // this is a 256-bit Ristretto point
-/// ```
-///
-/// Ps: the above is only illustrative code. It will not compile.
-///
-/// Here `curr_data_ji` are simply 256-bit scalars, C_j_temp and G_i are
-/// 1280-bit curve25519 points, and C_j is a 256-bit Ristretto point.
-/// 
-/// Given M_j and G_i, it is easy to verify that the Pedersen
-/// commitment C_j is the correctly generated output. However,
-/// the Pedersen commitment generated from M_j and G_i is cryptographically
-/// binded to the message M_j because finding alternative inputs M_j* and 
-/// G_i* for which the Pedersen commitment generates the same point C_j
-/// requires an infeasible amount of computation.
-///
-/// To guarantee proper execution, so that the backend is correctly setted,
-/// this `compute_commitments` always calls the `init_backend()` function.
-/// 
-/// Portions of this documentations was extracted from
-/// [here](findora.org/faq/crypto/pedersen-commitment-with-elliptic-curves/)
-///
-/// # Arguments
-///
-/// * `commitments` - A slice view of a CompressedRistretto memory area where the 
-///                256-bit Ristretto point results will be written to. Please,
-///                you need to guarantee that this slice captures exactly
-///                data.len() element positions.
-///
-/// * `data` - A slice view of a [Sequence] memory area, which captures the
-///         slices of contiguous u8 memory elements. Given that each sequence
-///         data\[i] captures an unsigned char slice view, you need to guarantee
-///         that it captures the correct amount of bytes that can reflect
-///         your desired amount of `num_rows` in the sequence. After all,
-///         we infer the `num_rows` from data\[i].data_slice.len() / data\[i].element_size
-///
-///
-/// # Panics
-///
-/// If the compute commitments execution in the GPU / CPU fails, or If
-/// the data.len() value is different from the commitments.len() value.
-///
-/// # Example 1 - Simple Commitment Computation
-///
-/// Computes the j commitment of each table column j containing m\[j].len() rows,
-/// using for that the random generators G given by our proofs-gpu code:
-///
-/// ```no_run
-#[doc = include_str!("../../examples/simple_commitment.rs")]
-/// ```
-///
-/// Run the example:
-/// ```text
-/// cargo run --features cpu --example simple_commitment
-/// ```
-///
-/// # Example 2 - Adding and Multiplying Commitments
-///
-/// Let u = \[2000, 7500, 5000, 1500] be the 
-/// weekly pay vector and and v = \[50000, 0, 400000, 0]
-// be the yearly bonus vector. We can compute the commitments to each column:
-///
-/// ```text
-/// C_u = 2000 * g_0 + 7500 * g_1 + 5000 * g_2 + 1500 * g_3
-/// C_v = 50000 * g_0 + 0 * g_1 + 400000 * g_2 + 0 * g_3
-/// ```
-/// Recall, that C_u, C_v ∈ G (the Ristretto group over curve25519) are
-/// both 32-bytes. At some point, we may wish to
-/// compute the total compensation using the formula
-/// 
-/// ```Total Compensation = 52 × Weekly Pay + Yearly Bonus```
-///
-/// Let w = \[154000, 390000, 660000, 78000] be
-/// the total compensation vector. Note, we can write w = 52u + v, which means
-/// that by the homomorphic property of the commitment,
-///
-/// ```C_w = Commit(w) = Commit(52u + v) = 52 Commit(u) + Commit(v) = 52C_u + C_v```
-///
-/// ```no_run
-#[doc = include_str!("../../examples/add_mult_commitments.rs")]
-/// ```
-///
-/// Run the example:
-///
-///```text
-///cargo run --features gpu --example add_mult_commitments
-///```
-pub fn compute_commitments_with_sequences(
-    commitments: & mut[CompressedRistretto], data: & [Sequence])  {
-
-    let (sxt_descriptors, _longest_row) = from_sequences_to_sxt_descriptors(data);
-
-    process_compute_commitments(commitments, &sxt_descriptors);
-}
-
-/// Computes the Pedersen commitment for a given input data.
-///
-/// In total, the function computes `data.len()` commitments,
-/// which is related with the total number of columns in the data table. The commitment
-/// results are stored as 256-bit Ristretto points in the `commitments` variable.
-///
-/// The j-th Pedersen commitment is a 256-bit Ristretto point C_j over the
-/// curve25519 elliptic curve that is cryptographically binded to a data message vector M_j:
-/// 
-/// ```text
-/// let el_size = 32; // sizeof of each element in the current j-th column
-/// let num_rows = data[j].len(); // number of rows in the j-th column
-///
-/// let M_j = [
-///    data[j][0],
-///    data[j][1],
-///    data[j][2],
-///    .,
-///    .,
-///    .,
-///    data[j][num_rows - 1]
-/// ];
-/// ```
-///
-/// This message M_j cannot be decrypted from C_j. The curve point C_j
-/// is generated in a unique way using M_j and a
-/// set of random 1280-bit curve25519 points G_i, called row generators.
-/// The total number of generators used to compute C_j is equal to 
-/// the number of `num_rows` in the data\[j] sequence. The following formula
-/// is specified to obtain the C_j commitment:
-///
-/// ```text
-/// let C_j_temp = 0; // this is a 1280-bit curve25519 point
-///
-/// for j in 0..num_rows {
-///     let G_i = get_random_ristretto_point(j);
-///     let curr_data_ji = data[j][i];
-///     C_j_temp = C_j_temp + curr_data_ji * G_i;
-/// }
-///
-/// let C_j = convert_to_ristretto(C_j_temp); // this is a 256-bit Ristretto point
-/// ```
-///
-/// Ps: the above is only illustrative code. It will not compile.
-///
-/// Here `curr_data_ji` are simply 256-bit scalars, C_j_temp and G_i are
-/// 1280-bit curve25519 points, and C_j is a 256-bit Ristretto point.
-/// 
-/// Given M_j and G_i, it is easy to verify that the Pedersen
-/// commitment C_j is the correctly generated output. However,
-/// the Pedersen commitment generated from M_j and G_i is cryptographically
-/// binded to the message M_j because finding alternative inputs M_j* and 
-/// G_i* for which the Pedersen commitment generates the same point C_j
-/// requires an infeasible amount of computation.
-///
-/// To guarantee proper execution, so that the backend is correctly setted,
-/// this `compute_commitments` always calls the `init_backend()` function.
-/// 
-/// Portions of this documentations was extracted from
-/// [here](findora.org/faq/crypto/pedersen-commitment-with-elliptic-curves/)
-///
-/// # Arguments
-///
-/// * `commitments` - A slice view of a CompressedRistretto memory area where the 
-///                256-bit Ristretto point results will be written to. Please,
-///                you need to guarantee that this slice captures exactly
-///                data.len() element positions.
-///
-/// * `data` - A slice view of a &[Scalar] memory area, which captures the
-///         slices of contiguous Dalek Scalar elements.
-///
-///
-/// # Panics
-///
-/// If the compute commitments execution in the GPU / CPU fails or If
-/// the data.len() is different from the commitments.len() value.
-///
-/// # Example 1 - Compute Commitments with Dalek Scalars
-///
-/// Computes the j commitment of each table column j containing m\[j].len() rows,
-/// using for that the random generators G given by our proofs-gpu code:
-///
-/// ```no_run
-#[doc = include_str!("../../examples/simple_scalars_commitment.rs")]
-/// ```
-///
-/// Run the example:
-/// ```text
-/// cargo run --features cpu --example simple_scalars_commitment
-/// ```
-pub fn compute_commitments_with_scalars(
-    commitments: & mut[CompressedRistretto], data: & [&[Scalar]])  {
-
-    let (sxt_descriptors, _longest_row) = from_scalars_to_sxt_descriptors(data);
-    
-    process_compute_commitments(commitments, &sxt_descriptors);
 }
 
 fn process_compute_commitments_with_generators(
@@ -643,124 +390,24 @@ fn process_compute_commitments_with_generators(
 /// ```text
 /// cargo run --features cpu --example pass_generators_to_commitment
 /// ```
-pub fn compute_commitments_with_sequences_and_generators(
-    commitments: & mut[CompressedRistretto], 
-    data: & [Sequence], generators: &[CompressedRistretto])  {
+pub fn compute_commitments<T: private::Descriptor>(
+    commitments: & mut[CompressedRistretto], data: & [T])  {
 
-    let (sxt_descriptors, longest_row) = from_sequences_to_sxt_descriptors(data);
+    let (sxt_descriptors, _longest_row) = to_sxt_descriptors(data);
 
-    process_compute_commitments_with_generators(
+    process_compute_commitments(
         commitments,
-        &sxt_descriptors,
-        longest_row,
-        generators
+        &sxt_descriptors
     );
 }
 
-/// Computes the Pedersen commitment for a given input data.
 ///
-/// In total, the function computes `data.len()` commitments,
-/// which is related with the total number of columns in the data table. The commitment
-/// results are stored as 256-bit Ristretto points in the `commitments` variable.
-///
-/// The j-th Pedersen commitment is a 256-bit Ristretto point C_j over the
-/// curve25519 elliptic curve that is cryptographically binded to a data message vector M_j:
-/// 
-/// ```text
-/// let el_size = 32; // sizeof of each element in the current j-th column
-/// let num_rows = data[j].len(); // number of rows in the j-th column
-///
-/// let M_j = [
-///    data[j][0],
-///    data[j][1],
-///    data[j][2],
-///    .,
-///    .,
-///    .,
-///    data[j][num_rows - 1]
-/// ];
-/// ```
-///
-/// This message M_j cannot be decrypted from C_j. The curve point C_j
-/// is generated in a unique way using M_j and a
-/// set of 1280-bit curve25519 points G_i, called row generators.
-/// Although our gpu code uses 1280-bit generators during the scalar 
-/// multiplication, these generators are passed as 256-bit Ristretto points
-/// and only converted to 1280-bit points inside the GPU/CPU.
-/// The total number of generators used to compute C_j is equal to 
-/// the number of `num_rows` in the data\[j] sequence. The following formula
-/// is specified to obtain the C_j commitment:
-///
-/// ```text
-/// let C_j_temp = 0; // this is a 1280-bit curve25519 point
-///
-/// for j in 0..num_rows {
-///     let G_i = generators[j].decompress(); // we decompress to convert 256-bit to 1280-bit points
-///     let curr_data_ji = data[j][i];
-///     C_j_temp = C_j_temp + curr_data_ji * G_i;
-/// }
-///
-/// let C_j = convert_to_ristretto(C_j_temp); // this is a 256-bit Ristretto point
-/// ```
-///
-/// Ps: the above is only illustrative code. It will not compile.
-///
-/// Here `curr_data_ji` are simply 256-bit scalars, C_j_temp and G_i are
-/// 1280-bit curve25519 points, and C_j is a 256-bit Ristretto point.
-/// 
-/// Given M_j and G_i, it is easy to verify that the Pedersen
-/// commitment C_j is the correctly generated output. However,
-/// the Pedersen commitment generated from M_j and G_i is cryptographically
-/// binded to the message M_j because finding alternative inputs M_j* and 
-/// G_i* for which the Pedersen commitment generates the same point C_j
-/// requires an infeasible amount of computation.
-///
-/// To guarantee proper execution, so that the backend is correctly setted,
-/// this `compute_commitments` always calls the `init_backend()` function.
-/// 
-/// Portions of this documentations was extracted from
-/// [here](findora.org/faq/crypto/pedersen-commitment-with-elliptic-curves/)
-///
-/// # Arguments
-///
-/// * `commitments` - A slice view of a CompressedRistretto memory area where the 
-///                256-bit Ristretto point results will be written to. Please,
-///                you need to guarantee that this slice captures exactly
-///                data.len() element positions.
-///
-/// * `data` - A slice view of a &[Scalar] memory area, which captures the
-///         slices of contiguous Dalek Scalar elements.
-///
-/// * `generators` - A sliced view of a CompressedRistretto memory area where the
-///               256-bit Ristretto Point generators used in the commitment computation are
-///               stored into. Bear in mind that the size of this slice must always be greater
-///               or equal to the longest sequence, in terms of rows, in the table.
-///
-/// # Panics
-///
-/// If the compute commitments execution in the GPU / CPU fails, If the longest sequence
-/// in the input data is bigger than the generators` length, or If
-/// the data.len() value is different from the commitments.len() value.
-///
-/// # Example - Computing Commitments with user specified generators
-///
-/// Computes the j commitment of each table column j containing m\[j].len() rows, 
-/// using for that the random generators G given by our proofs-gpu code:
-///
-/// ```no_run
-#[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
-/// ```
-///
-/// Run the example:
-/// ```text
-/// cargo run --features cpu --example pass_generators_and_scalars_to_commitment
-/// ```
-pub fn compute_commitments_with_scalars_and_generators(
-    commitments: & mut[CompressedRistretto],
-    data: & [&[Scalar]], generators: &[CompressedRistretto])  {
+pub fn compute_commitments_with_generators<T: private::Descriptor>(
+    commitments: & mut[CompressedRistretto], 
+    data: & [T], generators: &[CompressedRistretto])  {
 
-    let (sxt_descriptors, longest_row) = from_scalars_to_sxt_descriptors(data);
-    
+    let (sxt_descriptors, longest_row) = to_sxt_descriptors(data);
+
     process_compute_commitments_with_generators(
         commitments,
         &sxt_descriptors,

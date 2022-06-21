@@ -71,7 +71,7 @@ mod pedersen_benches {
             group.bench_function(
                 &without_generators_label, |b| {
                     b.iter(
-                        || compute_commitments_with_scalars(
+                        || compute_commitments(
                             & mut commitments, &table
                         )
                     )
@@ -81,7 +81,7 @@ mod pedersen_benches {
             group.bench_function(
                 &wit_generators_label, |b| {
                     b.iter(
-                        || compute_commitments_with_scalars_and_generators(
+                        || compute_commitments_with_generators(
                             & mut commitments, &table, &generators
                         )
                     )
@@ -99,7 +99,7 @@ mod pedersen_benches {
             group.bench_function(
                 &without_generators_label, |b| {
                     b.iter(
-                        || compute_commitments_with_sequences(
+                        || compute_commitments(
                             & mut commitments, &table
                         )
                     )
@@ -109,7 +109,7 @@ mod pedersen_benches {
             group.bench_function(
                 &wit_generators_label, |b| {
                     b.iter(
-                        || compute_commitments_with_sequences_and_generators(
+                        || compute_commitments_with_generators(
                             & mut commitments, &table, &generators
                         )
                     )

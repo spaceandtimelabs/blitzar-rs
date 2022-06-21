@@ -39,7 +39,7 @@ fn main() {
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments_with_scalars(& mut commitments, &table);
+    compute_commitments(& mut commitments, &table);
 
     for i in 0..commitments.len() {
         println!("commitment {}: {:?}\n", i, commitments[i]);

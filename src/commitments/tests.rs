@@ -7,6 +7,7 @@
 #![allow(unused_imports)]
 
 use super::*;
+use crate::sequence::SparseSequence;
 use crate::sequence::DenseSequence;
 
 extern crate rand_core;
@@ -16,17 +17,18 @@ use rand_core::OsRng;
 #[test]
 fn compute_commitments_works() {
     // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-    
     let data: Vec<u32> = vec![2000, 7500, 5000, 1500];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data[0])
-    }));
-
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 1];
     
-    compute_commitments_with_sequences(& mut commitments, &table);
+    compute_commitments(
+        & mut commitments,
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &data.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data[0])
+            })
+        ]
+    );
 
     let expected_commit = CompressedRistretto::from_slice(
         &([
@@ -43,10 +45,38 @@ fn compute_commitments_works() {
 }
 
 #[test]
+fn compute_sparse_commitments_works() {
+    // generate input table
+    let sparse_data: Vec<u32> = vec![1, 2, 3, 4, 9];
+    let sparse_indices: Vec<u64> = vec![0, 2, 4, 5, 9];
+    let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];
+
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 2];
+    
+    compute_commitments(
+        & mut commitments, 
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &dense_data.as_byte_slice(),
+                element_size: std::mem::size_of_val(&dense_data[0])
+            }),
+            Sequence::Sparse(SparseSequence {
+                data_slice: &sparse_data.as_byte_slice(),
+                element_size: std::mem::size_of_val(&sparse_data[0]),
+                data_indices: &sparse_indices
+            })
+        ]
+    );
+
+    // verify if commitment results are correct
+    assert_eq!(commitments[0], commitments[1]);
+    assert_ne!(CompressedRistretto::from_slice(&[0 as u8; 32]), commitments[0]);
+    assert_ne!(CompressedRistretto::from_slice(&[0 as u8; 32]), commitments[1]);
+}
+
+#[test]
 fn compute_commitments_with_scalars_works() {
     // generate input table
-    let mut table: Vec<&[Scalar]> = Vec::new();
-    
     let mut data: Vec<Scalar> = vec![Scalar::zero(); 4];
     
     for _i in 0..2000 { data[0] = data[0] + Scalar::one(); }
@@ -54,11 +84,9 @@ fn compute_commitments_with_scalars_works() {
     for _i in 0..5000 { data[2] = data[2] + Scalar::one(); }
     for _i in 0..1500 { data[3] = data[3] + Scalar::one(); }
 
-    table.push(&data);
-
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 1];
     
-    compute_commitments_with_scalars(& mut commitments, &table);
+    compute_commitments(& mut commitments, &[&data[..]]);
 
     let expected_commit = CompressedRistretto::from_slice(
         &([
@@ -77,29 +105,29 @@ fn compute_commitments_with_scalars_works() {
 #[test]
 fn commit_a_plus_commit_b_equal_to_commit_c() {
     // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-    
     let data_a: Vec<u16> = vec![2000, 7500, 5000, 1500];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_a.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_a[0])
-    }));
-
     let data_b: Vec<u32> = vec![5000, 0, 400000, 10, 0, 0];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_b.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_b[0])
-    }));
-
     let data_c: Vec<u64> = vec![2000 + 5000, 7500 + 0, 5000 + 400000, 1500 + 10];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_c.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_c[0])
-    }));
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 3];
     
-    compute_commitments_with_sequences(& mut commitments, &table);
+    compute_commitments(
+        & mut commitments,
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_a.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_a[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_b.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_b[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_c.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_c[0])
+            })
+        ]
+    );
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -131,35 +159,34 @@ fn commit_a_plus_commit_b_equal_to_commit_c() {
 #[test]
 fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
     // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-    
     let data_a: Vec<u16> = vec![1];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_a.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_a[0])
-    }));
-
     let data_b: Vec<u32> = vec![1];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_b.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_b[0])
-    }));
-
     let data_c: Vec<u64> = vec![1];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_c.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_c[0])
-    }));
-
     let data_d: Vec<u64> = vec![3];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_d.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_d[0])
-    }));
-
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
     
-    compute_commitments_with_sequences(& mut commitments, &table);
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 4];
+    
+    compute_commitments(
+        & mut commitments,
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_a.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_a[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_b.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_b[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_c.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_c[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_d.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_d[0])
+            })
+        ]
+    );
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -193,30 +220,31 @@ fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
 fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
     // generate input table
     let sc: u64 = 52;
-    let mut table: Vec<Sequence> = Vec::new();
-    
+
     let data_a: Vec<u16> = vec![2000, 7500, 5000, 1500];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_a.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_a[0])
-    }));
-
     let data_b: Vec<u32> = vec![5000, 0, 400000, 10, 0, 0];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_b.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_b[0])
-    }));
-
     let data_c: Vec<u64> = vec![sc * 2000 + 5000, 
         sc * 7500 + 0, sc * 5000 + 400000, sc * 1500 + 10];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_c.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_c[0])
-    }));
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 3];
     
-    compute_commitments_with_sequences(& mut commitments, &table);
+    compute_commitments(
+        & mut commitments,
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_a.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_a[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_b.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_b[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_c.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_c[0])
+            })
+        ]
+    );
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -255,31 +283,31 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
 #[test]
 fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
     // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-
     let a: i8 = -128;
-    let data_a: Vec<u16> = vec![a as u16];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_a.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_a[0])
-    }));
-
     let b: i8 = -128;
+    let data_a: Vec<u16> = vec![a as u16];
     let data_b: Vec<u16> = vec![b as u16];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_b.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_b[0])
-    }));
-
     let data_c: Vec<u32> = vec![130816];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_c.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_c[0])
-    }));
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 3];
     
-    compute_commitments_with_sequences(& mut commitments, &table);
+    compute_commitments(
+        & mut commitments,
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_a.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_a[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_b.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_b[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_c.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_c[0])
+            })
+        ]
+    );
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -308,30 +336,16 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
 #[test]
 fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to_commit_d() {
     // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-
     let data_a: Vec<u64> = vec![
         6346243789798364141,
         1503914060200516822,
         1,
         1152921504606846976
     ];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_a.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_a[0])
-    }));
 
     let data_b: Vec<u32> = vec![123, 733];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_b.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_b[0])
-    }));
 
     let data_c: Vec<u8> = vec![121, 200, 135];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_c.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_c[0])
-    }));
 
     let data_d: Vec<u64> = vec![
         6346243789798364385,
@@ -339,14 +353,30 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
         136,
         1152921504606846976
     ];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data_d.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data_d[0])
-    }));
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 4];
     
-    compute_commitments_with_sequences(& mut commitments, &table);
+    compute_commitments(
+        & mut commitments,
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_a.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_a[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_b.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_b[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_c.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_c[0])
+            }),
+            Sequence::Dense(DenseSequence {
+                data_slice: &data_d.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data_d[0])
+            })
+        ]
+    );
 
     let commit_a = match commitments[0].decompress() {
         Some(pt) => pt,
@@ -383,18 +413,10 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
 #[test]
 fn get_generators_is_the_same_used_in_commitment_computation() {
     // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-
-    let data: Vec<u16> = vec![
-        2, 3, 1, 5, 4, 7, 6, 8, 9, 10
-    ];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data[0])
-    }));
+    let data: Vec<u16> = vec![2, 3, 1, 5, 4, 7, 6, 8, 9, 10];
 
     let mut generators = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); data.len()];
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 1];
 
     // convert the generator points to compressed ristretto
     get_generators(
@@ -402,9 +424,14 @@ fn get_generators_is_the_same_used_in_commitment_computation() {
         0 as u64
     );
 
-    compute_commitments_with_sequences(
+    compute_commitments(
         &mut commitments,
-        &table
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &data.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data[0])
+            })
+        ]
     );
 
     let mut expected_commit = match CompressedRistretto::from_slice(&[0 as u8; 32]).decompress() {
@@ -434,20 +461,12 @@ fn get_generators_is_the_same_used_in_commitment_computation() {
 #[test]
 fn get_generators_with_offset_is_the_same_used_in_commitment_computation() {
     // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-
-    let data: Vec<u32> = vec![
-        0, 0, 0, 0, 4, 7, 6, 8, 9, 10, 0, 0, 0
-    ];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data[0])
-    }));
+    let data: Vec<u32> = vec![0, 0, 0, 0, 4, 7, 6, 8, 9, 10, 0, 0, 0];
 
     let offset_generators: usize = 4;
     let generators_len = data.len() - offset_generators - 3;
     let mut generators = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); generators_len];
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 1];
 
     // convert the generator points to compressed ristretto
     
@@ -456,9 +475,14 @@ fn get_generators_with_offset_is_the_same_used_in_commitment_computation() {
         offset_generators as u64
     );
 
-    compute_commitments_with_sequences(
+    compute_commitments(
         &mut commitments,
-        &table
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &data.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data[0])
+            })
+        ]
     );
 
     let mut expected_commit = match CompressedRistretto::from_slice(&[0 as u8; 32]).decompress() {
@@ -488,26 +512,23 @@ fn get_generators_with_offset_is_the_same_used_in_commitment_computation() {
 #[test]
 fn sending_generators_to_gpu_produces_correct_commitment_results() {
     // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-
-    let data: Vec<u64> = vec![
-        2, 3, 1, 5, 4, 7, 6, 8, 9, 10
-    ];
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data[0])
-    }));
+    let data: Vec<u64> = vec![2, 3, 1, 5, 4, 7, 6, 8, 9, 10];
 
     let mut rng = OsRng;
 
     // randomly obtain the generator points
     let generator_points: Vec<CompressedRistretto> =
         (0..data.len()).map(|_| RistrettoPoint::random(&mut rng).compress()).collect();
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 1];
 
-    compute_commitments_with_sequences_and_generators(
+    compute_commitments_with_generators(
         &mut commitments,
-        &table,
+        &[
+            Sequence::Dense(DenseSequence {
+                data_slice: &data.as_byte_slice(),
+                element_size: std::mem::size_of_val(&data[0])
+            })
+        ],
         &generator_points
     );
 
@@ -538,8 +559,6 @@ fn sending_generators_to_gpu_produces_correct_commitment_results() {
 #[test]
 fn sending_generators_and_scalars_to_gpu_produces_correct_commitment_results() {
     // generate input table
-    let mut table: Vec<&[Scalar]> = Vec::new();
-
     let data: Vec<Scalar> = vec![
         curve25519_dalek::scalar::Scalar::from_bytes_mod_order([1; 32]),
         curve25519_dalek::scalar::Scalar::from_bytes_mod_order([2; 32]),
@@ -547,18 +566,16 @@ fn sending_generators_and_scalars_to_gpu_produces_correct_commitment_results() {
         curve25519_dalek::scalar::Scalar::from_bytes_mod_order([4; 32]),
     ];
 
-    table.push(&data);
-
     let mut rng = OsRng;
 
     // randomly obtain the generator points
     let generator_points: Vec<CompressedRistretto> =
         (0..data.len()).map(|_| RistrettoPoint::random(&mut rng).compress()).collect();
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 1];
 
-    compute_commitments_with_scalars_and_generators(
+    compute_commitments_with_generators(
         &mut commitments,
-        &table,
+        &[&data[..]],
         &generator_points
     );
 

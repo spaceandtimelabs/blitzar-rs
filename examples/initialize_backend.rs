@@ -31,7 +31,7 @@ fn main() {
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments_with_sequences(& mut commitments, &table);
+    compute_commitments(& mut commitments, &table);
 
     for i in 0..table.len() {
         println!("commitment {}: {:?}\n", i, commitments[i]);

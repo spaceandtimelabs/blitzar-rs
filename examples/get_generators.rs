@@ -59,7 +59,7 @@ fn main() {
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments_with_sequences(
+    compute_commitments(
         &mut commitments,
         &table
     );
