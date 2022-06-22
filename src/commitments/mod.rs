@@ -26,52 +26,17 @@ static mut INIT_STATE: i32 = 0;
 // static variable used to secure that the backend initialization is triggered only
 static INIT: Once = Once::new();  
 
-/// Responsible for initialize only once the C++ commitment backend.
+#[doc = include_str!("../../docs/commitments/init_backend.md")]
 ///
-/// This function initializes the backend so that computations
-/// can proceed either in the CPU or in the GPU. The backend
-/// type must be specified during `build` time using the following flags:
-///
-/// ```text
-/// cargo build --features gpu # only the GPU is used
-/// cargo build --features cpu # only the CPU is used
-/// ```
-///
-/// Once the backend is initialized, it is not possible to change to
-/// another one. Therefore, if the GPU feature is specified during build time,
-/// then it is not possible to use the CPU to do the computations. 
-/// In the case no feature is specified during build time, 
-/// the backend will initialize with the GPU as default.
-//
-/// Also, any `compute` function will call this `init_backend`
-/// securing that the GPU is always in a proper state. However,
-/// this last case may introduce some initialization overhead that could
-/// have been overlapped with CPU computation (such as reading data from database).
-///  
-/// Finally, to guarantee that the code inside this function is not
-/// initiliazed multiple times, we use the `std::sync::Once` scheme.
-///
-/// # Panics
-/// 
-/// If the backend initialization fails.
-///
-/// # Example 1 - Initializing the Backend
+/// # Example - Initializing the Backend
 ///
 /// During the previous executions, you had to specify the backend where the computation
 /// must proceed - either `cpu` or `gpu`. Implicitly, those backends need to be initialized
-/// before the commitment computation is called. Inside this commitment function, we call
-/// the backend initialization. But this process takes time. So you may want to call this
-/// function at the beginning of your program so that you don't pay this price later.
-///
-/// Follows the code:
+/// before the commitment computation is called. You may want to call this
+/// function at the beginning of your program to prevent later initialization overhead.
 ///
 /// ```no_run
 #[doc = include_str!("../../examples/initialize_backend.rs")]
-/// ```
-///
-/// Run the example:
-/// ```text
-/// $ cargo run --features gpu --example initialize_backend
 /// ```
 pub fn init_backend() {
     unsafe {
@@ -116,6 +81,9 @@ fn to_sxt_ristretto_elements(num_sequences: usize)
     return cbinding_commitments;
 }
 
+/// `to_sxt_ristretto_generators` generates a lower-level
+/// sys crate `sxt_ristretto_element` vector struct from
+/// a given `CompressedRistretto` slice
 fn to_sxt_ristretto_generators(generators: &[CompressedRistretto])
     -> Vec<proofs_gpu::sxt_ristretto_element> {
 
@@ -134,13 +102,16 @@ fn to_sxt_ristretto_generators(generators: &[CompressedRistretto])
     return cbinding_generators;
 }
 
-// sealed trait from the outside package
+// Sealed Trait from the outside world
 mod private {
+    // This descriptor is only used to implement the `to_sxt_descriptor` method
+    // for the `Sequence<'a>` and the `&[Scalar]` elements
     pub trait Descriptor {
         fn to_sxt_descriptor(& self) -> (usize, proofs_gpu::sxt_sequence_descriptor);
     }
 }
 
+/// Implement the `to_sxt_descriptor` method for the `Sequence<'a>` datatype
 impl<'a> private::Descriptor for Sequence<'a> {
     fn to_sxt_descriptor(& self) -> (usize, proofs_gpu::sxt_sequence_descriptor) {
         let (element_nbytes, num_rows, data, indices) = match self {
@@ -159,9 +130,9 @@ impl<'a> private::Descriptor for Sequence<'a> {
     }
 }
 
+/// Implement the `to_sxt_descriptor` method for the `&[Scalar]` datatype
 impl private::Descriptor for &[Scalar] {
     fn to_sxt_descriptor(& self) -> (usize, proofs_gpu::sxt_sequence_descriptor) {
-        println!("Hellow world");
         let num_rows = (*self).len();
 
         let descriptor = proofs_gpu::sxt_sequence_descriptor {
@@ -230,6 +201,11 @@ fn to_pedersen_commitments(commitments: & mut[CompressedRistretto],
     }
 }
 
+/// Process the commitment computation
+///
+/// # Panics
+///
+/// If the commitment computation fails executing.
 fn process_compute_commitments(
     commitments: & mut[CompressedRistretto],
     sxt_descriptors: &[proofs_gpu::sxt_sequence_descriptor]) {
@@ -255,6 +231,11 @@ fn process_compute_commitments(
     to_pedersen_commitments(commitments, &sxt_ristretto_elements);
 }
 
+/// Process the commitment computation using user-generators
+///
+/// # Panics
+///
+/// If the commitment computation fails executing.
 fn process_compute_commitments_with_generators(
     commitments: & mut[CompressedRistretto], 
     sxt_descriptors: &[proofs_gpu::sxt_sequence_descriptor],
@@ -288,108 +269,27 @@ fn process_compute_commitments_with_generators(
     to_pedersen_commitments(commitments, &sxt_ristretto_elements);
 }
 
-/// Computes the Pedersen commitment for a given input data.
+#[doc = include_str!("../../docs/commitments/compute_commitments.md")]
 ///
-/// In total, the function computes `data.len()` commitments,
-/// which is related with the total number of columns in the data table. The commitment
-/// results are stored as 256-bit Ristretto points in the `commitments` variable.
+/// # Example 1 - Simple Commitment Computation
+///```no_run
+#[doc = include_str!("../../examples/simple_commitment.rs")]
+///```
 ///
-/// The j-th Pedersen commitment is a 256-bit Ristretto point C_j over the
-/// curve25519 elliptic curve that is cryptographically binded to a data message vector M_j:
-/// 
-/// ```text
-/// let el_size = data[j].element_size; // sizeof of each element in the current j-th column
-/// let num_rows = data[j].data_slice.len() / el_size; // number of rows in the j-th column
+/// # Example 2 - Adding and Multiplying Commitments
+///```no_run
+#[doc = include_str!("../../examples/add_mult_commitments.rs")]
+///```
 ///
-/// let M_j = [
-///    data[j].data_slice[0:el_size],
-///    data[j].data_slice[el_size:2*el_size],
-///    data[j].data_slice[2*el_size:3*el_size],
-///    .,
-///    .,
-///    .,
-///    data[j].data_slice[(num_rows-1)*el_size:num_rows*el_size]
-/// ];
-/// ```
+/// # Example 3 - Compute Commitments with Dalek Scalars
+///```no_run
+#[doc = include_str!("../../examples/simple_scalars_commitment.rs")]
+///```
 ///
-/// This message M_j cannot be decrypted from C_j. The curve point C_j
-/// is generated in a unique way using M_j and a
-/// set of 1280-bit curve25519 points G_i, called row generators.
-/// Although our gpu code uses 1280-bit generators during the scalar 
-/// multiplication, these generators are passed as 256-bit Ristretto points
-/// and only converted to 1280-bit points inside the GPU/CPU.
-/// The total number of generators used to compute C_j is equal to 
-/// the number of `num_rows` in the data\[j] sequence. The following formula
-/// is specified to obtain the C_j commitment:
-///
-/// ```text
-/// let C_j_temp = 0; // this is a 1280-bit curve25519 point
-///
-/// for j in 0..num_rows {
-///     let G_i = generators[j].decompress(); // we decompress to convert 256-bit to 1280-bit points
-///     let curr_data_ji = data[j].data_slice[i*el_size:(i + 1)*el_size];
-///     C_j_temp = C_j_temp + curr_data_ji * G_i;
-/// }
-///
-/// let C_j = convert_to_ristretto(C_j_temp); // this is a 256-bit Ristretto point
-/// ```
-///
-/// Ps: the above is only illustrative code. It will not compile.
-///
-/// Here `curr_data_ji` are simply 256-bit scalars, C_j_temp and G_i are
-/// 1280-bit curve25519 points, and C_j is a 256-bit Ristretto point.
-/// 
-/// Given M_j and G_i, it is easy to verify that the Pedersen
-/// commitment C_j is the correctly generated output. However,
-/// the Pedersen commitment generated from M_j and G_i is cryptographically
-/// binded to the message M_j because finding alternative inputs M_j* and 
-/// G_i* for which the Pedersen commitment generates the same point C_j
-/// requires an infeasible amount of computation.
-///
-/// To guarantee proper execution, so that the backend is correctly setted,
-/// this `compute_commitments` always calls the `init_backend()` function.
-/// 
-/// Portions of this documentations was extracted from
-/// [here](findora.org/faq/crypto/pedersen-commitment-with-elliptic-curves/)
-///
-/// # Arguments
-///
-/// * `commitments` - A slice view of a CompressedRistretto memory area where the 
-///                256-bit Ristretto point results will be written to. Please,
-///                you need to guarantee that this slice captures exactly
-///                data.len() element positions.
-///
-/// * `data` - A slice view of a [Sequence] memory area, which captures the
-///         slices of contiguous u8 memory elements. Given that each sequence
-///         data\[i] captures an unsigned char slice view, you need to guarantee
-///         that it captures the correct amount of bytes that can reflect
-///         your desired amount of `num_rows` in the sequence. After all,
-///         we infer the `num_rows` from data\[i].data_slice.len() / data\[i].element_size
-///
-/// * `generators` - A sliced view of a CompressedRistretto memory area where the
-///               256-bit Ristretto Point generators used in the commitment computation are
-///               stored into. Bear in mind that the size of this slice must always be greater
-///               or equal to the longest sequence, in terms of rows, in the table.
-///
-/// # Panics
-///
-/// If the compute commitments execution in the GPU / CPU fails, If the longest sequence
-/// in the input data is bigger than the generators` length, or If
-/// the data.len() value is different from the commitments.len() value.
-///
-/// # Example - Computing Commitments with user specified generators
-///
-/// Computes the j commitment of each table column j containing m\[j].len() rows, 
-/// using for that the random generators G given by our proofs-gpu code:
-///
-/// ```no_run
-#[doc = include_str!("../../examples/pass_generators_to_commitment.rs")]
-/// ```
-///
-/// Run the example:
-/// ```text
-/// cargo run --features cpu --example pass_generators_to_commitment
-/// ```
+/// # Example 4 - Compute Commitments with Sparse Sequences
+///```no_run
+#[doc = include_str!("../../examples/simple_sparse_commitment.rs")]
+///```
 pub fn compute_commitments<T: private::Descriptor>(
     commitments: & mut[CompressedRistretto], data: & [T])  {
 
@@ -401,7 +301,18 @@ pub fn compute_commitments<T: private::Descriptor>(
     );
 }
 
+
+#[doc = include_str!("../../docs/commitments/compute_commitments_with_generators.md")]
 ///
+///# Example 1 - Pass generators to Commitment Computation
+///```no_run
+#[doc = include_str!("../../examples/pass_generators_to_commitment.rs")]
+///```
+///
+/// Example 2 - Compute Commitments with Dalek Scalars and User Generators
+///```no_run
+#[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
+///```
 pub fn compute_commitments_with_generators<T: private::Descriptor>(
     commitments: & mut[CompressedRistretto], 
     data: & [T], generators: &[CompressedRistretto])  {
@@ -416,46 +327,13 @@ pub fn compute_commitments_with_generators<T: private::Descriptor>(
     );
 }
 
-/// Gets the generators used in the `compute_commitments` function
-///
-/// In total, the function gets `generators.len()` points. These points
-/// are converted from 1280-bit Curve25519 points used in the scalar multiplication
-/// of the commitment computation, to 256-bit Ristretto points. This function
-/// also allows the user to provide an offset so that a shift is applied in the
-/// retrieval. The following operation is applied:
-///
-///```text
-///for i in 0..generators.len() {
-///    generators[i] = randomly_generate_curve25519_point(i + offset).to_compressed_ristretto();
-///}
-///```
-///
-/// # Arguments
-///
-/// * `generators` - A sliced view of a CompressedRistretto memory area where the
-///               256-bit Ristretto Point generators used in the commitment computation will
-///               be written into.
-/// * `offset_generators` - A value that is used to shift the get generator operation by
-///                         `offset_generators` values. With this shift, we have
-///                         generator\[0] holding the value of randomly_generate_curve25519_point(0 + offset),
-///                         generator\[1] holding the value of randomly_generate_curve25519_point(1 + offset),
-///                         and so on.
-///
-/// # Panics
-///
-/// If the compute `get_generators` execution in the GPU / CPU fails.
+#[doc = include_str!("../../docs/commitments/get_generators.md")]
 ///
 /// # Example - Getting the Generators used in the `compute_commitments` function
 //
 /// ```no_run
 #[doc = include_str!("../../examples/get_generators.rs")]
 /// ```
-///
-/// Run the example:
-///
-///```text
-///cargo run --features gpu --example get_generators
-///```
 pub fn get_generators(generators: & mut[CompressedRistretto], offset_generators: u64) {
     let mut sxt_ristretto_generators = to_sxt_ristretto_elements(generators.len());
 

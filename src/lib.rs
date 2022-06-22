@@ -64,24 +64,6 @@
 //! cargo run --features <cpu | gpu> --example <example_name>
 //!```
 //!
-//!In this command, you can either specify if the computations should proceed in the cpu or in the gpu. Also, you need to specify the example name as it is in the `.rs` files.
-//!
-//! ### Example 1: Simple Commitment Computation
-//! ```text
-//! cargo run --features cpu --example simple_commitment
-//! ```
-//!
-//! ### Example 2 - Adding and Multiplying Commitments
-//!
-//!```text
-//!cargo run --features gpu --example add_mult_commitments
-//!```
-//!
-//! ### Example 3: Initializing the Backend
-//! ```text
-//! $ cargo run --features gpu --example initialize_backend
-//! ```
-//!
 //! ## Tests
 //! ```text
 //!  cargo test
