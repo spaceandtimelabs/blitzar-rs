@@ -62,12 +62,17 @@ pub struct DenseSequence<'a> {
 }
 
 impl<'a> DenseSequence<'_> {
+    ///
+    pub fn len(& self) -> usize {
+        return (*self).data_slice.len() / (*self).element_size;
+    }
+    
     pub(super) fn to_data_properties(& self) -> (u8, usize,  *const u8,  *const u64) {
         if (*self).data_slice.len() % (*self).element_size != 0 {
             panic!("Error: data_slice length is not a multiple of element_size in the dense object");
         }
         
-        let num_rows = (*self).data_slice.len() / (*self).element_size;
+        let num_rows = (*self).len();
 
         ((*self).element_size as u8, num_rows as usize, (*self).data_slice.as_ptr(), ptr::null())
     }
@@ -135,12 +140,17 @@ pub struct SparseSequence<'a> {
 }
 
 impl<'a> SparseSequence<'_> {
+    ///
+    pub fn len(& self) -> usize {
+        return (*self).data_slice.len() / (*self).element_size;
+    }
+
     pub(super) fn to_data_properties(& self) -> (u8, usize,  *const u8,  *const u64) {
         if (*self).data_slice.len() % (*self).element_size != 0 {
             panic!("Error: data_slice length is not a multiple of element_size in the sparse object");
         }
         
-        let num_rows = (*self).data_slice.len() / (*self).element_size;
+        let num_rows = (*self).len();
 
         if num_rows != (*self).data_indices.len() {
             panic!("Error: Number of rows differs from the data_indices length in the sparse object");

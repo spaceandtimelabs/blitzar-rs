@@ -24,7 +24,7 @@ pub use curve25519_dalek::ristretto::CompressedRistretto;
 static mut INIT_STATE: i32 = 0; 
 
 // static variable used to secure that the backend initialization is triggered only
-static INIT: Once = Once::new();  
+static INIT: Once = Once::new();
 
 #[doc = include_str!("../../docs/commitments/init_backend.md")]
 ///
@@ -107,12 +107,33 @@ mod private {
     // This descriptor is only used to implement the `to_sxt_descriptor` method
     // for the `Sequence<'a>` and the `&[Scalar]` elements
     pub trait Descriptor {
+        // returns the number of elements referenced by the descriptor
+        fn len(& self) -> usize;
+        
+        // returns true if the descriptor is a Sequence:Sparse, and false otherwise
+        fn is_sparse(& self) -> bool;
+
+        // converts the descriptor to a sxt_descriptor
         fn to_sxt_descriptor(& self) -> (usize, proofs_gpu::sxt_sequence_descriptor);
     }
 }
 
 /// Implement the `to_sxt_descriptor` method for the `Sequence<'a>` datatype
 impl<'a> private::Descriptor for Sequence<'a> {
+    fn len(& self) -> usize {
+        match self {
+            Sequence::Dense(x) => return x.len(),
+            Sequence::Sparse(y) => return y.len()
+        }
+    }
+
+    fn is_sparse(& self) -> bool {
+        match self {
+            Sequence::Dense(_x) => return false,
+            Sequence::Sparse(_y) => return true
+        }
+    }
+    
     fn to_sxt_descriptor(& self) -> (usize, proofs_gpu::sxt_sequence_descriptor) {
         let (element_nbytes, num_rows, data, indices) = match self {
             Sequence::Dense(x) => x.to_data_properties(),
@@ -132,6 +153,14 @@ impl<'a> private::Descriptor for Sequence<'a> {
 
 /// Implement the `to_sxt_descriptor` method for the `&[Scalar]` datatype
 impl private::Descriptor for &[Scalar] {
+    fn len(& self) -> usize {
+        return (*self).len();
+    }
+
+    fn is_sparse(& self) -> bool {
+        return false;
+    }
+
     fn to_sxt_descriptor(& self) -> (usize, proofs_gpu::sxt_sequence_descriptor) {
         let num_rows = (*self).len();
 
@@ -352,6 +381,54 @@ pub fn get_generators(generators: & mut[CompressedRistretto], offset_generators:
     }
 
     to_pedersen_commitments(generators, &sxt_ristretto_generators);
+}
+
+///
+pub fn update_commitment<T: private::Descriptor>(
+    commitment: & mut CompressedRistretto, offset_generators: u64, data: T) {
+
+    let mut partial_commitment = [CompressedRistretto::from_slice(&[0 as u8; 32]); 1];
+
+    // When the data is a sparse sequence, 
+    // we don't use the offset_generators,
+    // because each data element is already
+    // tied with its own row
+    if data.is_sparse() {
+        compute_commitments(
+            &mut partial_commitment,
+            &[data]
+        );
+    } else {
+        // Otherwise, we fetch the generators from our proofs_gpu sys crate
+        // and then we use them to compute the partial commitment out of the given data
+        let mut generators = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); data.len()];
+
+        get_generators(
+            &mut generators,
+            offset_generators
+        );
+    
+        compute_commitments_with_generators(
+            &mut partial_commitment,
+            &[data],
+            &generators
+        );
+    }
+
+    // using the A = `partial_commitment` and the B = `commitment`
+    // given by the user, we compute a new commitment as B = A + B,
+    // and then we write the result back to the `commitment` variable
+    let c_a = match (*commitment).decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    let c_b = match partial_commitment[0].decompress() {
+        Some(pt) => pt,
+        None => panic!("Invalid ristretto point decompression")
+    };
+
+    (*commitment) = (c_a + c_b).compress();
 }
 
 #[cfg(test)]
