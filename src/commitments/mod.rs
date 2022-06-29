@@ -383,7 +383,13 @@ pub fn get_generators(generators: & mut[CompressedRistretto], offset_generators:
     to_pedersen_commitments(generators, &sxt_ristretto_generators);
 }
 
+#[doc = include_str!("../../docs/commitments/update_commitments.md")]
 ///
+/// # Example - Update commitments with dense, sparse, and dalek scalars
+//
+/// ```no_run
+#[doc = include_str!("../../examples/simple_update_commitment.rs")]
+/// ```
 pub fn update_commitment<T: private::Descriptor>(
     commitment: & mut CompressedRistretto, offset_generators: u64, data: T) {
 
