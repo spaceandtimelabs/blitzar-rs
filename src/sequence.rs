@@ -16,7 +16,7 @@ use std::ptr;
 /// and that the structure holding the memory
 /// can be represented as a slice view
 /// of u8 elements. Vectors of primitive types
-/// automatically can be cast to this kind of 
+/// automatically can be cast to this kind of
 /// slice view, by using `byte-slice-cast` trait extension.
 pub struct DenseSequence<'a> {
     /// Represents a slice
@@ -39,7 +39,7 @@ pub struct DenseSequence<'a> {
     /// unsigned bytes.
     pub data_slice: &'a [u8],
 
-    /// Represents the total number of 
+    /// Represents the total number of
     /// bytes of each element encoded in the
     /// `data_slice` view
     ///
@@ -50,7 +50,7 @@ pub struct DenseSequence<'a> {
     /// let num_rows = curr_data.data_slice.len() / curr_data.element_size;
     /// ```
     /// So be cautious that the number of bytes captured by the `data_slice`
-    /// and the `element_size` value are properly defined. For instance, 
+    /// and the `element_size` value are properly defined. For instance,
     /// you must secure that for:
     ///
     /// - u8 data slice types: element_size = std::mem::size_of::<u8>()
@@ -58,23 +58,35 @@ pub struct DenseSequence<'a> {
     /// - u32 data slice types: element_size = std::mem::size_of::<u32>()
     /// - u64 data slice types: element_size = std::mem::size_of::<u64>()
     /// - u128 data slice types: element_size = std::mem::size_of::<u128>()
-    pub element_size: usize
+    pub element_size: usize,
 }
 
-impl<'a> DenseSequence<'_> {
-    ///
-    pub fn len(& self) -> usize {
-        return (*self).data_slice.len() / (*self).element_size;
+impl DenseSequence<'_> {
+    /// Returns the number of elements in the Dense Sequence
+    pub fn len(&self) -> usize {
+        (*self).data_slice.len() / (*self).element_size
     }
-    
-    pub(super) fn to_data_properties(& self) -> (u8, usize,  *const u8,  *const u64) {
+
+    /// Returns true if the sequence is empty, false otherwise
+    pub fn is_empty(&self) -> bool {
+        (*self).len() == 0
+    }
+
+    pub(super) fn to_data_properties(&self) -> (u8, usize, *const u8, *const u64) {
         if (*self).data_slice.len() % (*self).element_size != 0 {
-            panic!("Error: data_slice length is not a multiple of element_size in the dense object");
+            panic!(
+                "Error: data_slice length is not a multiple of element_size in the dense object"
+            );
         }
-        
+
         let num_rows = (*self).len();
 
-        ((*self).element_size as u8, num_rows as usize, (*self).data_slice.as_ptr(), ptr::null())
+        (
+            (*self).element_size as u8,
+            num_rows as usize,
+            (*self).data_slice.as_ptr(),
+            ptr::null(),
+        )
     }
 }
 
@@ -83,7 +95,7 @@ impl<'a> DenseSequence<'_> {
 /// The structure holding the memory
 /// must be represented as a sliced view
 /// of u8 elements. Vectors of primitive types
-/// automatically can be cast to this kind of 
+/// automatically can be cast to this kind of
 /// slice view, by using `byte-slice-cast` trait extension.
 /// This structure is relevant in case the column data table
 /// has many zeros. In this case, the sequence will
@@ -112,7 +124,7 @@ pub struct SparseSequence<'a> {
     /// unsigned bytes.
     pub data_slice: &'a [u8],
 
-    /// Represents the total number of 
+    /// Represents the total number of
     /// bytes of each element encoded in the
     /// `data_slice` view
     ///
@@ -123,7 +135,7 @@ pub struct SparseSequence<'a> {
     /// let num_rows = curr_data.data_slice.len() / curr_data.element_size;
     /// ```
     /// So be cautious that the number of bytes captured by the `data_slice`
-    /// and the `element_size` value are properly defined. For instance, 
+    /// and the `element_size` value are properly defined. For instance,
     /// you must secure that for:
     ///
     /// - u8 data slice types: element_size = std::mem::size_of::<u8>()
@@ -136,27 +148,41 @@ pub struct SparseSequence<'a> {
     /// `indices[i]` holds the actual row_i in which data\[i]
     /// is tied with. These `indices` must capture
     /// exactly `num_rows` elements.
-    pub data_indices: &'a [u64]
+    pub data_indices: &'a [u64],
 }
 
-impl<'a> SparseSequence<'_> {
-    ///
-    pub fn len(& self) -> usize {
-        return (*self).data_slice.len() / (*self).element_size;
+impl SparseSequence<'_> {
+    /// Returns the number of elements in the Sparse Sequence
+    pub fn len(&self) -> usize {
+        (*self).data_slice.len() / (*self).element_size
     }
 
-    pub(super) fn to_data_properties(& self) -> (u8, usize,  *const u8,  *const u64) {
+    /// Returns true if the sequence is empty, false otherwise
+    pub fn is_empty(&self) -> bool {
+        (*self).len() == 0
+    }
+
+    pub(super) fn to_data_properties(&self) -> (u8, usize, *const u8, *const u64) {
         if (*self).data_slice.len() % (*self).element_size != 0 {
-            panic!("Error: data_slice length is not a multiple of element_size in the sparse object");
+            panic!(
+                "Error: data_slice length is not a multiple of element_size in the sparse object"
+            );
         }
-        
+
         let num_rows = (*self).len();
 
         if num_rows != (*self).data_indices.len() {
-            panic!("Error: Number of rows differs from the data_indices length in the sparse object");
+            panic!(
+                "Error: Number of rows differs from the data_indices length in the sparse object"
+            );
         }
 
-        ((*self).element_size as u8, num_rows as usize, (*self).data_slice.as_ptr(), (*self).data_indices.as_ptr())
+        (
+            (*self).element_size as u8,
+            num_rows as usize,
+            (*self).data_slice.as_ptr(),
+            (*self).data_indices.as_ptr(),
+        )
     }
 }
 
@@ -190,5 +216,5 @@ pub enum Sequence<'a> {
     /// A simple enum wrapper to a DenseSequence structure
     Dense(DenseSequence<'a>),
     /// A simple enum wrapper to a SparseSequence structure
-    Sparse(SparseSequence<'a>)
+    Sparse(SparseSequence<'a>),
 }
