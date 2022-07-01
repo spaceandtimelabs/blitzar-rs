@@ -1,12 +1,9 @@
-extern crate pedersen;
 extern crate curve25519_dalek;
+extern crate pedersen;
 
 use pedersen::commitments::*;
 
 fn main() {
-    // generate input table
-    let mut table: Vec<&[Scalar]> = Vec::new();
-
     /////////////////////////////////////////////
     // Define the data vectors that will be used in the computation. Each vector
     // is a Dalek Scalar, which is simply a 256-bit integer < ℓ (the group prime order)
@@ -23,25 +20,27 @@ fn main() {
     ];
 
     // data[2] = 2000 as 256-bits
-    for _i in 0..2000 { data[2] = data[2] + Scalar::one(); }
+    for _i in 0..2000 {
+        data[2] += Scalar::one();
+    }
 
     /////////////////////////////////////////////
     // Fill the table with entries
     /////////////////////////////////////////////
-    table.push(&data);
+    let table: Vec<&[Scalar]> = vec![&data];
 
     /////////////////////////////////////////////
-    // We need to define a commitment vector which 
+    // We need to define a commitment vector which
     // will store all the commitment results
     /////////////////////////////////////////////
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
-    
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); table.len()];
+
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments(& mut commitments, &table);
+    compute_commitments(&mut commitments, &table);
 
-    for i in 0..commitments.len() {
-        println!("commitment {}: {:?}\n", i, commitments[i]);
+    for (i, commit) in commitments.iter().enumerate() {
+        println!("commitment {}: {:?}\n", i, commit);
     }
 }

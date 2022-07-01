@@ -1,8 +1,8 @@
-extern crate pedersen;
 extern crate curve25519_dalek;
+extern crate pedersen;
 
-use pedersen::sequence::*;
 use pedersen::commitments::*;
+use pedersen::sequence::*;
 
 fn main() {
     init_backend();
@@ -19,21 +19,21 @@ fn main() {
     // Fill the table with entries
     /////////////////////////////////////////////
     table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data[0])
+        data_slice: data.as_byte_slice(),
+        element_size: std::mem::size_of_val(&data[0]),
     }));
 
     /////////////////////////////////////////////
     // Define a commitment vector to store all the results
     /////////////////////////////////////////////
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); table.len()];
 
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments(& mut commitments, &table);
+    compute_commitments(&mut commitments, &table);
 
-    for i in 0..table.len() {
-        println!("commitment {}: {:?}\n", i, commitments[i]);
+    for (i, commit) in commitments.iter().enumerate() {
+        println!("commitment {}: {:?}\n", i, commit);
     }
 }

@@ -1,13 +1,10 @@
-extern crate pedersen;
 extern crate curve25519_dalek;
+extern crate pedersen;
 
-use pedersen::sequence::*;
 use pedersen::commitments::*;
+use pedersen::sequence::*;
 
 fn main() {
-    // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-
     /////////////////////////////////////////////
     // Define the data vectors that will be used in the computation. Each
     // data vector is either a dense sequence or a sparse sequence.
@@ -30,33 +27,37 @@ fn main() {
     /////////////////////////////////////////////
     // Fill the table with entries
     /////////////////////////////////////////////
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &dense_data.as_byte_slice(),
-        element_size: std::mem::size_of_val(&dense_data[0])
-    }));
-
-    table.push(Sequence::Sparse(SparseSequence {
-        data_slice: &sparse_data.as_byte_slice(),
-        element_size: std::mem::size_of_val(&sparse_data[0]),
-        data_indices: &sparse_indices
-    }));
+    let table: Vec<Sequence> = vec![
+        Sequence::Dense(DenseSequence {
+            data_slice: dense_data.as_byte_slice(),
+            element_size: std::mem::size_of_val(&dense_data[0]),
+        }),
+        Sequence::Sparse(SparseSequence {
+            data_slice: sparse_data.as_byte_slice(),
+            element_size: std::mem::size_of_val(&sparse_data[0]),
+            data_indices: &sparse_indices,
+        }),
+    ];
 
     /////////////////////////////////////////////
-    // We need to define a commitment vector which 
+    // We need to define a commitment vector which
     // will store all the commitment results
     /////////////////////////////////////////////
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
-    
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); table.len()];
+
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments(& mut commitments, &table);
+    compute_commitments(&mut commitments, &table);
 
     /////////////////////////////////////////////
     // We verify if the results were correctly computed
     /////////////////////////////////////////////
     if commitments[0] == commitments[1] {
-        println!("Sparse and Dense Commitment are equal: {:?}", commitments[0]);
+        println!(
+            "Sparse and Dense Commitment are equal: {:?}",
+            commitments[0]
+        );
     } else {
         println!("Sparse and Dense Commitment differ");
         println!("Dense Commitment: {:?}\n", commitments[0]);

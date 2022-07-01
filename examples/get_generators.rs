@@ -1,8 +1,8 @@
-extern crate pedersen;
 extern crate curve25519_dalek;
+extern crate pedersen;
 
-use pedersen::sequence::*;
 use pedersen::commitments::*;
+use pedersen::sequence::*;
 
 fn main() {
     // generate input table
@@ -25,16 +25,16 @@ fn main() {
     /////////////////////////////////////////////
     let data: Vec<u16> = vec![0, 0, 0, 0, 4, 7, 6, 0, 0, 0];
 
-        /////////////////////////////////////////////
+    /////////////////////////////////////////////
     // Fill the table with entries
-    // 
+    //
     // We need to wrapper the vector array inside the table object.
     // This object holds a slice of the data vector and the
     // total amount of bytes of each element stored in the vector
     /////////////////////////////////////////////
     table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data[0])
+        data_slice: data.as_byte_slice(),
+        element_size: std::mem::size_of_val(&data[0]),
     }));
 
     /////////////////////////////////////////////
@@ -43,26 +43,20 @@ fn main() {
     /////////////////////////////////////////////
     let offset_generators: usize = 4;
     let generators_len = data.len() - offset_generators - 3;
-    let mut gs = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); generators_len];
+    let mut gs = vec![CompressedRistretto::from_slice(&[0_u8; 32]); generators_len];
 
-    get_generators(
-        &mut gs,
-        offset_generators as u64
-    );
+    get_generators(&mut gs, offset_generators as u64);
 
     /////////////////////////////////////////////
-    // We need to define a commitment vector which 
+    // We need to define a commitment vector which
     // will store all the commitment results
     /////////////////////////////////////////////
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); table.len()];
 
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments(
-        &mut commitments,
-        &table
-    );
+    compute_commitments(&mut commitments, &table);
 
     /////////////////////////////////////////////
     // Use Dalek library to obtain the same
@@ -70,16 +64,16 @@ fn main() {
     // CPU above. Following, we randomly
     // obtain the generators
     /////////////////////////////////////////////
-    let mut expected_commit = match CompressedRistretto::from_slice(&[0 as u8; 32]).decompress() {
+    let mut expected_commit = match CompressedRistretto::from_slice(&[0_u8; 32]).decompress() {
         Some(pt) => pt,
-        None => panic!("Invalid ristretto point decompression")
+        None => panic!("Invalid ristretto point decompression"),
     };
 
     /////////////////////////////////////////////
     // Then we use the above generators `gs`,
     // as well as the data table as scalars
     // to verify that those generators `gs`
-    // are indeed the ones used during the 
+    // are indeed the ones used during the
     // commitment computation
     /////////////////////////////////////////////
     for i in 0..gs.len() {
@@ -91,10 +85,10 @@ fn main() {
 
         let g_i = match gs[i].decompress() {
             Some(pt) => pt,
-            None => panic!("Invalid ristretto point decompression")
+            None => panic!("Invalid ristretto point decompression"),
         };
 
-        expected_commit = expected_commit + ristretto_sc * g_i;
+        expected_commit += ristretto_sc * g_i;
     }
 
     /////////////////////////////////////////////

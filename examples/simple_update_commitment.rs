@@ -1,8 +1,8 @@
-extern crate pedersen;
 extern crate curve25519_dalek;
+extern crate pedersen;
 
-use pedersen::sequence::*;
 use pedersen::commitments::*;
+use pedersen::sequence::*;
 
 fn main() {
     /////////////////////////////////////////////
@@ -13,11 +13,11 @@ fn main() {
     let sparse_indices: Vec<u64> = vec![0, 2, 4, 5, 9];
 
     /////////////////////////////////////////////
-    // This dense_data is exactly the same as the 
-    // sparse_data, expect that it stores zeros and 
-    // the sparse_data does not. But the non-zero 
+    // This dense_data is exactly the same as the
+    // sparse_data, expect that it stores zeros and
+    // the sparse_data does not. But the non-zero
     // elements from dense_data are also present in
-    // the sparse_data array 
+    // the sparse_data array
     /////////////////////////////////////////////
     let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];
 
@@ -26,9 +26,13 @@ fn main() {
     // have information in the positions 2 and 3
     /////////////////////////////////////////////
     let mut scalar_data: Vec<Scalar> = vec![Scalar::zero(); 4];
-    
-    for _i in 0..5000 { scalar_data[2] = scalar_data[2] + Scalar::one(); }
-    for _i in 0..1500 { scalar_data[3] = scalar_data[3] + Scalar::one(); }
+
+    for _i in 0..5000 {
+        scalar_data[2] += Scalar::one();
+    }
+    for _i in 0..1500 {
+        scalar_data[3] += Scalar::one();
+    }
 
     /////////////////////////////////////////////
     // We build the array with the expected results
@@ -36,8 +40,8 @@ fn main() {
     /////////////////////////////////////////////
     let expected_data: Vec<u32> = vec![2, 0, 5004, 1500, 6, 8, 0, 0, 0, 18, 0];
 
-    let mut commitment = CompressedRistretto::from_slice(&[0 as u8; 32]);
-    let mut expected_commitment = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); 1];
+    let mut commitment = CompressedRistretto::from_slice(&[0_u8; 32]);
+    let mut expected_commitment = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
 
     /////////////////////////////////////////////
     // We compute the commitments using the exact
@@ -46,22 +50,22 @@ fn main() {
     compute_commitments(
         &mut expected_commitment,
         &[Sequence::Dense(DenseSequence {
-            data_slice: &expected_data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&expected_data[0])
-        })]
+            data_slice: expected_data.as_byte_slice(),
+            element_size: std::mem::size_of_val(&expected_data[0]),
+        })],
     );
-    
+
     /////////////////////////////////////////////
     // Up to this point, commitment was 0. Then
     // we update it, so that `commitment = dense_data`
     /////////////////////////////////////////////
     update_commitment(
-        & mut commitment,
-        0 as u64,
+        &mut commitment,
+        0_u64,
         Sequence::Dense(DenseSequence {
-            data_slice: &dense_data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&dense_data[0])
-        })
+            data_slice: dense_data.as_byte_slice(),
+            element_size: std::mem::size_of_val(&dense_data[0]),
+        }),
     );
 
     /////////////////////////////////////////////
@@ -69,13 +73,13 @@ fn main() {
     // `commitment = dense_data + sparse_data`
     /////////////////////////////////////////////
     update_commitment(
-        & mut commitment,
-        0 as u64,
+        &mut commitment,
+        0_u64,
         Sequence::Sparse(SparseSequence {
-            data_slice: &sparse_data.as_byte_slice(),
+            data_slice: sparse_data.as_byte_slice(),
             element_size: std::mem::size_of_val(&sparse_data[0]),
-            data_indices: &sparse_indices
-        })
+            data_indices: &sparse_indices,
+        }),
     );
 
     /////////////////////////////////////////////
@@ -88,11 +92,7 @@ fn main() {
     // commitment += (generator[0 + 2] * scalar_data[0] +
     //                  + generator[1 + 2] * scalar_data[1])
     /////////////////////////////////////////////
-    update_commitment(
-        & mut commitment,
-        2 as u64,
-        &scalar_data[2..]
-    );
+    update_commitment(&mut commitment, 2_u64, &scalar_data[2..]);
 
     /////////////////////////////////////////////
     // We then compare the commitment results

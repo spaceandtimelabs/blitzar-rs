@@ -1,5 +1,5 @@
-extern crate pedersen;
 extern crate curve25519_dalek;
+extern crate pedersen;
 
 use pedersen::commitments::*;
 
@@ -21,7 +21,7 @@ fn main() {
     //
     // Consult the Dalek Scalar documentation for more info
     // [here](https://docs.rs/curve25519-dalek/0.19.1/curve25519_dalek/scalar/index.html).
-    // In summary, 
+    // In summary,
     // Scalar::from_bytes_mod_order([2; 32]) wrapps a 32 byte array, containing
     // the number 2 at every byte, reducing this 256-bit integer mod ℓ, the prime order
     // of the group.
@@ -37,8 +37,9 @@ fn main() {
     // randomly obtain the generator points
     /////////////////////////////////////////////
     let mut rng = OsRng;
-    let gs: Vec<CompressedRistretto> =
-        (0..data.len()).map(|_| RistrettoPoint::random(&mut rng).compress()).collect();
+    let gs: Vec<CompressedRistretto> = (0..data.len())
+        .map(|_| RistrettoPoint::random(&mut rng).compress())
+        .collect();
 
     /////////////////////////////////////////////
     // Fill the table with entries
@@ -46,19 +47,15 @@ fn main() {
     table.push(&data);
 
     /////////////////////////////////////////////
-    // We need to define a commitment vector which 
+    // We need to define a commitment vector which
     // will store all the commitment results
     /////////////////////////////////////////////
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); table.len()];
 
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments_with_generators(
-        &mut commitments,
-        &table,
-        &gs
-    );
+    compute_commitments_with_generators(&mut commitments, &table, &gs);
 
     /////////////////////////////////////////////
     // Use Dalek library to obtain the same
@@ -66,9 +63,9 @@ fn main() {
     // CPU above. Following, we randomly
     // obtain the generators
     /////////////////////////////////////////////
-    let mut expected_commit = match CompressedRistretto::from_slice(&[0 as u8; 32]).decompress() {
+    let mut expected_commit = match CompressedRistretto::from_slice(&[0_u8; 32]).decompress() {
         Some(pt) => pt,
-        None => panic!("Invalid ristretto point decompression")
+        None => panic!("Invalid ristretto point decompression"),
     };
 
     /////////////////////////////////////////////
@@ -80,10 +77,10 @@ fn main() {
     for i in 0..gs.len() {
         let g_i = match gs[i].decompress() {
             Some(pt) => pt,
-            None => panic!("Invalid ristretto point decompression")
+            None => panic!("Invalid ristretto point decompression"),
         };
 
-        expected_commit = expected_commit + data[i] * g_i;
+        expected_commit += data[i] * g_i;
     }
 
     /////////////////////////////////////////////

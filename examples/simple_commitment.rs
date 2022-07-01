@@ -1,13 +1,10 @@
-extern crate pedersen;
 extern crate curve25519_dalek;
+extern crate pedersen;
 
-use pedersen::sequence::*;
 use pedersen::commitments::*;
+use pedersen::sequence::*;
 
 fn main() {
-    // generate input table
-    let mut table: Vec<Sequence> = Vec::new();
-
     /////////////////////////////////////////////
     // Define the data vectors that will be used in the computation. Each vector
     // will be translated into a single 32 bytes dalek CompressedRistretto data
@@ -28,38 +25,38 @@ fn main() {
 
     /////////////////////////////////////////////
     // Fill the table with entries
-    // 
+    //
     // We need to wrapper the vector array inside the table object.
     // This object holds a slice of the data vector and the
     // total amount of bytes of each element stored in the vector
     /////////////////////////////////////////////
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data1.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data1[0])
-    }));
-
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data2.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data2[0])
-    }));
-
-    table.push(Sequence::Dense(DenseSequence {
-        data_slice: &data3.as_byte_slice(),
-        element_size: std::mem::size_of_val(&data3[0])
-    }));
+    let table: Vec<Sequence> = vec![
+        Sequence::Dense(DenseSequence {
+            data_slice: data1.as_byte_slice(),
+            element_size: std::mem::size_of_val(&data1[0]),
+        }),
+        Sequence::Dense(DenseSequence {
+            data_slice: data2.as_byte_slice(),
+            element_size: std::mem::size_of_val(&data2[0]),
+        }),
+        Sequence::Dense(DenseSequence {
+            data_slice: data3.as_byte_slice(),
+            element_size: std::mem::size_of_val(&data3[0]),
+        }),
+    ];
 
     /////////////////////////////////////////////
-    // We need to define a commitment vector which 
+    // We need to define a commitment vector which
     // will store all the commitment results
     /////////////////////////////////////////////
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0 as u8; 32]); table.len()];
-    
+    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); table.len()];
+
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments(& mut commitments, &table);
+    compute_commitments(&mut commitments, &table);
 
-    for i in 0..commitments.len() {
-        println!("commitment {}: {:?}\n", i, commitments[i]);
+    for (i, commit) in commitments.iter().enumerate() {
+        println!("commitment {}: {:?}\n", i, commit);
     }
 }
