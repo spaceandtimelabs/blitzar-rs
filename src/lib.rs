@@ -20,10 +20,10 @@
 //!   </a>
 //! </p>
 //!
-//! Pedersen Commitment Library. 
+//! Pedersen Commitment Library.
 //! A high-level rust wrapper for low-level
 //! rust sys-crate, which wrappers a
-//! c++ GPU / CPU implementation of 
+//! c++ GPU / CPU implementation of
 //! group operations on Ristretto and Curve25519.
 //! For the rust sys-crate and the C++ repo, check
 //! [here](https://github.com/spaceandtimelabs/proofs-gpu).
@@ -78,7 +78,7 @@
 // pedersen public modules
 //------------------------------------------------------------------------
 
-// Wrappers for data table 
+// Wrappers for data table
 pub mod sequence;
 
 // Compute commitments from data sequences
