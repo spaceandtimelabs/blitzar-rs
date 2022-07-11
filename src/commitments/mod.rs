@@ -42,10 +42,12 @@ pub fn init_backend() {
     unsafe {
         INIT.call_once(|| {
             // verify which feature backend was passed to the build
-            let backend = if cfg!(feature = "cpu") {
-                proofs_gpu::SXT_BACKEND_CPU
+            let backend = if cfg!(feature = "naive-cpu") {
+                proofs_gpu::SXT_NAIVE_BACKEND_CPU
+            } else if cfg!(feature = "naive-gpu") {
+                proofs_gpu::SXT_NAIVE_BACKEND_GPU
             } else {
-                proofs_gpu::SXT_BACKEND_GPU
+                proofs_gpu::SXT_PIPPENGER_BACKEND_CPU
             } as i32;
 
             // initializes the backend using the lower-level rust sys crate

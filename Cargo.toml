@@ -31,6 +31,7 @@ name = "pedersen_benchmarks"
 harness = false
 
 [features]
-default = ["gpu"]
-cpu = []
-gpu = []
+default = ["pip-cpu"]
+pip-cpu = []
+naive-cpu = []
+naive-gpu = []
