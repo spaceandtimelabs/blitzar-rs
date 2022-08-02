@@ -17,8 +17,8 @@ exclude = [
 
 [dependencies]
 byte-slice-cast = {version = "1.2"}
-proofs_gpu = {version = "3", registry = "proofs_gpu_reg"}
 curve25519-dalek = { version = "3" }
+proofs_gpu = {version = "6.0", registry = "proofs_gpu_reg"}
 
 # this sections is shared by tests, benchmarks, and examples
 [dev-dependencies]

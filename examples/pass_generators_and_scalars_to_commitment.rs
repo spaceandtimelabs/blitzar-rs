@@ -1,9 +1,11 @@
 extern crate curve25519_dalek;
 extern crate pedersen;
 
-use pedersen::commitments::*;
+use pedersen::compute::*;
 
 extern crate rand_core;
+use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
+use curve25519_dalek::scalar::Scalar;
 use rand_core::OsRng;
 
 fn main() {
@@ -37,8 +39,8 @@ fn main() {
     // randomly obtain the generator points
     /////////////////////////////////////////////
     let mut rng = OsRng;
-    let gs: Vec<CompressedRistretto> = (0..data.len())
-        .map(|_| RistrettoPoint::random(&mut rng).compress())
+    let gs: Vec<RistrettoPoint> = (0..data.len())
+        .map(|_| RistrettoPoint::random(&mut rng))
         .collect();
 
     /////////////////////////////////////////////
@@ -63,10 +65,7 @@ fn main() {
     // CPU above. Following, we randomly
     // obtain the generators
     /////////////////////////////////////////////
-    let mut expected_commit = match CompressedRistretto::from_slice(&[0_u8; 32]).decompress() {
-        Some(pt) => pt,
-        None => panic!("Invalid ristretto point decompression"),
-    };
+    let mut expected_commit = RistrettoPoint::from_uniform_bytes(&[0_u8; 64]);
 
     /////////////////////////////////////////////
     // Then we use the above generators `gs`,
@@ -75,10 +74,7 @@ fn main() {
     // was computed in the GPU / CPU, the `expected_commit`
     /////////////////////////////////////////////
     for i in 0..gs.len() {
-        let g_i = match gs[i].decompress() {
-            Some(pt) => pt,
-            None => panic!("Invalid ristretto point decompression"),
-        };
+        let g_i = gs[i];
 
         expected_commit += data[i] * g_i;
     }

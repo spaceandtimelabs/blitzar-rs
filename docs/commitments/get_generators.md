@@ -8,13 +8,13 @@ retrieval. The following operation is applied:
 
 ```text
 for i in 0..generators.len() {
-   generators[i] = randomly_generate_curve25519_point(i + offset).to_compressed_ristretto();
+   generators[i] = randomly_generate_curve25519_point(i + offset);
 }
 ```
 
 # Arguments
 
-* `generators` - A sliced view of a CompressedRistretto memory area where the
+* `generators` - A sliced view of a Ristretto memory area where the
               256-bit Ristretto Point generators used in the commitment computation will
               be written into.
 * `offset_generators` - A value that is used to shift the get generator operation by

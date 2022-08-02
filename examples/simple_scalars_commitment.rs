@@ -1,7 +1,9 @@
 extern crate curve25519_dalek;
 extern crate pedersen;
 
-use pedersen::commitments::*;
+use curve25519_dalek::ristretto::CompressedRistretto;
+use curve25519_dalek::scalar::Scalar;
+use pedersen::compute::*;
 
 fn main() {
     /////////////////////////////////////////////

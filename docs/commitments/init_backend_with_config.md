@@ -15,12 +15,24 @@ another one. Therefore, if the GPU feature is specified during build time,
 then it is not possible to use the CPU to do the computations. 
 In the case, no feature is specified during build time, 
 the backend will initialize with the pip-cpu as default.
+
+During this initialization process, the user can also specify a
+`num_precomputed_generators` value, which is used to pre-generate
+some generators. Those are later used in the commitment computation,
+preventing the generators from being created over and over again.
+
 //
-Also, any `compute` function will call this `init_backend`
+Also, any `compute` function will call this `init_backend_with_precomputation`
 securing that the backend is always in a proper state.
  
 Finally, to guarantee that the code inside this function is not
 initialized multiple times, we use the `std::sync::Once` scheme.
+
+# Arguments
+
+* `num_precomputed_generators` - The total number of generators to be precomputed.
+Those are used later during the commitment computation. Pre-computing may be beneficial,
+as it can save computational time.
 
 # Panics
 

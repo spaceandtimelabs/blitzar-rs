@@ -52,8 +52,8 @@
 //! ```
 //! extern crate pedersen;
 
-//! use pedersen::sequence::*;
-//! use pedersen::commitments::*;
+//! use pedersen::sequences::*;
+//! use pedersen::compute::*;
 //! ```
 
 //!## Examples
@@ -79,7 +79,7 @@
 //------------------------------------------------------------------------
 
 // Wrappers for data table
-pub mod sequence;
+pub mod sequences;
 
-// Compute commitments from data sequences
-pub mod commitments;
+// Responsible for all computations (commitments and generator computation)
+pub mod compute;

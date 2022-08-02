@@ -6,12 +6,16 @@
 
 extern crate rand;
 use crate::rand::Rng;
+use byte_slice_cast::AsByteSlice;
+use curve25519_dalek::ristretto::CompressedRistretto;
+use curve25519_dalek::ristretto::RistrettoPoint;
+use curve25519_dalek::scalar::Scalar;
 use rand::thread_rng;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use pedersen::commitments::*;
-use pedersen::sequence::*;
+use pedersen::compute::*;
+use pedersen::sequences::*;
 
 use curve25519_dalek::constants;
 
@@ -26,18 +30,18 @@ mod pedersen_benches {
             .collect()
     }
 
-    fn construct_sequences_data(num_commits: usize, num_rows: usize) -> Vec<Vec<u32>> {
+    fn construct_sequences_data(num_commits: usize, num_rows: usize) -> Vec<Vec<u8>> {
         let mut rng = rand::thread_rng();
 
         (0..num_commits)
-            .map(|_| ((0..num_rows).map(|_| rng.gen::<u32>()).collect()))
+            .map(|_| ((0..num_rows).map(|_| rng.gen::<u8>()).collect()))
             .collect()
     }
 
-    fn construct_generators(n: usize) -> Vec<CompressedRistretto> {
+    fn construct_generators(n: usize) -> Vec<RistrettoPoint> {
         let mut rng = thread_rng();
         (0..n)
-            .map(|_| (&Scalar::random(&mut rng) * &constants::RISTRETTO_BASEPOINT_TABLE).compress())
+            .map(|_| (&Scalar::random(&mut rng) * &constants::RISTRETTO_BASEPOINT_TABLE))
             .collect()
     }
 
@@ -53,7 +57,7 @@ mod pedersen_benches {
             + if use_scalars { "yes" } else { "no" }
             + ") - use generators (no)";
 
-        let wit_generators_label: String = num_rows.to_string()
+        let with_generators_label: String = num_rows.to_string()
             + " rows"
             + " - use scalars ("
             + if use_scalars { "yes" } else { "no" }
@@ -73,7 +77,7 @@ mod pedersen_benches {
                 b.iter(|| compute_commitments(&mut commitments, &table))
             });
 
-            group.bench_function(&wit_generators_label, |b| {
+            group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
                     compute_commitments_with_generators(&mut commitments, &table, &generators)
                 })
@@ -93,7 +97,7 @@ mod pedersen_benches {
                 b.iter(|| compute_commitments(&mut commitments, &table))
             });
 
-            group.bench_function(&wit_generators_label, |b| {
+            group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
                     compute_commitments_with_generators(&mut commitments, &table, &generators)
                 })
@@ -107,10 +111,10 @@ mod pedersen_benches {
         init_backend();
 
         let bench_runs = vec![
-            (1, vec![1, 10, 100, 1000, 10000, 100000, 1000000]), // 1 commits
-            (10, vec![10, 100, 1000]),                           // 10 commits
-            (100, vec![10, 100, 1000]),                          // 100 commits
-            (1000, vec![10, 100, 1000]),                         // 1000 commits
+            (1, vec![1, 10, 100, 1000, 10000, 100000]), // 1 commits
+            (10, vec![10, 100, 1000]),                  // 10 commits
+            (100, vec![10, 100, 1000]),                 // 100 commits
+            (1000, vec![10, 100, 1000]),                // 1000 commits
         ];
 
         // iterate through the num_commits

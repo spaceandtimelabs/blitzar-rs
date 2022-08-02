@@ -1,8 +1,10 @@
 extern crate curve25519_dalek;
 extern crate pedersen;
 
-use pedersen::commitments::*;
-use pedersen::sequence::*;
+use byte_slice_cast::AsByteSlice;
+use curve25519_dalek::ristretto::CompressedRistretto;
+use pedersen::compute::*;
+use pedersen::sequences::*;
 
 fn main() {
     /////////////////////////////////////////////

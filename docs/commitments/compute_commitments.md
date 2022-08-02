@@ -110,7 +110,10 @@ Portions of this documentation were extracted from
         The second accepted data input is a slice view of a [Scalar] memory area,
         which captures the slices of contiguous Dalek Scalar elements.
 
+# Asserts
+
+If the data.len() value is different from the commitments.len() value.
+
 # Panics
 
-If the compute commitments execution in the GPU / CPU fails, If
-the data.len() value is different from the commitments.len() value.
+If the compute commitments execution in the GPU / CPU fails

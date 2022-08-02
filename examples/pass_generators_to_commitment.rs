@@ -1,11 +1,14 @@
 extern crate curve25519_dalek;
 extern crate pedersen;
 
-use pedersen::commitments::*;
-use pedersen::sequence::*;
+use pedersen::compute::*;
+use pedersen::sequences::*;
 
 extern crate rand_core;
 use rand_core::OsRng;
+
+use byte_slice_cast::AsByteSlice;
+use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 fn main() {
     // generate input table
@@ -30,8 +33,8 @@ fn main() {
     // randomly obtain the generator points
     /////////////////////////////////////////////
     let mut rng = OsRng;
-    let gs: Vec<CompressedRistretto> = (0..data.len())
-        .map(|_| RistrettoPoint::random(&mut rng).compress())
+    let gs: Vec<RistrettoPoint> = (0..data.len())
+        .map(|_| RistrettoPoint::random(&mut rng))
         .collect();
 
     /////////////////////////////////////////////
@@ -63,10 +66,7 @@ fn main() {
     // CPU above. Following, we randomly
     // obtain the generators
     /////////////////////////////////////////////
-    let mut expected_commit = match CompressedRistretto::from_slice(&[0_u8; 32]).decompress() {
-        Some(pt) => pt,
-        None => panic!("Invalid ristretto point decompression"),
-    };
+    let mut expected_commit = RistrettoPoint::from_uniform_bytes(&[0_u8; 64]);
 
     /////////////////////////////////////////////
     // Then we use the above generators `gs`,
@@ -81,10 +81,7 @@ fn main() {
         // Construct a Scalar by reducing a 256-bit little-endian integer modulo the group order ℓ.
         let ristretto_sc = curve25519_dalek::scalar::Scalar::from_bytes_mod_order(scalar_bytes);
 
-        let g_i = match gs[i].decompress() {
-            Some(pt) => pt,
-            None => panic!("Invalid ristretto point decompression"),
-        };
+        let g_i = gs[i];
 
         expected_commit += ristretto_sc * g_i;
     }

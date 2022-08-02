@@ -113,13 +113,16 @@ Portions of this documentation were extracted from
         The second accepted data input is a slice view of a [Scalar] memory area,
         which captures the slices of contiguous Dalek Scalar elements.
 
-* `generators` - A sliced view of a CompressedRistretto memory area where the
+* `generators` - A sliced view of a Ristretto memory area where the
               256-bit Ristretto Point generators used in the commitment computation are
               stored. Bear in mind that the size of this slice must always be greater
               or equal to the longest sequence, in terms of rows, in the table.
 
+# Asserts
+
+If the longest sequence in the input data is bigger than the generators` length, or If
+the data.len() value is different from the commitments.len() value.
+
 # Panics
 
-If the compute commitments execution in the GPU / CPU fails, If the longest sequence
-in the input data is bigger than the generators` length, or If
-the data.len() value is different from the commitments.len() value.
+If the compute commitments execution in the GPU / CPU fails

@@ -8,7 +8,11 @@ use byte_slice_cast::AsByteSlice;
 use curve25519_dalek::ristretto::CompressedRistretto;
 
 fn main() {
-    init_backend();
+    let num_precomputed_generators: u64 = 100;
+
+    init_backend_with_config(BackendConfig {
+        num_precomputed_generators,
+    });
 
     // generate input table
     let mut table: Vec<Sequence> = Vec::new();
