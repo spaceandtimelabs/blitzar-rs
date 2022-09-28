@@ -7,6 +7,8 @@
 use super::backend::init_backend;
 use super::generators::get_generators;
 use crate::sequences::{to_sxt_descriptors, Descriptor};
+use curve25519_dalek::constants::RISTRETTO_BASEPOINT_COMPRESSED;
+use curve25519_dalek::constants::RISTRETTO_BASEPOINT_POINT;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 #[doc = include_str!("../../docs/commitments/compute_commitments.md")]
@@ -109,7 +111,7 @@ pub fn update_commitment<T: Descriptor>(
     offset_generators: u64,
     data: T,
 ) {
-    let mut partial_commitment = [CompressedRistretto::from_slice(&[0_u8; 32]); 1];
+    let mut partial_commitment = [RISTRETTO_BASEPOINT_COMPRESSED; 1];
 
     // When the data is a sparse sequence,
     // we don't use the offset_generators,
@@ -120,7 +122,7 @@ pub fn update_commitment<T: Descriptor>(
     } else {
         // Otherwise, we fetch the generators from our proofs_gpu sys crate
         // and then we use them to compute the partial commitment out of the given data
-        let mut generators = vec![RistrettoPoint::from_uniform_bytes(&[0_u8; 64]); data.len()];
+        let mut generators = vec![RISTRETTO_BASEPOINT_POINT; data.len()];
 
         get_generators(&mut generators, offset_generators);
 

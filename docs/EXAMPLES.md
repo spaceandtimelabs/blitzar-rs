@@ -134,3 +134,13 @@ This example shows how to update a commitment using all the available data types
 ```
 $ cargo run --features naive-gpu --example simple_update_commitment
 ```
+
+---------
+#### Example 10 - Get One Commits
+---------
+
+This example shows how to fetch the i-th one-commit ristretto point.
+
+```
+$ cargo run --features naive-gpu --example get_one_commit
+```

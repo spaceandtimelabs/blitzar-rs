@@ -5,6 +5,7 @@
 // - Ryan Burn <ryan@spaceandtime.io>
 use super::backend::init_backend;
 use curve25519_dalek::ristretto::RistrettoPoint;
+use std::mem::MaybeUninit;
 
 #[doc = include_str!("../../docs/commitments/get_generators.md")]
 ///
@@ -28,5 +29,29 @@ pub fn get_generators(generators: &mut [RistrettoPoint], offset_generators: u64)
         if ret_get_generators != 0 {
             panic!("Error during get_generators call");
         }
+    }
+}
+
+#[doc = include_str!("../../docs/commitments/get_one_commit.md")]
+///
+/// # Example - Getting the i-th One Commit
+//
+/// ```no_run
+#[doc = include_str!("../../examples/get_one_commit.rs")]
+/// ```
+pub fn get_one_commit(n: u64) -> RistrettoPoint {
+    init_backend();
+
+    unsafe {
+        let mut one_commit: MaybeUninit<RistrettoPoint> = MaybeUninit::uninit();
+        let one_commit_ptr = one_commit.as_mut_ptr() as *mut proofs_gpu::sxt_ristretto;
+
+        let ret_get_one_commit = proofs_gpu::sxt_get_one_commit(one_commit_ptr, n);
+
+        if ret_get_one_commit != 0 {
+            panic!("Error during get_one_commit call");
+        }
+
+        one_commit.assume_init()
     }
 }

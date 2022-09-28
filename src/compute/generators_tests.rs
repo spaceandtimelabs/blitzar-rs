@@ -9,6 +9,7 @@ use crate::sequences::{DenseSequence, Sequence};
 use byte_slice_cast::AsByteSlice;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 use curve25519_dalek::scalar::Scalar;
+use curve25519_dalek::traits::Identity;
 
 #[test]
 fn get_generators_is_the_same_used_in_commitment_computation() {
@@ -57,8 +58,6 @@ fn get_generators_with_offset_is_the_same_used_in_commitment_computation() {
     let mut generators = vec![RistrettoPoint::from_uniform_bytes(&[0_u8; 64]); generators_len];
     let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
 
-    // convert the generator points to compressed ristretto
-
     get_generators(&mut generators, offset_generators as u64);
 
     compute_commitments(
@@ -85,4 +84,16 @@ fn get_generators_with_offset_is_the_same_used_in_commitment_computation() {
 
     assert_eq!(commitments[0], expected_commit.compress());
     assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitments[0]);
+}
+
+#[test]
+fn get_one_commit_is_valid() {
+    let generators_len = 3;
+    let mut generators = vec![RistrettoPoint::from_uniform_bytes(&[0_u8; 64]); generators_len];
+
+    get_generators(&mut generators, 0);
+
+    assert_eq!(get_one_commit(0), RistrettoPoint::identity());
+    assert_eq!(get_one_commit(1), generators[0]);
+    assert_eq!(get_one_commit(2), generators[0] + generators[1]);
 }

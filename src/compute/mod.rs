@@ -18,7 +18,7 @@ pub use commitments::{
 mod commitments_tests;
 
 mod generators;
-pub use generators::get_generators;
+pub use generators::{get_generators, get_one_commit};
 
 #[cfg(test)]
 mod generators_tests;
