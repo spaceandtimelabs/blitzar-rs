@@ -22,3 +22,7 @@ node_modules/
 rust/
 proofs_gpu*/
 *.crate
+
+# code coverage files
+*.profraw
+code_coverage/
