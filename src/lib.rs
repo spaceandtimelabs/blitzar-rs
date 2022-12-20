@@ -7,10 +7,10 @@
 // Refuse to compile if documentation is missing.
 #![deny(missing_docs)]
 
-//! <h1 align="center" style="border-bottom: none;">Pedersen 🦀🔑</h1>
+//! <h1 align="center" style="border-bottom: none;">Proofs-GPU 🦀🔑</h1>
 //! <p align="center">
-//!   <a href="https://github.com/spaceandtimelabs/pedersen/actions?query=workflow%3ATest+branch%3Amain">
-//!     <img alt="Build states" src="https://img.shields.io/badge/tests-passing-green">
+//!   <a href="">
+//!     <img alt="Build states" src="">
 //!   </a>
 //!   <a href="#badge">
 //!     <img alt="semantic-release: conventional-commits" src="https://img.shields.io/badge/semantic--release-conventional--commits-blueviolet">
@@ -20,11 +20,7 @@
 //!   </a>
 //! </p>
 //!
-//! Pedersen Commitment Library.
-//! A high-level rust wrapper for low-level
-//! rust sys-crate, which wrappers a
-//! c++ GPU / CPU implementation of
-//! group operations on Ristretto and Curve25519.
+//! High-Level Rust wrapper for the proofs-gpu sys crate
 //! For the rust sys-crate and the C++ repo, check
 //! [here](https://github.com/spaceandtimelabs/proofs-gpu).
 //!
@@ -41,19 +37,19 @@
 //! Add the following two lines to your `Cargo.toml` file:
 
 //! ```text
-//! [dependencies.pedersen]
-//! path = "/path/to/directory/pedersen/"
+//! [dependencies.proofs_gpu]
+//! path = "/path/to/directory/proofs_gpu/"
 //! ```
 
-//! Don't forget to substitute this `path` with the correct location of your `pedersen` directory.
+//! Don't forget to substitute this `path` with the correct location of your `proofs_gpu` directory.
 
 //! Import the necessary modules to your rust code:
 
 //! ```
-//! extern crate pedersen;
+//! extern crate proofs_gpu;
 
-//! use pedersen::sequences::*;
-//! use pedersen::compute::*;
+//! use proofs_gpu::sequences::*;
+//! use proofs_gpu::compute::*;
 //! ```
 
 //!## Examples
@@ -75,7 +71,7 @@
 //! ```
 
 //------------------------------------------------------------------------
-// pedersen public modules
+// proofs-gpu public modules
 //------------------------------------------------------------------------
 
 // Wrappers for data table

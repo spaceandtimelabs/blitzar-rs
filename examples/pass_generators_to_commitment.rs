@@ -1,8 +1,8 @@
 extern crate curve25519_dalek;
-extern crate pedersen;
+extern crate proofs_gpu;
 
-use pedersen::compute::*;
-use pedersen::sequences::*;
+use proofs_gpu::compute::*;
+use proofs_gpu::sequences::*;
 
 extern crate rand_core;
 use rand_core::OsRng;

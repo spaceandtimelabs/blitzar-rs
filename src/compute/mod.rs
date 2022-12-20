@@ -4,7 +4,7 @@
 // - Joe <joseribeiro1017@gmail.com>
 // - Ryan Burn <ryan@spaceandtime.io>
 
-//! Computes Pedersen Commitments in the CPU / GPU
+//! High-Level Rust wrapper for the proofs-gpu sys crate.
 
 mod backend;
 pub use backend::{init_backend, init_backend_with_config, BackendConfig};

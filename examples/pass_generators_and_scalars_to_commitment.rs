@@ -1,7 +1,7 @@
 extern crate curve25519_dalek;
-extern crate pedersen;
+extern crate proofs_gpu;
 
-use pedersen::compute::*;
+use proofs_gpu::compute::*;
 
 extern crate rand_core;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};

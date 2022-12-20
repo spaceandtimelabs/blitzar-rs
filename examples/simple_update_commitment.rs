@@ -1,11 +1,11 @@
 extern crate curve25519_dalek;
-extern crate pedersen;
+extern crate proofs_gpu;
 
 use byte_slice_cast::AsByteSlice;
 use curve25519_dalek::ristretto::CompressedRistretto;
 use curve25519_dalek::scalar::Scalar;
-use pedersen::compute::*;
-use pedersen::sequences::*;
+use proofs_gpu::compute::*;
+use proofs_gpu::sequences::*;
 
 fn main() {
     /////////////////////////////////////////////

@@ -39,10 +39,10 @@ pub fn compute_commitments<T: Descriptor>(commitments: &mut [CompressedRistretto
 
     unsafe {
         let sxt_compressed_ristretto =
-            commitments.as_mut_ptr() as *mut proofs_gpu::sxt_compressed_ristretto;
+            commitments.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
 
         // computes the commitments using the lower-level rust sys crate
-        let ret_compute = proofs_gpu::sxt_compute_pedersen_commitments(
+        let ret_compute = proofs_gpu_sys::sxt_compute_pedersen_commitments(
             sxt_compressed_ristretto,
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),
@@ -80,13 +80,13 @@ pub fn compute_commitments_with_generators<T: Descriptor>(
     init_backend();
 
     unsafe {
-        let sxt_ristretto_generators = generators.as_ptr() as *const proofs_gpu::sxt_ristretto;
+        let sxt_ristretto_generators = generators.as_ptr() as *const proofs_gpu_sys::sxt_ristretto;
 
         let sxt_compressed_ristretto =
-            commitments.as_mut_ptr() as *mut proofs_gpu::sxt_compressed_ristretto;
+            commitments.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
 
         // computes the commitments using the lower-level rust sys crate
-        let ret_compute = proofs_gpu::sxt_compute_pedersen_commitments_with_generators(
+        let ret_compute = proofs_gpu_sys::sxt_compute_pedersen_commitments_with_generators(
             sxt_compressed_ristretto,
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),
@@ -120,7 +120,7 @@ pub fn update_commitment<T: Descriptor>(
     if data.is_sparse() {
         compute_commitments(&mut partial_commitment, &[data]);
     } else {
-        // Otherwise, we fetch the generators from our proofs_gpu sys crate
+        // Otherwise, we fetch the generators from our proofs_gpu_sys sys crate
         // and then we use them to compute the partial commitment out of the given data
         let mut generators = vec![RISTRETTO_BASEPOINT_POINT; data.len()];
 

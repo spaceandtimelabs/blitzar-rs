@@ -1,9 +1,9 @@
 extern crate curve25519_dalek;
-extern crate pedersen;
+extern crate proofs_gpu;
 
 use curve25519_dalek::ristretto::RistrettoPoint;
 use curve25519_dalek::traits::Identity;
-use pedersen::compute::*;
+use proofs_gpu::compute::*;
 
 fn main() {
     let mut generators = vec![RistrettoPoint::from_uniform_bytes(&[0_u8; 64]); 3];

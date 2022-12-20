@@ -14,12 +14,12 @@ use rand::thread_rng;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use pedersen::compute::*;
-use pedersen::sequences::*;
+use proofs_gpu::compute::*;
+use proofs_gpu::sequences::*;
 
 use curve25519_dalek::constants;
 
-mod pedersen_benches {
+mod proofs_gpu_benches {
     use super::*;
 
     fn construct_scalars_data(num_commits: usize, num_rows: usize) -> Vec<Vec<Scalar>> {
@@ -128,7 +128,7 @@ mod pedersen_benches {
     }
 
     criterion_group! {
-        name = pedersen_compute_commitments;
+        name = proofs_gpu_compute_commitments;
         // Lower the sample size to run the benchmarks faster
         config = Criterion::default().sample_size(15);
         targets =
@@ -136,4 +136,4 @@ mod pedersen_benches {
     }
 }
 
-criterion_main!(pedersen_benches::pedersen_compute_commitments);
+criterion_main!(proofs_gpu_benches::proofs_gpu_compute_commitments);

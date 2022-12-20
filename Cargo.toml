@@ -1,15 +1,11 @@
 [package]
 version = "0.0.0" # This version will be automatically updated
 readme = "README.md"
-name = "pedersen"
+name = "proofs-gpu"
 edition = "2021"
-repository = "https://github.com/spaceandtimelabs/pedersen"
-authors = [
-    "Joe <joseribeiro1017@gmail.com>",
-    "Ryan Burn <ryan@spaceandtime.io>"
-]
+repository = "https://github.com/spaceandtimelabs/proofs-gpu-rust"
 keywords = ["gpu-cryptography", "gpu-crypto", "gpu-ristretto", "gpu-curve25519", "gpu-ristretto255"]
-description = "A GPU implementation of group operations on ristretto255 and Curve25519"
+description = "High-Level Rust wrapper for the proofs-gpu sys crate "
 exclude = [
     "**/.gitignore",
     ".gitignore"
@@ -18,7 +14,7 @@ exclude = [
 [dependencies]
 byte-slice-cast = {version = "1.2"}
 curve25519-dalek = { version = "3" }
-proofs_gpu = {version = "6.4", registry = "proofs_gpu_reg"}
+proofs-gpu-sys = {version = "7.0.0"}
 
 # this sections is shared by tests, benchmarks, and examples
 [dev-dependencies]
@@ -27,7 +23,7 @@ rand_core = "0.5"
 rand = "0.7"
 
 [[bench]]
-name = "pedersen_benchmarks"
+name = "proofs_gpu_benchmarks"
 harness = false
 
 [features]

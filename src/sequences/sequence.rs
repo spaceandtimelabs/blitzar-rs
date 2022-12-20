@@ -14,7 +14,7 @@ use super::sparse_sequence::SparseSequence;
 /// To use this sequence, you can have:
 ///
 /// ```no_run
-/// use pedersen::sequences::*;
+/// use proofs_gpu::sequences::*;
 /// use byte_slice_cast::AsByteSlice;
 ///
 /// let sparse_data: Vec<u32> = vec![1, 2, 3, 4, 9];
