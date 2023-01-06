@@ -68,7 +68,7 @@ pub struct SparseSequence<'a> {
 impl SparseSequence<'_> {
     /// Returns the number of elements in the Sparse Sequence
     pub fn len(&self) -> usize {
-        (*self).data_slice.len() / (*self).element_size
+        self.data_slice.len() / self.element_size
     }
 
     /// Returns true if the sequence is empty, false otherwise
@@ -78,22 +78,22 @@ impl SparseSequence<'_> {
 
     pub(super) fn to_data_properties(&self) -> (u8, usize, *const u8, *const u64) {
         assert!(
-            (*self).data_slice.len() % (*self).element_size == 0,
+            self.data_slice.len() % self.element_size == 0,
             "data_slice length is not a multiple of element_size in the sparse object"
         );
 
         let num_rows = (*self).len();
 
         assert!(
-            num_rows == (*self).data_indices.len(),
+            num_rows == self.data_indices.len(),
             "number of rows differs from the data_indices length in the sparse object"
         );
 
         (
-            (*self).element_size as u8,
-            num_rows as usize,
-            (*self).data_slice.as_ptr(),
-            (*self).data_indices.as_ptr(),
+            self.element_size as u8,
+            num_rows,
+            self.data_slice.as_ptr(),
+            self.data_indices.as_ptr(),
         )
     }
 }

@@ -62,7 +62,7 @@ pub struct DenseSequence<'a> {
 impl DenseSequence<'_> {
     /// Returns the number of elements in the Dense Sequence
     pub fn len(&self) -> usize {
-        (*self).data_slice.len() / (*self).element_size
+        self.data_slice.len() / self.element_size
     }
 
     /// Returns true if the sequence is empty, false otherwise
@@ -72,16 +72,16 @@ impl DenseSequence<'_> {
 
     pub(super) fn to_data_properties(&self) -> (u8, usize, *const u8, *const u64) {
         assert!(
-            (*self).data_slice.len() % (*self).element_size == 0,
+            self.data_slice.len() % self.element_size == 0,
             "data_slice length is not a multiple of element_size in the dense object"
         );
 
         let num_rows = (*self).len();
 
         (
-            (*self).element_size as u8,
-            num_rows as usize,
-            (*self).data_slice.as_ptr(),
+            self.element_size as u8,
+            num_rows,
+            self.data_slice.as_ptr(),
             ptr::null(),
         )
     }

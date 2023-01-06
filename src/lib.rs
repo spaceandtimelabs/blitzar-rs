@@ -45,7 +45,7 @@
 
 //! Import the necessary modules to your rust code:
 
-//! ```
+//! ```text
 //! extern crate proofs_gpu;
 
 //! use proofs_gpu::sequences::*;
