@@ -14,8 +14,19 @@ pub struct BackendConfig {
 // holds the state of the backend initalization (0 for success, non-zero otherwise)
 static mut INIT_STATE: i32 = 0;
 
-// static variable used to secure that the backend initialization is triggered only once
+// static variable used to assure that the backend initialization is triggered only once
 static INIT: Once = Once::new();
+
+/// verify which feature backend was passed to the build
+fn get_backend() -> i32 {
+    if cfg!(feature = "cpu") {
+        proofs_gpu_sys::SXT_CPU_BACKEND as i32
+    } else if cfg!(feature = "gpu") {
+        proofs_gpu_sys::SXT_GPU_BACKEND as i32
+    } else {
+        panic!("Incorrect backend specified");
+    }
+}
 
 #[doc = include_str!("../../docs/commitments/init_backend.md")]
 ///
@@ -33,14 +44,7 @@ pub fn init_backend() {
         let num_precomputed_generators: u64 = 20;
 
         INIT.call_once(|| {
-            // verify which feature backend was passed to the build
-            let backend = if cfg!(feature = "naive-cpu") {
-                proofs_gpu_sys::SXT_NAIVE_BACKEND_CPU
-            } else if cfg!(feature = "naive-gpu") {
-                proofs_gpu_sys::SXT_NAIVE_BACKEND_GPU
-            } else {
-                proofs_gpu_sys::SXT_PIPPENGER_BACKEND_CPU
-            } as i32;
+            let backend = get_backend();
 
             // initializes the backend using the lower-level rust sys crate
             let config: proofs_gpu_sys::sxt_config = proofs_gpu_sys::sxt_config {
@@ -74,14 +78,7 @@ pub fn init_backend() {
 pub fn init_backend_with_config(config: BackendConfig) {
     unsafe {
         INIT.call_once(|| {
-            // verify which feature backend was passed to the build
-            let backend = if cfg!(feature = "naive-cpu") {
-                proofs_gpu_sys::SXT_NAIVE_BACKEND_CPU
-            } else if cfg!(feature = "naive-gpu") {
-                proofs_gpu_sys::SXT_NAIVE_BACKEND_GPU
-            } else {
-                proofs_gpu_sys::SXT_PIPPENGER_BACKEND_CPU
-            } as i32;
+            let backend = get_backend();
 
             // initializes the backend using the lower-level rust sys crate
             let config: proofs_gpu_sys::sxt_config = proofs_gpu_sys::sxt_config {

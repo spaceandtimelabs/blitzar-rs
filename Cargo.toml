@@ -14,7 +14,7 @@ exclude = [
 [dependencies]
 byte-slice-cast = {version = "1.2"}
 curve25519-dalek = { version = "3" }
-proofs-gpu-sys = {version = "7.0.0"}
+proofs-gpu-sys = { version = "8.2" }
 
 # this sections is shared by tests, benchmarks, and examples
 [dev-dependencies]
@@ -27,7 +27,6 @@ name = "proofs_gpu_benchmarks"
 harness = false
 
 [features]
-default = ["pip-cpu"]
-pip-cpu = []
-naive-cpu = []
-naive-gpu = []
+default = ["gpu"]
+cpu = []
+gpu = []
