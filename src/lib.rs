@@ -79,3 +79,6 @@ pub mod sequences;
 
 // Responsible for all computations (commitments and generator computation)
 pub mod compute;
+
+// Responsible for all proof primitives
+pub mod proof;

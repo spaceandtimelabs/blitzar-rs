@@ -13,7 +13,10 @@ exclude = [
 
 [dependencies]
 byte-slice-cast = {version = "1.2"}
-curve25519-dalek = { version = "3" }
+curve25519-dalek = { version = "3", features = ["serde"] }
+merlin = "2"
+thiserror = "1"
+serde = { version = "1", features = ["serde_derive"] }
 proofs-gpu-sys = { version = "8.2" }
 
 # this sections is shared by tests, benchmarks, and examples
