@@ -17,7 +17,7 @@ curve25519-dalek = { version = "3", features = ["serde"] }
 merlin = "2"
 thiserror = "1"
 serde = { version = "1", features = ["serde_derive"] }
-proofs-gpu-sys = { version = "9.0" }
+proofs-gpu-sys = { version = "10.0" }
 
 # this sections is shared by tests, benchmarks, and examples
 [dev-dependencies]

@@ -5,7 +5,7 @@
 // - Ryan Burn <ryan@spaceandtime.io>
 
 use super::*;
-use crate::sequences::{DenseSequence, Sequence, SparseSequence};
+use crate::sequences::{DenseSequence, Sequence};
 use byte_slice_cast::AsByteSlice;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 use curve25519_dalek::scalar::Scalar;
@@ -72,53 +72,12 @@ fn we_can_compute_commitments_with_a_non_zero_offset() {
 }
 
 #[test]
-fn compute_sparse_commitments_works() {
+fn we_can_update_commitments() {
     // generate input table
     let offset_generators = 0_u64;
-    let sparse_data: Vec<u32> = vec![1, 2, 3, 4, 9];
-    let sparse_indices: Vec<u64> = vec![0, 2, 4, 5, 9];
     let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];
-
-    let mut commitments = vec![CompressedRistretto::default(); 2];
-
-    compute_commitments(
-        &mut commitments,
-        &[
-            Sequence::Dense(DenseSequence {
-                data_slice: dense_data.as_byte_slice(),
-                element_size: std::mem::size_of_val(&dense_data[0]),
-            }),
-            Sequence::Sparse(SparseSequence {
-                data_slice: sparse_data.as_byte_slice(),
-                element_size: std::mem::size_of_val(&sparse_data[0]),
-                data_indices: &sparse_indices,
-            }),
-        ],
-        offset_generators,
-    );
-
-    // verify if commitment results are correct
-    assert_eq!(commitments[0], commitments[1]);
-    assert_ne!(CompressedRistretto::default(), commitments[0]);
-    assert_ne!(CompressedRistretto::default(), commitments[1]);
-}
-
-#[test]
-fn compute_update_commitment_works() {
-    // generate input table
-    let offset_generators = 0_u64;
-    let sparse_data: Vec<u32> = vec![1, 2, 3, 4, 9];
-    let sparse_indices: Vec<u64> = vec![0, 2, 4, 5, 9];
-    let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];
-    let mut scalar_data: Vec<Scalar> = vec![Scalar::zero(); 4];
-    let expected_data: Vec<u32> = vec![2, 0, 5004, 1500, 6, 8, 0, 0, 0, 18, 0];
-
-    for _i in 0..5000 {
-        scalar_data[2] += Scalar::one();
-    }
-    for _i in 0..1500 {
-        scalar_data[3] += Scalar::one();
-    }
+    let scalar_data: Vec<Scalar> = vec![Scalar::from(5000_u32), Scalar::from(1500_u32)];
+    let expected_data: Vec<u32> = vec![1, 0, 5002, 1500, 3, 4, 0, 0, 0, 9, 0];
 
     let mut commitment = CompressedRistretto::default();
     let mut expected_commitment = vec![CompressedRistretto::default(); 1];
@@ -132,17 +91,7 @@ fn compute_update_commitment_works() {
         }),
     );
 
-    update_commitment(
-        &mut commitment,
-        0_u64,
-        Sequence::Sparse(SparseSequence {
-            data_slice: sparse_data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&sparse_data[0]),
-            data_indices: &sparse_indices,
-        }),
-    );
-
-    update_commitment(&mut commitment, 2_u64, &scalar_data[2..]);
+    update_commitment(&mut commitment, 2_u64, &scalar_data[..]);
 
     compute_commitments(
         &mut expected_commitment,

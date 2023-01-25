@@ -116,17 +116,7 @@ $ cargo run --features naive-gpu --example pass_generators_and_scalars_to_commit
 ```
 
 ---------
-#### Example 8 - Compute Commitments with Sparse Sequences
----------
-
-This example shows how to compute commitments using sparse sequences.
-
-```
-$ cargo run --features naive-gpu --example simple_sparse_commitment
-```
-
----------
-#### Example 9 - Update Commitments with Sparse and Dense Sequences, and Dalek Scalars
+#### Example 8 - Update Commitments Dense Sequences, and Dalek Scalars
 ---------
 
 This example shows how to update a commitment using all the available data types.
@@ -136,7 +126,7 @@ $ cargo run --features naive-gpu --example simple_update_commitment
 ```
 
 ---------
-#### Example 10 - Get One Commits
+#### Example 9 - Get One Commits
 ---------
 
 This example shows how to fetch the i-th one-commit ristretto point.

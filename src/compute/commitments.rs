@@ -5,10 +5,7 @@
 // - Ryan Burn <ryan@spaceandtime.io>
 
 use super::backend::init_backend;
-use super::generators::get_generators;
 use crate::sequences::{to_sxt_descriptors, Descriptor};
-use curve25519_dalek::constants::RISTRETTO_BASEPOINT_COMPRESSED;
-use curve25519_dalek::constants::RISTRETTO_BASEPOINT_POINT;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 #[doc = include_str!("../../docs/commitments/compute_commitments.md")]
@@ -27,10 +24,6 @@ use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 ///```no_run
 #[doc = include_str!("../../examples/simple_scalars_commitment.rs")]
 ///```
-///
-/// # Example 4 - Compute Commitments with Sparse Sequences
-///```no_run
-#[doc = include_str!("../../examples/simple_sparse_commitment.rs")]
 ///```
 pub fn compute_commitments<T: Descriptor>(
     commitments: &mut [CompressedRistretto],
@@ -96,7 +89,7 @@ pub fn compute_commitments_with_generators<T: Descriptor>(
 
 #[doc = include_str!("../../docs/commitments/update_commitments.md")]
 ///
-/// # Example - Update commitments with dense, sparse, and dalek scalars
+/// # Example - Update commitments with dense and dalek scalars
 //
 /// ```no_run
 #[doc = include_str!("../../examples/simple_update_commitment.rs")]
@@ -106,27 +99,10 @@ pub fn update_commitment<T: Descriptor>(
     offset_generators: u64,
     data: T,
 ) {
-    let mut partial_commitment = [RISTRETTO_BASEPOINT_COMPRESSED; 1];
+    let mut partial_commitment = [CompressedRistretto::default(); 1];
 
-    // When the data is a sparse sequence,
-    // we don't use the offset_generators,
-    // because each data element is already
-    // tied with its own row
-    if data.is_sparse() {
-        compute_commitments(&mut partial_commitment, &[data], 0_u64);
-    } else {
-        // Otherwise, we fetch the generators from our proofs_gpu_sys sys crate
-        // and then we use them to compute the partial commitment out of the given data
-        let mut generators = vec![RISTRETTO_BASEPOINT_POINT; data.len()];
+    compute_commitments(&mut partial_commitment, &[data], offset_generators);
 
-        get_generators(&mut generators, offset_generators);
-
-        compute_commitments_with_generators(&mut partial_commitment, &[data], &generators);
-    }
-
-    // using the A = `partial_commitment` and the B = `commitment`
-    // given by the user, we compute a new commitment as B = A + B,
-    // and then we write the result back to the `commitment` variable
     let c_a = match (*commitment).decompress() {
         Some(pt) => pt,
         None => panic!("invalid ristretto point decompression on update_commitment"),

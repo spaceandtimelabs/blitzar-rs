@@ -8,47 +8,26 @@ use proofs_gpu::compute::*;
 use proofs_gpu::sequences::*;
 
 fn main() {
-    /////////////////////////////////////////////
-    // The sparse_data is associated with the
-    // rows 0, 2, 4, 5, and 9
-    /////////////////////////////////////////////
-    let sparse_data: Vec<u32> = vec![1, 2, 3, 4, 9];
-    let sparse_indices: Vec<u64> = vec![0, 2, 4, 5, 9];
-
-    /////////////////////////////////////////////
-    // This dense_data is exactly the same as the
-    // sparse_data, expect that it stores zeros and
-    // the sparse_data does not. But the non-zero
-    // elements from dense_data are also present in
-    // the sparse_data array
-    /////////////////////////////////////////////
     let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];
 
     /////////////////////////////////////////////
     // This scalars_data will effectively only
     // have information in the positions 2 and 3
     /////////////////////////////////////////////
-    let mut scalar_data: Vec<Scalar> = vec![Scalar::zero(); 4];
-
-    for _i in 0..5000 {
-        scalar_data[2] += Scalar::one();
-    }
-    for _i in 0..1500 {
-        scalar_data[3] += Scalar::one();
-    }
+    let scalar_data: Vec<Scalar> = vec![Scalar::from(5000_u32), Scalar::from(1500_u32)];
 
     /////////////////////////////////////////////
     // We build the array with the expected results
-    // expected_data = sparse_data + dense_data + scalar_data
+    // expected_data = dense_data + scalar_data
     /////////////////////////////////////////////
-    let expected_data: Vec<u32> = vec![2, 0, 5004, 1500, 6, 8, 0, 0, 0, 18, 0];
+    let expected_data: Vec<u32> = vec![1, 0, 5002, 1500, 3, 4, 0, 0, 0, 9, 0];
 
     let mut commitment = CompressedRistretto::from_slice(&[0_u8; 32]);
     let mut expected_commitment = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
 
     /////////////////////////////////////////////
     // We compute the commitments using the exact
-    // data, which stores `sparse_data + dense_data + scalar_data`
+    // data, which stores `dense_data + scalar_data`
     /////////////////////////////////////////////
     compute_commitments(
         &mut expected_commitment,
@@ -74,21 +53,7 @@ fn main() {
 
     /////////////////////////////////////////////
     // We then we update the commiment, so that
-    // `commitment = dense_data + sparse_data`
-    /////////////////////////////////////////////
-    update_commitment(
-        &mut commitment,
-        0_u64,
-        Sequence::Sparse(SparseSequence {
-            data_slice: sparse_data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&sparse_data[0]),
-            data_indices: &sparse_indices,
-        }),
-    );
-
-    /////////////////////////////////////////////
-    // We then we update the commiment, so that
-    // `commitment = dense_data + sparse_data + scalar_data`
+    // `commitment = dense_data + scalar_data`
     // Notice that we only pass the scalar values from 2 to 3.
     // Therefore, we need to specify the offsets
     // that will be used do query the correct generators.
@@ -96,7 +61,7 @@ fn main() {
     // commitment += (generator[0 + 2] * scalar_data[0] +
     //                  + generator[1 + 2] * scalar_data[1])
     /////////////////////////////////////////////
-    update_commitment(&mut commitment, 2_u64, &scalar_data[2..]);
+    update_commitment(&mut commitment, 2_u64, &scalar_data[..]);
 
     /////////////////////////////////////////////
     // We then compare the commitment results

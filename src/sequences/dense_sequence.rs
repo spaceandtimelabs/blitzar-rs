@@ -4,8 +4,6 @@
 // - Joe <joseribeiro1017@gmail.com>
 // - Ryan Burn <ryan@spaceandtime.io>
 
-use std::ptr;
-
 /// This `DenseSequence` stores the slice view
 /// of a contiguous column data table.
 /// It doesn't matter how the data is represented.
@@ -70,7 +68,7 @@ impl DenseSequence<'_> {
         (*self).len() == 0
     }
 
-    pub(super) fn to_data_properties(&self) -> (u8, usize, *const u8, *const u64) {
+    pub(super) fn to_data_properties(&self) -> (u8, usize, *const u8) {
         assert!(
             self.data_slice.len() % self.element_size == 0,
             "data_slice length is not a multiple of element_size in the dense object"
@@ -78,11 +76,6 @@ impl DenseSequence<'_> {
 
         let num_rows = (*self).len();
 
-        (
-            self.element_size as u8,
-            num_rows,
-            self.data_slice.as_ptr(),
-            ptr::null(),
-        )
+        (self.element_size as u8, num_rows, self.data_slice.as_ptr())
     }
 }
