@@ -58,7 +58,7 @@ fn main() {
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments(&mut commitments, &table);
+    compute_commitments(&mut commitments, &table, 0_u64);
 
     /////////////////////////////////////////////
     // Use Dalek library to obtain the same

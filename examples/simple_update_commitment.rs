@@ -56,6 +56,7 @@ fn main() {
             data_slice: expected_data.as_byte_slice(),
             element_size: std::mem::size_of_val(&expected_data[0]),
         })],
+        0_u64,
     );
 
     /////////////////////////////////////////////

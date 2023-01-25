@@ -74,7 +74,7 @@ mod proofs_gpu_benches {
             let table: Vec<&[Scalar]> = (0..num_commits).map(|i| (&data[i][..])).collect();
 
             group.bench_function(&without_generators_label, |b| {
-                b.iter(|| compute_commitments(&mut commitments, &table))
+                b.iter(|| compute_commitments(&mut commitments, &table, 0_u64))
             });
 
             group.bench_function(&with_generators_label, |b| {
@@ -94,7 +94,7 @@ mod proofs_gpu_benches {
                 .collect();
 
             group.bench_function(&without_generators_label, |b| {
-                b.iter(|| compute_commitments(&mut commitments, &table))
+                b.iter(|| compute_commitments(&mut commitments, &table, 0_u64))
             });
 
             group.bench_function(&with_generators_label, |b| {

@@ -12,10 +12,13 @@ use curve25519_dalek::scalar::Scalar;
 use rand_core::OsRng;
 
 #[test]
-fn compute_commitments_works() {
+fn we_can_compute_commitments_with_a_zero_offset() {
     // generate input table
+    let offset_generators = 0_u64;
     let data: Vec<u32> = vec![2000, 7500, 5000, 1500];
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
+    let mut commitments = vec![CompressedRistretto::default(); 1];
+    let mut generators = vec![RistrettoPoint::default(); data.len()];
+    get_generators(&mut generators, offset_generators as u64);
 
     compute_commitments(
         &mut commitments,
@@ -23,28 +26,60 @@ fn compute_commitments_works() {
             data_slice: data.as_byte_slice(),
             element_size: std::mem::size_of_val(&data[0]),
         })],
+        offset_generators,
     );
 
-    let expected_commit = CompressedRistretto::from_slice(
-        &([
-            4, 105, 58, 131, 59, 69, 150, 106, 120, 137, 32, 225, 175, 244, 82, 115, 216, 180, 206,
-            150, 21, 250, 240, 98, 251, 192, 146, 244, 54, 169, 199, 97,
-        ] as [u8; 32]),
-    );
+    let expected_commit = data
+        .iter()
+        .zip(generators.iter())
+        .map(|(x, y)| Scalar::from(*x) * y)
+        .sum::<RistrettoPoint>()
+        .compress();
 
     // verify if commitment results are correct
     assert_eq!(commitments[0], expected_commit);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitments[0]);
+    assert_ne!(CompressedRistretto::default(), commitments[0]);
+}
+
+#[test]
+fn we_can_compute_commitments_with_a_non_zero_offset() {
+    // generate input table
+    let offset_generators = 121_u64;
+    let data: Vec<u32> = vec![2000, 7500, 5000, 1500];
+    let mut commitments = vec![CompressedRistretto::default(); 1];
+    let mut generators = vec![RistrettoPoint::default(); data.len()];
+    get_generators(&mut generators, offset_generators as u64);
+
+    compute_commitments(
+        &mut commitments,
+        &[Sequence::Dense(DenseSequence {
+            data_slice: data.as_byte_slice(),
+            element_size: std::mem::size_of_val(&data[0]),
+        })],
+        offset_generators,
+    );
+
+    let expected_commit = data
+        .iter()
+        .zip(generators.iter())
+        .map(|(x, y)| Scalar::from(*x) * y)
+        .sum::<RistrettoPoint>()
+        .compress();
+
+    // verify if commitment results are correct
+    assert_eq!(commitments[0], expected_commit);
+    assert_ne!(CompressedRistretto::default(), commitments[0]);
 }
 
 #[test]
 fn compute_sparse_commitments_works() {
     // generate input table
+    let offset_generators = 0_u64;
     let sparse_data: Vec<u32> = vec![1, 2, 3, 4, 9];
     let sparse_indices: Vec<u64> = vec![0, 2, 4, 5, 9];
     let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 2];
+    let mut commitments = vec![CompressedRistretto::default(); 2];
 
     compute_commitments(
         &mut commitments,
@@ -59,17 +94,19 @@ fn compute_sparse_commitments_works() {
                 data_indices: &sparse_indices,
             }),
         ],
+        offset_generators,
     );
 
     // verify if commitment results are correct
     assert_eq!(commitments[0], commitments[1]);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitments[0]);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitments[1]);
+    assert_ne!(CompressedRistretto::default(), commitments[0]);
+    assert_ne!(CompressedRistretto::default(), commitments[1]);
 }
 
 #[test]
 fn compute_update_commitment_works() {
     // generate input table
+    let offset_generators = 0_u64;
     let sparse_data: Vec<u32> = vec![1, 2, 3, 4, 9];
     let sparse_indices: Vec<u64> = vec![0, 2, 4, 5, 9];
     let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];
@@ -83,8 +120,8 @@ fn compute_update_commitment_works() {
         scalar_data[3] += Scalar::one();
     }
 
-    let mut commitment = CompressedRistretto::from_slice(&[0_u8; 32]);
-    let mut expected_commitment = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
+    let mut commitment = CompressedRistretto::default();
+    let mut expected_commitment = vec![CompressedRistretto::default(); 1];
 
     update_commitment(
         &mut commitment,
@@ -113,21 +150,22 @@ fn compute_update_commitment_works() {
             data_slice: expected_data.as_byte_slice(),
             element_size: std::mem::size_of_val(&expected_data[0]),
         })],
+        offset_generators,
     );
 
     // verify if commitment results are correct
     assert_eq!(commitment, expected_commitment[0]);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitment);
-    assert_ne!(
-        CompressedRistretto::from_slice(&[0_u8; 32]),
-        expected_commitment[0]
-    );
+    assert_ne!(CompressedRistretto::default(), commitment);
+    assert_ne!(CompressedRistretto::default(), expected_commitment[0]);
 }
 
 #[test]
 fn compute_commitments_with_scalars_works() {
     // generate input table
+    let offset_generators = 0_u64;
     let mut data: Vec<Scalar> = vec![Scalar::zero(); 4];
+    let mut generators = vec![RistrettoPoint::default(); data.len()];
+    get_generators(&mut generators, offset_generators as u64);
 
     for _i in 0..2000 {
         data[0] += Scalar::one();
@@ -142,30 +180,31 @@ fn compute_commitments_with_scalars_works() {
         data[3] += Scalar::one();
     }
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
+    let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_commitments(&mut commitments, &[&data[..]]);
+    compute_commitments(&mut commitments, &[&data[..]], offset_generators);
 
-    let expected_commit = CompressedRistretto::from_slice(
-        &([
-            4, 105, 58, 131, 59, 69, 150, 106, 120, 137, 32, 225, 175, 244, 82, 115, 216, 180, 206,
-            150, 21, 250, 240, 98, 251, 192, 146, 244, 54, 169, 199, 97,
-        ] as [u8; 32]),
-    );
+    let expected_commit = data
+        .iter()
+        .zip(generators.iter())
+        .map(|(x, y)| *x * y)
+        .sum::<RistrettoPoint>()
+        .compress();
 
     // verify if commitment results are correct
     assert_eq!(commitments[0], expected_commit);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitments[0]);
+    assert_ne!(CompressedRistretto::default(), commitments[0]);
 }
 
 #[test]
 fn commit_a_plus_commit_b_equal_to_commit_c() {
     // generate input table
+    let offset_generators = 0_u64;
     let data_a: Vec<u16> = vec![2000, 7500, 5000, 1500];
     let data_b: Vec<u32> = vec![5000, 0, 400000, 10, 0, 0];
     let data_c: Vec<u64> = vec![2000 + 5000, 7500, 5000 + 400000, 1500 + 10];
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 3];
+    let mut commitments = vec![CompressedRistretto::default(); 3];
 
     compute_commitments(
         &mut commitments,
@@ -183,6 +222,7 @@ fn commit_a_plus_commit_b_equal_to_commit_c() {
                 element_size: std::mem::size_of_val(&data_c[0]),
             }),
         ],
+        offset_generators,
     );
 
     let commit_a = match commitments[0].decompress() {
@@ -209,18 +249,19 @@ fn commit_a_plus_commit_b_equal_to_commit_c() {
 
     // verify if commitment results are correct
     assert_eq!(commit_c, expected_commit_c);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commit_c);
+    assert_ne!(CompressedRistretto::default(), commit_c);
 }
 
 #[test]
 fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
     // generate input table
+    let offset_generators = 0_u64;
     let data_a: Vec<u16> = vec![1];
     let data_b: Vec<u32> = vec![1];
     let data_c: Vec<u64> = vec![1];
     let data_d: Vec<u64> = vec![3];
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 4];
+    let mut commitments = vec![CompressedRistretto::default(); 4];
 
     compute_commitments(
         &mut commitments,
@@ -242,6 +283,7 @@ fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
                 element_size: std::mem::size_of_val(&data_d[0]),
             }),
         ],
+        offset_generators,
     );
 
     let commit_a = match commitments[0].decompress() {
@@ -269,24 +311,24 @@ fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
 
     // verify if commitment results are correct
     assert_eq!(commit_d, expected_commit_d);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commit_d);
+    assert_ne!(CompressedRistretto::default(), commit_d);
 }
 
 #[test]
 fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
     // generate input table
-    let sc: u64 = 52;
-
+    let scal: u64 = 52;
+    let offset_generators = 0_u64;
     let data_a: Vec<u16> = vec![2000, 7500, 5000, 1500];
     let data_b: Vec<u32> = vec![5000, 0, 400000, 10, 0, 0];
     let data_c: Vec<u64> = vec![
-        sc * 2000 + 5000,
-        sc * 7500,
-        sc * 5000 + 400000,
-        sc * 1500 + 10,
+        scal * 2000 + 5000,
+        scal * 7500,
+        scal * 5000 + 400000,
+        scal * 1500 + 10,
     ];
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 3];
+    let mut commitments = vec![CompressedRistretto::default(); 3];
 
     compute_commitments(
         &mut commitments,
@@ -304,6 +346,7 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
                 element_size: std::mem::size_of_val(&data_c[0]),
             }),
         ],
+        offset_generators,
     );
 
     let commit_a = match commitments[0].decompress() {
@@ -317,7 +360,7 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
     };
 
     let mut scalar_bytes: [u8; 32] = [0; 32];
-    scalar_bytes[0] = sc as u8;
+    scalar_bytes[0] = scal as u8;
 
     // Construct a Scalar by reducing a 256-bit little-endian integer modulo the group order ℓ.
     let ristretto_sc = curve25519_dalek::scalar::Scalar::from_bytes_mod_order(scalar_bytes);
@@ -336,7 +379,7 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
 
     // verify if commitment results are correct
     assert_eq!(commit_c, expected_commit_c);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commit_c);
+    assert_ne!(CompressedRistretto::default(), commit_c);
 }
 
 #[test]
@@ -344,11 +387,12 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
     // generate input table
     let a: i8 = -128;
     let b: i8 = -128;
+    let offset_generators = 0_u64;
     let data_a: Vec<u16> = vec![a as u16];
     let data_b: Vec<u16> = vec![b as u16];
     let data_c: Vec<u32> = vec![130816];
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 3];
+    let mut commitments = vec![CompressedRistretto::default(); 3];
 
     compute_commitments(
         &mut commitments,
@@ -366,6 +410,7 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
                 element_size: std::mem::size_of_val(&data_c[0]),
             }),
         ],
+        offset_generators,
     );
 
     let commit_a = match commitments[0].decompress() {
@@ -388,23 +433,21 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
 
     // verify if commitment results are correct
     assert_eq!(commit_c, expected_commit_c);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commit_c);
+    assert_ne!(CompressedRistretto::default(), commit_c);
 }
 
 #[test]
 fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to_commit_d() {
     // generate input table
+    let offset_generators = 0_u64;
     let data_a: Vec<u64> = vec![
         6346243789798364141,
         1503914060200516822,
         1,
         1152921504606846976,
     ];
-
     let data_b: Vec<u32> = vec![123, 733];
-
     let data_c: Vec<u8> = vec![121, 200, 135];
-
     let data_d: Vec<u64> = vec![
         6346243789798364385,
         1503914060200517755,
@@ -412,7 +455,7 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
         1152921504606846976,
     ];
 
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 4];
+    let mut commitments = vec![CompressedRistretto::default(); 4];
 
     compute_commitments(
         &mut commitments,
@@ -434,6 +477,7 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
                 element_size: std::mem::size_of_val(&data_d[0]),
             }),
         ],
+        offset_generators,
     );
 
     let commit_a = match commitments[0].decompress() {
@@ -465,7 +509,7 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
 
     // verify if commitment results are correct
     assert_eq!(commit_d, expected_commit_d);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commit_d);
+    assert_ne!(CompressedRistretto::default(), commit_d);
 }
 
 #[test]
@@ -479,7 +523,7 @@ fn sending_generators_to_gpu_produces_correct_commitment_results() {
     let generator_points: Vec<RistrettoPoint> = (0..data.len())
         .map(|_| RistrettoPoint::random(&mut rng))
         .collect();
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
+    let mut commitments = vec![CompressedRistretto::default(); 1];
 
     compute_commitments_with_generators(
         &mut commitments,
@@ -505,7 +549,7 @@ fn sending_generators_to_gpu_produces_correct_commitment_results() {
     }
 
     assert_eq!(commitments[0], expected_commit.compress());
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitments[0]);
+    assert_ne!(CompressedRistretto::default(), commitments[0]);
 }
 
 #[test]
@@ -521,21 +565,20 @@ fn sending_generators_and_scalars_to_gpu_produces_correct_commitment_results() {
     let mut rng = OsRng;
 
     // randomly obtain the generator points
-    let generator_points: Vec<RistrettoPoint> = (0..data.len())
+    let generators: Vec<RistrettoPoint> = (0..data.len())
         .map(|_| RistrettoPoint::random(&mut rng))
         .collect();
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
+    let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_commitments_with_generators(&mut commitments, &[&data[..]], &generator_points);
+    compute_commitments_with_generators(&mut commitments, &[&data[..]], &generators);
 
-    let mut expected_commit = RistrettoPoint::from_uniform_bytes(&[0_u8; 64]);
+    let expected_commit = data
+        .iter()
+        .zip(generators.iter())
+        .map(|(x, y)| *x * y)
+        .sum::<RistrettoPoint>()
+        .compress();
 
-    for i in 0..generator_points.len() {
-        let g_i = generator_points[i];
-
-        expected_commit += data[i] * g_i;
-    }
-
-    assert_eq!(commitments[0], expected_commit.compress());
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitments[0]);
+    assert_eq!(commitments[0], expected_commit);
+    assert_ne!(CompressedRistretto::default(), commitments[0]);
 }

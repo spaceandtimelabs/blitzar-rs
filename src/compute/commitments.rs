@@ -32,25 +32,25 @@ use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 ///```no_run
 #[doc = include_str!("../../examples/simple_sparse_commitment.rs")]
 ///```
-pub fn compute_commitments<T: Descriptor>(commitments: &mut [CompressedRistretto], data: &[T]) {
+pub fn compute_commitments<T: Descriptor>(
+    commitments: &mut [CompressedRistretto],
+    data: &[T],
+    offset_generators: u64,
+) {
     init_backend();
 
     let (sxt_descriptors, _longest_row) = to_sxt_descriptors(data);
 
-    unsafe {
-        let sxt_compressed_ristretto =
-            commitments.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
+    let sxt_compressed_ristretto =
+        commitments.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
 
-        // computes the commitments using the lower-level rust sys crate
-        let ret_compute = proofs_gpu_sys::sxt_compute_pedersen_commitments(
+    unsafe {
+        proofs_gpu_sys::sxt_compute_pedersen_commitments(
             sxt_compressed_ristretto,
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),
+            offset_generators,
         );
-
-        if ret_compute != 0 {
-            panic!("Error during commitments computation");
-        }
     }
 }
 
@@ -70,6 +70,8 @@ pub fn compute_commitments_with_generators<T: Descriptor>(
     data: &[T],
     generators: &[RistrettoPoint],
 ) {
+    init_backend();
+
     let (sxt_descriptors, longest_row) = to_sxt_descriptors(data);
 
     assert!(
@@ -77,25 +79,18 @@ pub fn compute_commitments_with_generators<T: Descriptor>(
         "generators has a length smaller than the longest sequence in the input data"
     );
 
-    init_backend();
+    let sxt_ristretto_generators = generators.as_ptr() as *const proofs_gpu_sys::sxt_ristretto;
+
+    let sxt_compressed_ristretto =
+        commitments.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
 
     unsafe {
-        let sxt_ristretto_generators = generators.as_ptr() as *const proofs_gpu_sys::sxt_ristretto;
-
-        let sxt_compressed_ristretto =
-            commitments.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
-
-        // computes the commitments using the lower-level rust sys crate
-        let ret_compute = proofs_gpu_sys::sxt_compute_pedersen_commitments_with_generators(
+        proofs_gpu_sys::sxt_compute_pedersen_commitments_with_generators(
             sxt_compressed_ristretto,
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),
             sxt_ristretto_generators,
         );
-
-        if ret_compute != 0 {
-            panic!("Error during commitments computation with generators");
-        }
     }
 }
 
@@ -118,7 +113,7 @@ pub fn update_commitment<T: Descriptor>(
     // because each data element is already
     // tied with its own row
     if data.is_sparse() {
-        compute_commitments(&mut partial_commitment, &[data]);
+        compute_commitments(&mut partial_commitment, &[data], 0_u64);
     } else {
         // Otherwise, we fetch the generators from our proofs_gpu_sys sys crate
         // and then we use them to compute the partial commitment out of the given data
