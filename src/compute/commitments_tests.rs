@@ -3,6 +3,7 @@
 // Authors:
 // - Joe <joseribeiro1017@gmail.com>
 // - Ryan Burn <ryan@spaceandtime.io>
+// - Ian Joiner <ian.joiner@spaceandtime.io>
 
 use super::*;
 use crate::sequences::{DenseSequence, Sequence};
@@ -78,23 +79,24 @@ fn we_can_update_commitments() {
     let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];
     let scalar_data: Vec<Scalar> = vec![Scalar::from(5000_u32), Scalar::from(1500_u32)];
     let expected_data: Vec<u32> = vec![1, 0, 5002, 1500, 3, 4, 0, 0, 0, 9, 0];
+    let sliced_scalar_data: Vec<_> = vec![scalar_data.as_slice(); 1];
 
-    let mut commitment = CompressedRistretto::default();
-    let mut expected_commitment = vec![CompressedRistretto::default(); 1];
+    let mut commitments = vec![CompressedRistretto::default(); 1];
+    let mut expected_commitments = vec![CompressedRistretto::default(); 1];
 
-    update_commitment(
-        &mut commitment,
-        0_u64,
-        Sequence::Dense(DenseSequence {
+    update_commitments(
+        &mut commitments,
+        &[Sequence::Dense(DenseSequence {
             data_slice: dense_data.as_byte_slice(),
             element_size: std::mem::size_of_val(&dense_data[0]),
-        }),
+        })],
+        0_u64,
     );
 
-    update_commitment(&mut commitment, 2_u64, &scalar_data[..]);
+    update_commitments(&mut commitments, &sliced_scalar_data, 2_u64);
 
     compute_commitments(
-        &mut expected_commitment,
+        &mut expected_commitments,
         &[Sequence::Dense(DenseSequence {
             data_slice: expected_data.as_byte_slice(),
             element_size: std::mem::size_of_val(&expected_data[0]),
@@ -103,9 +105,68 @@ fn we_can_update_commitments() {
     );
 
     // verify if commitment results are correct
-    assert_eq!(commitment, expected_commitment[0]);
-    assert_ne!(CompressedRistretto::default(), commitment);
-    assert_ne!(CompressedRistretto::default(), expected_commitment[0]);
+    assert_eq!(commitments, expected_commitments);
+    assert_ne!(CompressedRistretto::default(), commitments[0]);
+    assert_ne!(CompressedRistretto::default(), expected_commitments[0]);
+}
+
+#[test]
+fn we_can_update_multiple_commitments() {
+    // generate input table
+    let offset_generators = 0_u64;
+    let dense_data: Vec<Vec<u32>> = vec![
+        vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0],
+        vec![1, 4, 3, 9, 3, 3, 4, 7, 1232, 32, 32],
+    ];
+    let scalar_data: Vec<Vec<Scalar>> = vec![
+        vec![Scalar::from(5000_u32), Scalar::from(1500_u32)],
+        vec![Scalar::from(3000_u32)],
+    ];
+    let expected_data: Vec<Vec<u32>> = vec![
+        vec![1, 0, 2, 0, 3, 5004, 1500, 0, 0, 9, 0],
+        vec![1, 4, 3, 9, 3, 3003, 4, 7, 1232, 32, 32],
+    ];
+    let sliced_scalar_data: Vec<_> = scalar_data.iter().map(|v| v.as_slice()).collect();
+
+    let mut commitments = vec![CompressedRistretto::default(); 2];
+    let mut expected_commitments = vec![CompressedRistretto::default(); 2];
+
+    let dense_data_as_sequences: Vec<_> = dense_data
+        .iter()
+        .map(|v| {
+            Sequence::Dense(DenseSequence {
+                data_slice: v.as_byte_slice(),
+                element_size: std::mem::size_of_val(&v[0]),
+            })
+        })
+        .collect();
+
+    let expected_data_as_sequences: Vec<_> = expected_data
+        .iter()
+        .map(|v| {
+            Sequence::Dense(DenseSequence {
+                data_slice: v.as_byte_slice(),
+                element_size: std::mem::size_of_val(&v[0]),
+            })
+        })
+        .collect();
+
+    update_commitments(&mut commitments, &dense_data_as_sequences, 0_u64);
+
+    update_commitments(&mut commitments, &sliced_scalar_data, 5_u64);
+
+    compute_commitments(
+        &mut expected_commitments,
+        &expected_data_as_sequences,
+        offset_generators,
+    );
+
+    // verify if commitment results are correct
+    assert_eq!(commitments, expected_commitments);
+    // If the two vectors are equal we only need to verify that one doesn't contain the default
+    assert!(commitments
+        .iter()
+        .all(|&c| c != CompressedRistretto::default()));
 }
 
 #[test]

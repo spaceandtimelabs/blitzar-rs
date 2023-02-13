@@ -15,6 +15,7 @@ fn main() {
     // have information in the positions 2 and 3
     /////////////////////////////////////////////
     let scalar_data: Vec<Scalar> = vec![Scalar::from(5000_u32), Scalar::from(1500_u32)];
+    let sliced_scalar_data: Vec<_> = vec![scalar_data.as_slice(); 1];
 
     /////////////////////////////////////////////
     // We build the array with the expected results
@@ -22,7 +23,7 @@ fn main() {
     /////////////////////////////////////////////
     let expected_data: Vec<u32> = vec![1, 0, 5002, 1500, 3, 4, 0, 0, 0, 9, 0];
 
-    let mut commitment = CompressedRistretto::from_slice(&[0_u8; 32]);
+    let mut commitment = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
     let mut expected_commitment = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
 
     /////////////////////////////////////////////
@@ -42,13 +43,13 @@ fn main() {
     // Up to this point, commitment was 0. Then
     // we update it, so that `commitment = dense_data`
     /////////////////////////////////////////////
-    update_commitment(
+    update_commitments(
         &mut commitment,
-        0_u64,
-        Sequence::Dense(DenseSequence {
+        &[Sequence::Dense(DenseSequence {
             data_slice: dense_data.as_byte_slice(),
             element_size: std::mem::size_of_val(&dense_data[0]),
-        }),
+        })],
+        0_u64,
     );
 
     /////////////////////////////////////////////
@@ -61,16 +62,16 @@ fn main() {
     // commitment += (generator[0 + 2] * scalar_data[0] +
     //                  + generator[1 + 2] * scalar_data[1])
     /////////////////////////////////////////////
-    update_commitment(&mut commitment, 2_u64, &scalar_data[..]);
+    update_commitments(&mut commitment, &sliced_scalar_data, 2_u64);
 
     /////////////////////////////////////////////
     // We then compare the commitment results
     /////////////////////////////////////////////
-    if commitment == expected_commitment[0] {
+    if commitment == expected_commitment {
         println!("Commitments are equal: {:?}", commitment);
     } else {
         println!("Commitments are different:");
-        println!("Commitment 1: {:?}", commitment);
-        println!("Commitment 1: {:?}", expected_commitment);
+        println!("Actual Commitment 1: {:?}", commitment);
+        println!("Expected Commitment 1: {:?}", expected_commitment);
     }
 }

@@ -3,6 +3,7 @@
 // Authors:
 // - Joe <joseribeiro1017@gmail.com>
 // - Ryan Burn <ryan@spaceandtime.io>
+// - Ian Joiner <ian.joiner@spaceandtime.io>
 
 use super::backend::init_backend;
 use crate::sequences::{to_sxt_descriptors, Descriptor};
@@ -94,24 +95,29 @@ pub fn compute_commitments_with_generators<T: Descriptor>(
 /// ```no_run
 #[doc = include_str!("../../examples/simple_update_commitment.rs")]
 /// ```
-pub fn update_commitment<T: Descriptor>(
-    commitment: &mut CompressedRistretto,
+pub fn update_commitments<T: Descriptor>(
+    commitments: &mut [CompressedRistretto],
+    data: &[T],
     offset_generators: u64,
-    data: T,
 ) {
-    let mut partial_commitment = [CompressedRistretto::default(); 1];
+    assert_eq!(data.len(), commitments.len());
+    let num_columns: usize = commitments.len();
 
-    compute_commitments(&mut partial_commitment, &[data], offset_generators);
+    let mut partial_commitments = vec![CompressedRistretto::default(); num_columns];
 
-    let c_a = match (*commitment).decompress() {
-        Some(pt) => pt,
-        None => panic!("invalid ristretto point decompression on update_commitment"),
-    };
+    compute_commitments(&mut partial_commitments, data, offset_generators);
 
-    let c_b = match partial_commitment[0].decompress() {
-        Some(pt) => pt,
-        None => panic!("invalid ristretto point decompression on update_commitment"),
-    };
+    (0..num_columns).for_each(|i| {
+        let c_a = match (commitments[i]).decompress() {
+            Some(pt) => pt,
+            None => panic!("invalid ristretto point decompression on update_commitments"),
+        };
 
-    (*commitment) = (c_a + c_b).compress();
+        let c_b = match partial_commitments[i].decompress() {
+            Some(pt) => pt,
+            None => panic!("invalid ristretto point decompression on update_commitments"),
+        };
+
+        commitments[i] = (c_a + c_b).compress();
+    });
 }
