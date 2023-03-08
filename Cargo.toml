@@ -12,24 +12,24 @@ exclude = [
 ]
 
 [dependencies]
-byte-slice-cast = {version = "1.2"}
+byte-slice-cast = { version = "1.2" }
 curve25519-dalek = { version = "3", features = ["serde"] }
 merlin = "2"
-thiserror = "1"
-serde = { version = "1", features = ["serde_derive"] }
 proofs-gpu-sys = { version = "10.0" }
+serde = { version = "1", features = ["serde_derive"] }
+thiserror = "1"
 
 # this sections is shared by tests, benchmarks, and examples
 [dev-dependencies]
-criterion = {version = "0.3", features = ["html_reports"]}
-rand_core = "0.5"
+criterion = { version = "0.3", features = ["html_reports"] }
 rand = "0.7"
+rand_core = "0.5"
 
 [[bench]]
-name = "proofs_gpu_benchmarks"
 harness = false
+name = "proofs_gpu_benchmarks"
 
 [features]
-default = ["gpu"]
 cpu = []
+default = ["gpu"]
 gpu = []
