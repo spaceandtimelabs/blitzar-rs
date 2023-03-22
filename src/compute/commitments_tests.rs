@@ -19,7 +19,7 @@ fn we_can_compute_commitments_with_a_zero_offset() {
     let data: Vec<u32> = vec![2000, 7500, 5000, 1500];
     let mut commitments = vec![CompressedRistretto::default(); 1];
     let mut generators = vec![RistrettoPoint::default(); data.len()];
-    get_generators(&mut generators, offset_generators as u64);
+    get_generators(&mut generators, offset_generators);
 
     compute_commitments(
         &mut commitments,
@@ -49,7 +49,7 @@ fn we_can_compute_commitments_with_a_non_zero_offset() {
     let data: Vec<u32> = vec![2000, 7500, 5000, 1500];
     let mut commitments = vec![CompressedRistretto::default(); 1];
     let mut generators = vec![RistrettoPoint::default(); data.len()];
-    get_generators(&mut generators, offset_generators as u64);
+    get_generators(&mut generators, offset_generators);
 
     compute_commitments(
         &mut commitments,
@@ -175,7 +175,7 @@ fn compute_commitments_with_scalars_works() {
     let offset_generators = 0_u64;
     let mut data: Vec<Scalar> = vec![Scalar::zero(); 4];
     let mut generators = vec![RistrettoPoint::default(); data.len()];
-    get_generators(&mut generators, offset_generators as u64);
+    get_generators(&mut generators, offset_generators);
 
     for _i in 0..2000 {
         data[0] += Scalar::one();

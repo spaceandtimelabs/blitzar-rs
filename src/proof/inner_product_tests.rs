@@ -15,7 +15,7 @@ fn as_byte_slice<T>(point: &T) -> &[u8] {
 fn test_prove_and_verify_with_given_n_and_generators_offset(n: u64, generators_offset: u64) {
     assert!(n > 0);
 
-    let mut rng = rand::rngs::StdRng::seed_from_u64(n as u64);
+    let mut rng = rand::rngs::StdRng::seed_from_u64(n);
 
     // a and b are the vectors for which we want to prove c = <a,b>
     let a: Vec<_> = (0..n).map(|_| Scalar::random(&mut rng)).collect();
@@ -173,6 +173,6 @@ fn test_prove_and_verify_random_proofs_of_varying_size() {
         test_prove_and_verify_with_given_n_and_generators_offset(i, 0);
 
         // non-zero generators offset case
-        test_prove_and_verify_with_given_n_and_generators_offset(i, i as u64);
+        test_prove_and_verify_with_given_n_and_generators_offset(i, i);
     }
 }
