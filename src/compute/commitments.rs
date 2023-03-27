@@ -26,6 +26,11 @@ use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 #[doc = include_str!("../../examples/simple_scalars_commitment.rs")]
 ///```
 ///```
+#[tracing::instrument(
+    name = "compute.commitments.compute_commitments",
+    level = "info",
+    skip_all
+)]
 pub fn compute_commitments<T: Descriptor>(
     commitments: &mut [CompressedRistretto],
     data: &[T],
@@ -59,6 +64,11 @@ pub fn compute_commitments<T: Descriptor>(
 ///```no_run
 #[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
 ///```
+#[tracing::instrument(
+    name = "compute.commitments.compute_commitments_with_generators",
+    level = "info",
+    skip_all
+)]
 pub fn compute_commitments_with_generators<T: Descriptor>(
     commitments: &mut [CompressedRistretto],
     data: &[T],
@@ -95,6 +105,11 @@ pub fn compute_commitments_with_generators<T: Descriptor>(
 /// ```no_run
 #[doc = include_str!("../../examples/simple_update_commitment.rs")]
 /// ```
+#[tracing::instrument(
+    name = "compute.commitments.update_commitments",
+    level = "info",
+    skip_all
+)]
 pub fn update_commitments<T: Descriptor>(
     commitments: &mut [CompressedRistretto],
     data: &[T],

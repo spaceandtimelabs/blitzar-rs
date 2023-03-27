@@ -94,6 +94,7 @@ impl InnerProductProof {
     /// - a (in): array with non-zero length n
     /// - b (in): array with non-zero length n
     /// - generators_offset (in): offset used to fetch the bases
+    #[tracing::instrument(name = "proof.inner_product.create", level = "info", skip_all)]
     pub fn create(
         transcript: &mut Transcript,
         a: &[Scalar],
@@ -165,6 +166,7 @@ impl InnerProductProof {
     ///                 `InnerProductProof::create(...)`
     /// - b (in): array with non-zero length n, the same one used by `InnerProductProof::create(...)`
     /// - generators_offset (in): offset used to fetch the bases
+    #[tracing::instrument(name = "proof.inner_product.verify", level = "info", skip_all)]
     pub fn verify(
         &self,
         transcript: &mut Transcript,
