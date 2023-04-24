@@ -4,6 +4,9 @@
 // - Joe <joseribeiro1017@gmail.com>
 // - Ryan Burn <ryan@spaceandtime.io>
 
+use byte_slice_cast::AsByteSlice;
+use curve25519_dalek::scalar::Scalar;
+
 /// This `DenseSequence` stores the slice view
 /// of a contiguous column data table.
 /// It doesn't matter how the data is represented.
@@ -77,5 +80,155 @@ impl DenseSequence<'_> {
         let num_rows = (*self).len();
 
         (self.element_size as u8, num_rows, self.data_slice.as_ptr())
+    }
+}
+
+macro_rules! into_dense_sequence {
+    ($tt:ty) => {
+        #[cfg(target_endian = "little")]
+        impl<'a> From<&'a [$tt]> for DenseSequence<'a> {
+            fn from(value: &'a [$tt]) -> Self {
+                DenseSequence {
+                    data_slice: value.as_byte_slice(),
+                    element_size: std::mem::size_of::<$tt>(),
+                }
+            }
+        }
+    };
+}
+
+into_dense_sequence!(u8);
+into_dense_sequence!(u16);
+into_dense_sequence!(u32);
+into_dense_sequence!(u64);
+into_dense_sequence!(u128);
+
+#[cfg(target_endian = "little")]
+impl<'a> From<&'a [bool]> for DenseSequence<'a> {
+    fn from(value: &'a [bool]) -> Self {
+        let len = std::mem::size_of_val(value);
+        let slice = unsafe { std::slice::from_raw_parts(value.as_ptr() as *const u8, len) };
+        DenseSequence {
+            data_slice: slice,
+            element_size: std::mem::size_of::<bool>(),
+        }
+    }
+}
+
+#[cfg(target_endian = "little")]
+impl<'a> From<&'a [Scalar]> for DenseSequence<'a> {
+    fn from(value: &'a [Scalar]) -> Self {
+        let len = std::mem::size_of_val(value);
+        let slice = unsafe { std::slice::from_raw_parts(value.as_ptr() as *const u8, len) };
+        DenseSequence {
+            data_slice: slice,
+            element_size: std::mem::size_of::<Scalar>(),
+        }
+    }
+}
+
+#[cfg(test)]
+#[cfg(target_endian = "little")]
+mod test {
+    use super::DenseSequence;
+    use curve25519_dalek::scalar::Scalar;
+
+    #[test]
+    fn we_can_convert_an_empty_slice_of_uints_to_a_dense_sequence() {
+        let s = Vec::<u8>::new();
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<u8>());
+        assert!(d.is_empty());
+        let s = Vec::<u32>::new();
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<u32>());
+        assert!(d.is_empty());
+        let s = Vec::<u128>::new();
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<u128>());
+        assert!(d.is_empty());
+    }
+    #[test]
+    fn we_can_convert_an_empty_slice_of_scalars_to_a_dense_sequence() {
+        let s = Vec::<Scalar>::new();
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<Scalar>());
+        assert!(d.is_empty());
+    }
+    #[test]
+    fn we_can_convert_an_empty_slice_of_bools_to_a_dense_sequence() {
+        let s = Vec::<bool>::new();
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<bool>());
+        assert!(d.is_empty());
+    }
+
+    #[test]
+    fn we_can_convert_a_slice_of_uints_to_a_dense_sequence_with_correct_data() {
+        let s = vec![123u8, 45u8, 78u8];
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<u8>());
+        assert_eq!(d.len(), 3);
+
+        assert_eq!(d.data_slice[0..d.element_size], 123u8.to_le_bytes());
+        assert_eq!(
+            d.data_slice[d.element_size..2 * d.element_size],
+            45u8.to_le_bytes()
+        );
+        assert_eq!(
+            d.data_slice[2 * d.element_size..3 * d.element_size],
+            78u8.to_le_bytes()
+        );
+
+        let s = vec![123u32, 456u32, 789u32];
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<u32>());
+        assert_eq!(d.len(), 3);
+
+        assert_eq!(d.data_slice[0..d.element_size], 123u32.to_le_bytes());
+        assert_eq!(
+            d.data_slice[d.element_size..2 * d.element_size],
+            456u32.to_le_bytes()
+        );
+        assert_eq!(
+            d.data_slice[2 * d.element_size..3 * d.element_size],
+            789u32.to_le_bytes()
+        );
+    }
+
+    #[test]
+    fn we_can_convert_a_slice_of_bools_to_a_dense_sequence_with_correct_data() {
+        let s = vec![true, false, true];
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<bool>());
+        assert_eq!(d.len(), 3);
+        assert_eq!(d.data_slice[0], 1);
+        assert_eq!(d.data_slice[1], 0);
+        assert_eq!(d.data_slice[2], 1);
+    }
+
+    #[test]
+    fn we_can_convert_a_slice_of_scalars_to_a_dense_sequence_with_correct_data() {
+        let s = vec![
+            Scalar::from(123u32),
+            -Scalar::from(456u32),
+            Scalar::from(789u32),
+        ];
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<Scalar>());
+        assert_eq!(d.len(), 3);
+
+        assert_eq!(
+            d.data_slice[0..d.element_size],
+            Scalar::from(123u32).as_bytes()[..]
+        );
+        assert_eq!(
+            d.data_slice[d.element_size..2 * d.element_size],
+            (-Scalar::from(456u32)).as_bytes()[..]
+        );
+        assert_eq!(
+            d.data_slice[2 * d.element_size..3 * d.element_size],
+            Scalar::from(789u32).as_bytes()[..]
+        );
     }
 }

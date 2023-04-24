@@ -9,6 +9,9 @@
 mod dense_sequence;
 pub use dense_sequence::DenseSequence;
 
+mod dense_sequence_data;
+pub use dense_sequence_data::DenseSequenceData;
+
 mod sequence;
 pub use sequence::Sequence;
 
