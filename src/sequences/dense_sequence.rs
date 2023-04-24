@@ -103,6 +103,26 @@ into_dense_sequence!(u32);
 into_dense_sequence!(u64);
 into_dense_sequence!(u128);
 
+macro_rules! array_slice_into_dense_sequence {
+    ($tt:ty) => {
+        #[cfg(target_endian = "little")]
+        impl<'a, const N: usize> From<&'a [[$tt; N]]> for DenseSequence<'a> {
+            fn from(value: &'a [[$tt; N]]) -> Self {
+                DenseSequence {
+                    data_slice: value.as_byte_slice(),
+                    element_size: std::mem::size_of::<[$tt; N]>(),
+                }
+            }
+        }
+    };
+}
+
+array_slice_into_dense_sequence!(u8);
+array_slice_into_dense_sequence!(u16);
+array_slice_into_dense_sequence!(u32);
+array_slice_into_dense_sequence!(u64);
+array_slice_into_dense_sequence!(u128);
+
 #[cfg(target_endian = "little")]
 impl<'a> From<&'a [bool]> for DenseSequence<'a> {
     fn from(value: &'a [bool]) -> Self {
@@ -164,6 +184,21 @@ mod test {
     }
 
     #[test]
+    fn we_can_convert_an_empty_slice_of_u64_arrays_to_a_dense_sequence() {
+        let s = Vec::<[u64; 4]>::new();
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<[u64; 4]>());
+        assert!(d.is_empty());
+    }
+    #[test]
+    fn we_can_convert_an_empty_slice_of_u8_arrays_to_a_dense_sequence() {
+        let s = Vec::<[u8; 3]>::new();
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<[u8; 3]>());
+        assert!(d.is_empty());
+    }
+
+    #[test]
     fn we_can_convert_a_slice_of_uints_to_a_dense_sequence_with_correct_data() {
         let s = vec![123u8, 45u8, 78u8];
         let d = DenseSequence::from(&s[..]);
@@ -193,6 +228,44 @@ mod test {
         assert_eq!(
             d.data_slice[2 * d.element_size..3 * d.element_size],
             789u32.to_le_bytes()
+        );
+    }
+
+    #[test]
+    fn we_can_convert_a_slice_of_u64_arrays_to_a_dense_sequence_with_correct_data() {
+        let s = vec![
+            [123u64, 456u64, 789u64, 101112u64],
+            [0, 0, 0, 0],
+            [321u64, 654u64, 987u64, 121110u64],
+        ];
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<[u64; 4]>());
+        assert_eq!(d.len(), 3);
+
+        assert_eq!(d.data_slice[0..8], 123u64.to_le_bytes());
+        assert_eq!(d.data_slice[8..8 * 2], 456u64.to_le_bytes());
+        assert_eq!(d.data_slice[8 * 2..8 * 3], 789u64.to_le_bytes());
+        assert_eq!(d.data_slice[8 * 3..8 * 4], 101112u64.to_le_bytes());
+        assert_eq!(d.data_slice[8 * 4..8 * 8], [0; 8 * 4]);
+        assert_eq!(d.data_slice[8 * 8..8 * 9], 321u64.to_le_bytes());
+        assert_eq!(d.data_slice[8 * 9..8 * 10], 654u64.to_le_bytes());
+        assert_eq!(d.data_slice[8 * 10..8 * 11], 987u64.to_le_bytes());
+        assert_eq!(d.data_slice[8 * 11..8 * 12], 121110u64.to_le_bytes());
+    }
+    #[test]
+    fn we_can_convert_a_slice_of_u8_arrays_to_a_dense_sequence_with_correct_data() {
+        let s = vec![
+            [123u8, 45u8, 78u8],
+            [0, 0, 0],
+            [1, 1, 1],
+            [10u8, 11u8, 12u8],
+        ];
+        let d = DenseSequence::from(&s[..]);
+        assert_eq!(d.element_size, std::mem::size_of::<[u8; 3]>());
+        assert_eq!(d.len(), 4);
+        assert_eq!(
+            d.data_slice,
+            [123u8, 45u8, 78u8, 0, 0, 0, 1, 1, 1, 10u8, 11u8, 12u8]
         );
     }
 
