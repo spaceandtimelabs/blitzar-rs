@@ -13,7 +13,7 @@ use super::dense_sequence::DenseSequence;
 /// To use this sequence, you can have:
 ///
 /// ```no_run
-/// use proofs_gpu::sequences::*;
+/// use blitzar::sequences::*;
 /// use byte_slice_cast::AsByteSlice;
 ///
 /// let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];

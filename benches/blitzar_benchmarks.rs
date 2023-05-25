@@ -14,12 +14,12 @@ use rand::thread_rng;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use proofs_gpu::compute::*;
-use proofs_gpu::sequences::*;
+use blitzar::compute::*;
+use blitzar::sequences::*;
 
 use curve25519_dalek::constants;
 
-mod proofs_gpu_benches {
+mod blitzar_benches {
     use super::*;
 
     fn construct_scalars_data(num_commits: usize, num_rows: usize) -> Vec<Vec<Scalar>> {
@@ -128,7 +128,7 @@ mod proofs_gpu_benches {
     }
 
     criterion_group! {
-        name = proofs_gpu_compute_commitments;
+        name = blitzar_compute_commitments;
         // Lower the sample size to run the benchmarks faster
         config = Criterion::default().sample_size(15);
         targets =
@@ -136,4 +136,4 @@ mod proofs_gpu_benches {
     }
 }
 
-criterion_main!(proofs_gpu_benches::proofs_gpu_compute_commitments);
+criterion_main!(blitzar_benches::blitzar_compute_commitments);

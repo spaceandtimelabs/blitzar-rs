@@ -20,9 +20,9 @@ static INIT: Once = Once::new();
 /// verify which feature backend was passed to the build
 fn get_backend() -> i32 {
     if cfg!(feature = "cpu") {
-        proofs_gpu_sys::SXT_CPU_BACKEND as i32
+        blitzar_sys::SXT_CPU_BACKEND as i32
     } else if cfg!(feature = "gpu") {
-        proofs_gpu_sys::SXT_GPU_BACKEND as i32
+        blitzar_sys::SXT_GPU_BACKEND as i32
     } else {
         panic!("Incorrect backend specified");
     }
@@ -47,12 +47,12 @@ pub fn init_backend() {
             let backend = get_backend();
 
             // initializes the backend using the lower-level rust sys crate
-            let config: proofs_gpu_sys::sxt_config = proofs_gpu_sys::sxt_config {
+            let config: blitzar_sys::sxt_config = blitzar_sys::sxt_config {
                 backend,
                 num_precomputed_generators,
             };
 
-            INIT_STATE = proofs_gpu_sys::sxt_init(&config);
+            INIT_STATE = blitzar_sys::sxt_init(&config);
         });
 
         if INIT_STATE != 0 {
@@ -81,12 +81,12 @@ pub fn init_backend_with_config(config: BackendConfig) {
             let backend = get_backend();
 
             // initializes the backend using the lower-level rust sys crate
-            let config: proofs_gpu_sys::sxt_config = proofs_gpu_sys::sxt_config {
+            let config: blitzar_sys::sxt_config = blitzar_sys::sxt_config {
                 backend,
                 num_precomputed_generators: config.num_precomputed_generators,
             };
 
-            INIT_STATE = proofs_gpu_sys::sxt_init(&config);
+            INIT_STATE = blitzar_sys::sxt_init(&config);
         });
 
         if INIT_STATE != 0 {

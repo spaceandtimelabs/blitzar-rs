@@ -5,7 +5,7 @@
 // - Ryan Burn <ryan@spaceandtime.io>
 // - Ian Joiner <ian.joiner@spaceandtime.io>
 
-//! High-Level Rust wrapper for the proofs-gpu sys crate.
+//! High-Level Rust wrapper for the blitzar-sys crate.
 
 mod backend;
 pub use backend::{init_backend, init_backend_with_config, BackendConfig};

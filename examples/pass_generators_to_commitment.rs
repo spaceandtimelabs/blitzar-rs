@@ -1,8 +1,8 @@
+extern crate blitzar;
 extern crate curve25519_dalek;
-extern crate proofs_gpu;
 
-use proofs_gpu::compute::*;
-use proofs_gpu::sequences::*;
+use blitzar::compute::*;
+use blitzar::sequences::*;
 
 extern crate rand_core;
 use rand_core::OsRng;

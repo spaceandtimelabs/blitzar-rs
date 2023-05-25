@@ -20,7 +20,7 @@ node_modules/
 *.tar
 *.tar.gz
 rust/
-proofs_gpu_sys*/
+blitzar_sys*/
 *.crate
 
 # code coverage files

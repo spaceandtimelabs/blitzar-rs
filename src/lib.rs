@@ -7,7 +7,7 @@
 // Refuse to compile if documentation is missing.
 #![deny(missing_docs)]
 
-//! <h1 align="center" style="border-bottom: none;">Proofs-GPU 🦀🔑</h1>
+//! <h1 align="center" style="border-bottom: none;">Blitzar Crate 🦀🔑</h1>
 //! <p align="center">
 //!   <a href="">
 //!     <img alt="Build states" src="">
@@ -20,9 +20,9 @@
 //!   </a>
 //! </p>
 //!
-//! High-Level Rust wrapper for the proofs-gpu sys crate
+//! High-Level Rust wrapper for the blitzar-sys crate
 //! For the rust sys-crate and the C++ repo, check
-//! [here](https://github.com/spaceandtimelabs/proofs-gpu).
+//! [here](https://github.com/spaceandtimelabs/blitzar).
 //!
 //!## Considerations:
 //!
@@ -37,19 +37,19 @@
 //! Add the following two lines to your `Cargo.toml` file:
 
 //! ```text
-//! [dependencies.proofs_gpu]
-//! path = "/path/to/directory/proofs_gpu/"
+//! [dependencies.blitzar]
+//! path = "/path/to/directory/blitzar/"
 //! ```
 
-//! Don't forget to substitute this `path` with the correct location of your `proofs_gpu` directory.
+//! Don't forget to substitute this `path` with the correct location of your `blitzar` directory.
 
 //! Import the necessary modules to your rust code:
 
 //! ```text
-//! extern crate proofs_gpu;
+//! extern crate blitzar;
 
-//! use proofs_gpu::sequences::*;
-//! use proofs_gpu::compute::*;
+//! use blitzar::sequences::*;
+//! use blitzar::compute::*;
 //! ```
 
 //!## Examples
@@ -71,7 +71,7 @@
 //! ```
 
 //------------------------------------------------------------------------
-// proofs-gpu public modules
+// blitzar public modules
 //------------------------------------------------------------------------
 
 // Wrappers for data table

@@ -41,10 +41,10 @@ pub fn compute_commitments<T: Descriptor>(
     let (sxt_descriptors, _longest_row) = to_sxt_descriptors(data);
 
     let sxt_compressed_ristretto =
-        commitments.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
+        commitments.as_mut_ptr() as *mut blitzar_sys::sxt_compressed_ristretto;
 
     unsafe {
-        proofs_gpu_sys::sxt_compute_pedersen_commitments(
+        blitzar_sys::sxt_compute_pedersen_commitments(
             sxt_compressed_ristretto,
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),
@@ -83,13 +83,13 @@ pub fn compute_commitments_with_generators<T: Descriptor>(
         "generators has a length smaller than the longest sequence in the input data"
     );
 
-    let sxt_ristretto_generators = generators.as_ptr() as *const proofs_gpu_sys::sxt_ristretto;
+    let sxt_ristretto_generators = generators.as_ptr() as *const blitzar_sys::sxt_ristretto;
 
     let sxt_compressed_ristretto =
-        commitments.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
+        commitments.as_mut_ptr() as *mut blitzar_sys::sxt_compressed_ristretto;
 
     unsafe {
-        proofs_gpu_sys::sxt_compute_pedersen_commitments_with_generators(
+        blitzar_sys::sxt_compute_pedersen_commitments_with_generators(
             sxt_compressed_ristretto,
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),

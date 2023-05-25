@@ -1,4 +1,4 @@
-//! High-Level Rust wrapper for the proofs-gpu sys crate proof primitives.
+//! High-Level Rust wrapper for the blitzar-sys crate proof primitives.
 
 mod error;
 pub use error::ProofError;

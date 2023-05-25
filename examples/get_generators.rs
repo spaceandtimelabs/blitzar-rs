@@ -1,10 +1,10 @@
+extern crate blitzar;
 extern crate curve25519_dalek;
-extern crate proofs_gpu;
 
+use blitzar::compute::*;
+use blitzar::sequences::*;
 use byte_slice_cast::AsByteSlice;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
-use proofs_gpu::compute::*;
-use proofs_gpu::sequences::*;
 
 fn main() {
     // generate input table

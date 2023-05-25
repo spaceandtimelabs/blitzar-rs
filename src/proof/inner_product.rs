@@ -116,15 +116,15 @@ impl InnerProductProof {
             vec![CompressedRistretto::default(); ceil_lg2_n];
 
         unsafe {
-            let a = a.as_ptr() as *const proofs_gpu_sys::sxt_scalar;
-            let b = b.as_ptr() as *const proofs_gpu_sys::sxt_scalar;
-            let transcript = transcript as *mut Transcript as *mut proofs_gpu_sys::sxt_transcript;
+            let a = a.as_ptr() as *const blitzar_sys::sxt_scalar;
+            let b = b.as_ptr() as *const blitzar_sys::sxt_scalar;
+            let transcript = transcript as *mut Transcript as *mut blitzar_sys::sxt_transcript;
 
-            let ap_value = &mut ap_value as *mut Scalar as *mut proofs_gpu_sys::sxt_scalar;
-            let l_vector = l_vector.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
-            let r_vector = r_vector.as_mut_ptr() as *mut proofs_gpu_sys::sxt_compressed_ristretto;
+            let ap_value = &mut ap_value as *mut Scalar as *mut blitzar_sys::sxt_scalar;
+            let l_vector = l_vector.as_mut_ptr() as *mut blitzar_sys::sxt_compressed_ristretto;
+            let r_vector = r_vector.as_mut_ptr() as *mut blitzar_sys::sxt_compressed_ristretto;
 
-            proofs_gpu_sys::sxt_prove_inner_product(
+            blitzar_sys::sxt_prove_inner_product(
                 l_vector,
                 r_vector,
                 ap_value,
@@ -186,16 +186,16 @@ impl InnerProductProof {
             return Err(ProofError::VerificationError);
         }
 
-        let transcript = transcript as *mut Transcript as *mut proofs_gpu_sys::sxt_transcript;
-        let b = b.as_ptr() as *const proofs_gpu_sys::sxt_scalar;
-        let product = product as *const Scalar as *const proofs_gpu_sys::sxt_scalar;
-        let a_commit = a_commit as *const RistrettoPoint as *const proofs_gpu_sys::sxt_ristretto;
-        let ap_value = &self.ap_value as *const Scalar as *const proofs_gpu_sys::sxt_scalar;
-        let l_vector = self.l_vector.as_ptr() as *const proofs_gpu_sys::sxt_compressed_ristretto;
-        let r_vector = self.r_vector.as_ptr() as *const proofs_gpu_sys::sxt_compressed_ristretto;
+        let transcript = transcript as *mut Transcript as *mut blitzar_sys::sxt_transcript;
+        let b = b.as_ptr() as *const blitzar_sys::sxt_scalar;
+        let product = product as *const Scalar as *const blitzar_sys::sxt_scalar;
+        let a_commit = a_commit as *const RistrettoPoint as *const blitzar_sys::sxt_ristretto;
+        let ap_value = &self.ap_value as *const Scalar as *const blitzar_sys::sxt_scalar;
+        let l_vector = self.l_vector.as_ptr() as *const blitzar_sys::sxt_compressed_ristretto;
+        let r_vector = self.r_vector.as_ptr() as *const blitzar_sys::sxt_compressed_ristretto;
 
         unsafe {
-            let ret = proofs_gpu_sys::sxt_verify_inner_product(
+            let ret = blitzar_sys::sxt_verify_inner_product(
                 transcript,
                 n as u64,
                 generators_offset,

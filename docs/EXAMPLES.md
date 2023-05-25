@@ -13,7 +13,7 @@ In this command, you can either specify if the computations should proceed in th
 #### Example 1 - Simple Commitment Computation
 ---------
 
-Computes the $j$ commitment of each table column $j$ containing $m[j]$ rows, using for that the random generators $\bf{G}$ given by our proofs-gpu code:
+Computes the $j$ commitment of each table column $j$ containing $m[j]$ rows, using for that the random generators $\bf{G}$ given by our blitzar code:
 
 $$
 commitment[j] = \displaystyle\sum_{i=0}^{m[j]-1}

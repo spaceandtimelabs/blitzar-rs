@@ -1,7 +1,7 @@
+extern crate blitzar;
 extern crate curve25519_dalek;
-extern crate proofs_gpu;
 
-use proofs_gpu::compute::*;
+use blitzar::compute::*;
 
 extern crate rand_core;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
