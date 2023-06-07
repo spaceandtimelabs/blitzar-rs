@@ -24,4 +24,5 @@ mod sequence;
 pub use sequence::Sequence;
 
 mod descriptor;
-pub(crate) use descriptor::{to_sxt_descriptors, Descriptor};
+pub(crate) use descriptor::to_sxt_descriptors;
+pub use descriptor::Descriptor;

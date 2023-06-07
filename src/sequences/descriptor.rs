@@ -13,11 +13,11 @@
 // limitations under the License.
 
 use super::Sequence;
-use curve25519_dalek::scalar::Scalar;
 use std::cmp;
 
 /// This descriptor is only used to implement the `to_sxt_descriptor` method
 /// for the `Sequence<'a>` and the `&[Scalar]` elements
+#[allow(clippy::len_without_is_empty)]
 pub trait Descriptor {
     /// returns the number of elements referenced by the descriptor
     fn len(&self) -> usize;
@@ -50,32 +50,32 @@ impl<'a> Descriptor for Sequence<'a> {
     }
 }
 
-/// Implement the `to_sxt_descriptor` method for the `&[Scalar]` and Vec<Scalar> datatype
-macro_rules! impl_descriptor {
-    ($tt:ty) => {
-        impl Descriptor for $tt {
-            fn len(&self) -> usize {
-                (*self).len()
-            }
+impl<T> Descriptor for &[T] {
+    fn len(&self) -> usize {
+        (*self).len()
+    }
 
-            fn to_sxt_descriptor(&self) -> (usize, blitzar_sys::sxt_sequence_descriptor) {
-                let num_rows = (*self).len();
+    fn to_sxt_descriptor(&self) -> (usize, blitzar_sys::sxt_sequence_descriptor) {
+        let num_rows = self.len();
 
-                let descriptor = blitzar_sys::sxt_sequence_descriptor {
-                    element_nbytes: 32,
-                    n: num_rows as u64,
-                    is_signed: 0,
-                    data: self.as_ptr() as *const u8,
-                };
+        let descriptor = blitzar_sys::sxt_sequence_descriptor {
+            element_nbytes: std::mem::size_of::<T>() as u8,
+            n: num_rows as u64,
+            is_signed: 0,
+            data: self.as_ptr() as *const u8,
+        };
 
-                (num_rows, descriptor)
-            }
-        }
-    };
+        (num_rows, descriptor)
+    }
 }
-
-impl_descriptor!(&[Scalar]);
-impl_descriptor!(Vec<Scalar>);
+impl<T> Descriptor for Vec<T> {
+    fn len(&self) -> usize {
+        self.as_slice().len()
+    }
+    fn to_sxt_descriptor(&self) -> (usize, blitzar_sys::sxt_sequence_descriptor) {
+        self.as_slice().to_sxt_descriptor()
+    }
+}
 
 /// `to_sxt_descriptors` converts the data table from the
 /// sequence slice to the lower-level sys crate
@@ -107,6 +107,7 @@ mod tests {
     use super::*;
     use crate::sequences::DenseSequence;
     use byte_slice_cast::AsByteSlice;
+    use curve25519_dalek::scalar::Scalar;
 
     #[test]
     fn we_can_convert_a_sequence_to_a_descriptor() {
@@ -136,6 +137,26 @@ mod tests {
     #[test]
     fn we_can_convert_a_vec_scalar_to_a_descriptor() {
         let data = vec![Scalar::default(); 3];
+        let (len, descr) = data.to_sxt_descriptor();
+        assert_eq!(len, data.len());
+        assert_eq!(descr.n, data.len() as u64);
+        assert_eq!(descr.element_nbytes, std::mem::size_of_val(&data[0]) as u8);
+        assert_eq!(descr.data, data.as_ptr() as *const u8);
+    }
+
+    #[test]
+    fn we_can_convert_a_limb_array_slice_to_a_descriptor() {
+        let data = vec![[0; 4]; 3];
+        let (len, descr) = (&data[..]).to_sxt_descriptor();
+        assert_eq!(len, data.len());
+        assert_eq!(descr.n, data.len() as u64);
+        assert_eq!(descr.element_nbytes, std::mem::size_of_val(&data[0]) as u8);
+        assert_eq!(descr.data, data.as_ptr() as *const u8);
+    }
+
+    #[test]
+    fn we_can_convert_a_limb_array_vec_scalar_to_a_descriptor() {
+        let data = vec![[0; 4]; 3];
         let (len, descr) = data.to_sxt_descriptor();
         assert_eq!(len, data.len());
         assert_eq!(descr.n, data.len() as u64);
