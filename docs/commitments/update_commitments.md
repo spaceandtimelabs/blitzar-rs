@@ -2,7 +2,7 @@ Updates given commitments
 
 This function updates the `commitments` data according to:
 
-1. If the data input is either a slice view of a [crate::sequences::DenseSequence] or a slice view of a [curve25519_dalek::scalar::Scalar], then:
+1. If the data input is either a slice view of a [crate::sequence::Sequence] or a slice view of a [curve25519_dalek::scalar::Scalar], then:
 
 ```text
 let partial_commitments = vec![CompressedRistretto::zero(); data.len()];
@@ -26,7 +26,7 @@ The `partial_commitments` is computed by [compute_commitments].
                data.len() element positions.
 
 * `data` - A generic slice view T. Currently, we support
-        two different types of slices. First, a slice view of a [crate::sequences::Sequence], 
+        two different types of slices. First, a slice view of a [crate::sequence::Sequence], 
         which captures the slices of contiguous u8 memory elements.
         In this case, you need to guarantee that the contiguous u8 slice view
         captures the correct amount of bytes that can reflect

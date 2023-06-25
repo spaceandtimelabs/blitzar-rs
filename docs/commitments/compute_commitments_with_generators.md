@@ -7,7 +7,7 @@ results are stored as 256-bit Ristretto points in the `commitments` variable.
 The j-th Pedersen commitment is a 256-bit Ristretto point C_j over the
 curve25519 elliptic curve that is cryptographically binded to a data message vector M_j. This `M_j` vector is populated according to the type of the `data` given.
 
-For instance, for an input data table specified as a [crate::sequences::Sequence] slice view, we populate M_j as follows:
+For instance, for an input data table specified as a [crate::sequence::Sequence] slice view, we populate M_j as follows:
 
 ```text
 let el_size = data[j].element_size; // sizeof of each element in the current j-th column
@@ -50,7 +50,7 @@ and only converted to 1280-bit points inside the GPU/CPU.
 The total number of generators used to compute C_j is equal to 
 the number of `num_rows` in the data\[j] sequence. The following formula
 is specified to obtain the C_j commitment when the input table is a 
-[crate::sequences::Sequence] view:
+[crate::sequence::Sequence] view:
 
 ```text
 let C_j_temp = 0; // this is a 1280-bit curve25519 point
@@ -104,7 +104,7 @@ Portions of this documentation were extracted from
                data.len() element positions.
 
 * `data` - A generic sliced view T. Currently, we support
-        two different types of slices. First, is a slice view of a [crate::sequences::Sequence], 
+        two different types of slices. First, is a slice view of a [crate::sequence::Sequence], 
         which captures the slices of contiguous u8 memory elements.
         In this case, you need to guarantee that the contiguous u8 slice view
         captures the correct amount of bytes that can reflect

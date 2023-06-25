@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::backend::init_backend;
-use crate::sequences::{to_sxt_descriptors, Descriptor};
+use crate::sequence::Sequence;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 #[doc = include_str!("../../docs/commitments/compute_commitments.md")]
@@ -38,14 +38,15 @@ use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
     level = "info",
     skip_all
 )]
-pub fn compute_commitments<T: Descriptor>(
+pub fn compute_commitments(
     commitments: &mut [CompressedRistretto],
-    data: &[T],
+    data: &[Sequence],
     offset_generators: u64,
 ) {
     init_backend();
 
-    let (sxt_descriptors, _longest_row) = to_sxt_descriptors(data);
+    let sxt_descriptors: Vec<blitzar_sys::sxt_sequence_descriptor> =
+        data.iter().map(Into::into).collect();
 
     let sxt_compressed_ristretto =
         commitments.as_mut_ptr() as *mut blitzar_sys::sxt_compressed_ristretto;
@@ -76,19 +77,23 @@ pub fn compute_commitments<T: Descriptor>(
     level = "info",
     skip_all
 )]
-pub fn compute_commitments_with_generators<T: Descriptor>(
+pub fn compute_commitments_with_generators(
     commitments: &mut [CompressedRistretto],
-    data: &[T],
+    data: &[Sequence],
     generators: &[RistrettoPoint],
 ) {
     init_backend();
 
-    let (sxt_descriptors, longest_row) = to_sxt_descriptors(data);
-
-    assert!(
-        longest_row <= generators.len(),
-        "generators has a length smaller than the longest sequence in the input data"
-    );
+    let sxt_descriptors: Vec<blitzar_sys::sxt_sequence_descriptor> = data
+        .iter()
+        .map(|s| {
+            assert!(
+                s.len() <= generators.len(),
+                "generators has a length smaller than the longest sequence in the input data"
+            );
+            s.into()
+        })
+        .collect();
 
     let sxt_ristretto_generators = generators.as_ptr() as *const blitzar_sys::sxt_ristretto;
 
@@ -117,9 +122,9 @@ pub fn compute_commitments_with_generators<T: Descriptor>(
     level = "info",
     skip_all
 )]
-pub fn update_commitments<T: Descriptor>(
+pub fn update_commitments(
     commitments: &mut [CompressedRistretto],
-    data: &[T],
+    data: &[Sequence],
     offset_generators: u64,
 ) {
     assert_eq!(data.len(), commitments.len());
@@ -129,17 +134,15 @@ pub fn update_commitments<T: Descriptor>(
 
     compute_commitments(&mut partial_commitments, data, offset_generators);
 
-    (0..num_columns).for_each(|i| {
-        let c_a = match (commitments[i]).decompress() {
-            Some(pt) => pt,
-            None => panic!("invalid ristretto point decompression on update_commitments"),
-        };
-
-        let c_b = match partial_commitments[i].decompress() {
-            Some(pt) => pt,
-            None => panic!("invalid ristretto point decompression on update_commitments"),
-        };
-
-        commitments[i] = (c_a + c_b).compress();
-    });
+    commitments
+        .iter_mut()
+        .zip(partial_commitments)
+        .for_each(|(c_a, c_b)| {
+            *c_a = (c_a.decompress().unwrap_or_else(|| {
+                panic!("invalid ristretto point decompression on update_commitments")
+            }) + c_b.decompress().unwrap_or_else(|| {
+                panic!("invalid ristretto point decompression on update_commitments")
+            }))
+            .compress()
+        });
 }

@@ -56,7 +56,7 @@
 //! ```text
 //! extern crate blitzar;
 
-//! use blitzar::sequences::*;
+//! use blitzar::sequence::*;
 //! use blitzar::compute::*;
 //! ```
 
@@ -83,7 +83,7 @@
 //------------------------------------------------------------------------
 
 // Wrappers for data table
-pub mod sequences;
+pub mod sequence;
 
 // Responsible for all computations (commitments and generator computation)
 pub mod compute;

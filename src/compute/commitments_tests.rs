@@ -13,8 +13,6 @@
 // limitations under the License.
 
 use super::*;
-use crate::sequences::{DenseSequence, Sequence};
-use byte_slice_cast::AsByteSlice;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 use curve25519_dalek::scalar::Scalar;
 use rand_core::OsRng;
@@ -28,14 +26,7 @@ fn we_can_compute_commitments_with_a_zero_offset() {
     let mut generators = vec![RistrettoPoint::default(); data.len()];
     get_generators(&mut generators, offset_generators);
 
-    compute_commitments(
-        &mut commitments,
-        &[Sequence::Dense(DenseSequence {
-            data_slice: data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&data[0]),
-        })],
-        offset_generators,
-    );
+    compute_commitments(&mut commitments, &[(&data).into()], offset_generators);
 
     let expected_commit = data
         .iter()
@@ -58,14 +49,7 @@ fn we_can_compute_commitments_with_a_non_zero_offset() {
     let mut generators = vec![RistrettoPoint::default(); data.len()];
     get_generators(&mut generators, offset_generators);
 
-    compute_commitments(
-        &mut commitments,
-        &[Sequence::Dense(DenseSequence {
-            data_slice: data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&data[0]),
-        })],
-        offset_generators,
-    );
+    compute_commitments(&mut commitments, &[(&data).into()], offset_generators);
 
     let expected_commit = data
         .iter()
@@ -86,28 +70,18 @@ fn we_can_update_commitments() {
     let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];
     let scalar_data: Vec<Scalar> = vec![Scalar::from(5000_u32), Scalar::from(1500_u32)];
     let expected_data: Vec<u32> = vec![1, 0, 5002, 1500, 3, 4, 0, 0, 0, 9, 0];
-    let sliced_scalar_data: Vec<_> = vec![scalar_data.as_slice(); 1];
+    let sliced_scalar_data: Vec<_> = vec![(&scalar_data).into(); 1];
 
     let mut commitments = vec![CompressedRistretto::default(); 1];
     let mut expected_commitments = vec![CompressedRistretto::default(); 1];
 
-    update_commitments(
-        &mut commitments,
-        &[Sequence::Dense(DenseSequence {
-            data_slice: dense_data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&dense_data[0]),
-        })],
-        0_u64,
-    );
+    update_commitments(&mut commitments, &[(&dense_data).into()], 0_u64);
 
     update_commitments(&mut commitments, &sliced_scalar_data, 2_u64);
 
     compute_commitments(
         &mut expected_commitments,
-        &[Sequence::Dense(DenseSequence {
-            data_slice: expected_data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&expected_data[0]),
-        })],
+        &[(&expected_data).into()],
         offset_generators,
     );
 
@@ -133,30 +107,14 @@ fn we_can_update_multiple_commitments() {
         vec![1, 0, 2, 0, 3, 5004, 1500, 0, 0, 9, 0],
         vec![1, 4, 3, 9, 3, 3003, 4, 7, 1232, 32, 32],
     ];
-    let sliced_scalar_data: Vec<_> = scalar_data.iter().map(|v| v.as_slice()).collect();
+    let sliced_scalar_data: Vec<_> = scalar_data.iter().map(|v| v.into()).collect();
 
     let mut commitments = vec![CompressedRistretto::default(); 2];
     let mut expected_commitments = vec![CompressedRistretto::default(); 2];
 
-    let dense_data_as_sequences: Vec<_> = dense_data
-        .iter()
-        .map(|v| {
-            Sequence::Dense(DenseSequence {
-                data_slice: v.as_byte_slice(),
-                element_size: std::mem::size_of_val(&v[0]),
-            })
-        })
-        .collect();
+    let dense_data_as_sequences: Vec<_> = dense_data.iter().map(|v| v.into()).collect();
 
-    let expected_data_as_sequences: Vec<_> = expected_data
-        .iter()
-        .map(|v| {
-            Sequence::Dense(DenseSequence {
-                data_slice: v.as_byte_slice(),
-                element_size: std::mem::size_of_val(&v[0]),
-            })
-        })
-        .collect();
+    let expected_data_as_sequences: Vec<_> = expected_data.iter().map(|v| v.into()).collect();
 
     update_commitments(&mut commitments, &dense_data_as_sequences, 0_u64);
 
@@ -199,7 +157,7 @@ fn compute_commitments_with_scalars_works() {
 
     let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_commitments(&mut commitments, &[&data[..]], offset_generators);
+    compute_commitments(&mut commitments, &[(&data).into()], offset_generators);
 
     let expected_commit = data
         .iter()
@@ -225,20 +183,7 @@ fn commit_a_plus_commit_b_equal_to_commit_c() {
 
     compute_commitments(
         &mut commitments,
-        &[
-            Sequence::Dense(DenseSequence {
-                data_slice: data_a.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_a[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_b.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_b[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_c.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_c[0]),
-            }),
-        ],
+        &[(&data_a).into(), (&data_b).into(), (&data_c).into()],
         offset_generators,
     );
 
@@ -283,22 +228,10 @@ fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
     compute_commitments(
         &mut commitments,
         &[
-            Sequence::Dense(DenseSequence {
-                data_slice: data_a.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_a[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_b.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_b[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_c.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_c[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_d.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_d[0]),
-            }),
+            (&data_a).into(),
+            (&data_b).into(),
+            (&data_c).into(),
+            (&data_d).into(),
         ],
         offset_generators,
     );
@@ -349,20 +282,7 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
 
     compute_commitments(
         &mut commitments,
-        &[
-            Sequence::Dense(DenseSequence {
-                data_slice: data_a.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_a[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_b.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_b[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_c.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_c[0]),
-            }),
-        ],
+        &[(&data_a).into(), (&data_b).into(), (&data_c).into()],
         offset_generators,
     );
 
@@ -413,20 +333,7 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
 
     compute_commitments(
         &mut commitments,
-        &[
-            Sequence::Dense(DenseSequence {
-                data_slice: data_a.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_a[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_b.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_b[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_c.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_c[0]),
-            }),
-        ],
+        &[(&data_a).into(), (&data_b).into(), (&data_c).into()],
         offset_generators,
     );
 
@@ -477,22 +384,10 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
     compute_commitments(
         &mut commitments,
         &[
-            Sequence::Dense(DenseSequence {
-                data_slice: data_a.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_a[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_b.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_b[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_c.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_c[0]),
-            }),
-            Sequence::Dense(DenseSequence {
-                data_slice: data_d.as_byte_slice(),
-                element_size: std::mem::size_of_val(&data_d[0]),
-            }),
+            (&data_a).into(),
+            (&data_b).into(),
+            (&data_c).into(),
+            (&data_d).into(),
         ],
         offset_generators,
     );
@@ -542,14 +437,7 @@ fn sending_generators_to_gpu_produces_correct_commitment_results() {
         .collect();
     let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_commitments_with_generators(
-        &mut commitments,
-        &[Sequence::Dense(DenseSequence {
-            data_slice: data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&data[0]),
-        })],
-        &generator_points,
-    );
+    compute_commitments_with_generators(&mut commitments, &[(&data).into()], &generator_points);
 
     let mut expected_commit = RistrettoPoint::from_uniform_bytes(&[0_u8; 64]);
 
@@ -587,7 +475,7 @@ fn sending_generators_and_scalars_to_gpu_produces_correct_commitment_results() {
         .collect();
     let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_commitments_with_generators(&mut commitments, &[&data[..]], &generators);
+    compute_commitments_with_generators(&mut commitments, &[(&data).into()], &generators);
 
     let expected_commit = data
         .iter()
@@ -598,4 +486,30 @@ fn sending_generators_and_scalars_to_gpu_produces_correct_commitment_results() {
 
     assert_eq!(commitments[0], expected_commit);
     assert_ne!(CompressedRistretto::default(), commitments[0]);
+}
+
+#[test]
+fn we_can_compute_commitments_to_signed_values_with_a_zero_offset() {
+    let data1: Vec<i64> = vec![-2];
+    let data2: Vec<i64> = vec![2];
+    let mut commitments = vec![CompressedRistretto::default(); 2];
+    compute_commitments(&mut commitments, &[(&data1).into(), (&data2).into()], 0);
+
+    assert_eq!(
+        commitments[0].decompress().unwrap(),
+        -commitments[1].decompress().unwrap()
+    );
+}
+
+#[test]
+fn commit_to_signed_slice_and_its_negatives_gives_the_zero_commit() {
+    let a: &[i32] = &[-2, 4, -6, 7, 8];
+    let b: &[i32] = &[2, -4, 6, -7, -8];
+    let z: &[i32] = &[0, 0, 0, 0, 0];
+    let mut commitments = vec![CompressedRistretto::default(); 3];
+    compute_commitments(&mut commitments, &[a.into(), b.into(), z.into()], 0);
+    assert!(
+        commitments[0].decompress().unwrap() + commitments[1].decompress().unwrap()
+            == commitments[2].decompress().unwrap()
+    );
 }

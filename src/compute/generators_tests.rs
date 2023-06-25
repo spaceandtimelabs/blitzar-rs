@@ -13,8 +13,6 @@
 // limitations under the License.
 
 use super::*;
-use crate::sequences::{DenseSequence, Sequence};
-use byte_slice_cast::AsByteSlice;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 use curve25519_dalek::scalar::Scalar;
 use curve25519_dalek::traits::Identity;
@@ -24,20 +22,13 @@ fn get_generators_is_the_same_used_in_commitment_computation() {
     // generate input table
     let offset_generators = 0_u64;
     let data: Vec<u16> = vec![2, 3, 1, 5, 4, 7, 6, 8, 9, 10];
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
+    let mut commitments = vec![CompressedRistretto::default(); 1];
     let mut generators = vec![RistrettoPoint::from_uniform_bytes(&[0_u8; 64]); data.len()];
 
     // convert the generator points to compressed ristretto
     get_generators(&mut generators, 0_u64);
 
-    compute_commitments(
-        &mut commitments,
-        &[Sequence::Dense(DenseSequence {
-            data_slice: data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&data[0]),
-        })],
-        offset_generators,
-    );
+    compute_commitments(&mut commitments, &[(&data).into()], offset_generators);
 
     let mut expected_commit = RistrettoPoint::from_uniform_bytes(&[0_u8; 64]);
 
@@ -54,7 +45,7 @@ fn get_generators_is_the_same_used_in_commitment_computation() {
     }
 
     assert_eq!(commitments[0], expected_commit.compress());
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitments[0]);
+    assert_ne!(CompressedRistretto::default(), commitments[0]);
 }
 
 #[test]
@@ -64,18 +55,11 @@ fn get_generators_with_offset_is_the_same_used_in_commitment_computation() {
     let offset_generators: usize = 4;
     let generators_len = data.len() - offset_generators;
     let mut generators = vec![RistrettoPoint::from_uniform_bytes(&[0_u8; 64]); generators_len];
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); 1];
+    let mut commitments = vec![CompressedRistretto::default(); 1];
 
     get_generators(&mut generators, offset_generators as u64);
 
-    compute_commitments(
-        &mut commitments,
-        &[Sequence::Dense(DenseSequence {
-            data_slice: data.as_byte_slice(),
-            element_size: std::mem::size_of_val(&data[0]),
-        })],
-        0_u64,
-    );
+    compute_commitments(&mut commitments, &[(&data).into()], 0_u64);
 
     let expected_commit = data[offset_generators..]
         .iter()
@@ -85,7 +69,7 @@ fn get_generators_with_offset_is_the_same_used_in_commitment_computation() {
         .compress();
 
     assert_eq!(commitments[0], expected_commit);
-    assert_ne!(CompressedRistretto::from_slice(&[0_u8; 32]), commitments[0]);
+    assert_ne!(CompressedRistretto::default(), commitments[0]);
 }
 
 #[test]

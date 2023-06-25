@@ -14,7 +14,6 @@
 
 extern crate rand;
 use crate::rand::Rng;
-use byte_slice_cast::AsByteSlice;
 use curve25519_dalek::ristretto::CompressedRistretto;
 use curve25519_dalek::ristretto::RistrettoPoint;
 use curve25519_dalek::scalar::Scalar;
@@ -23,7 +22,7 @@ use rand::thread_rng;
 use criterion::{criterion_group, criterion_main, Criterion};
 
 use blitzar::compute::*;
-use blitzar::sequences::*;
+use blitzar::sequence::*;
 
 use curve25519_dalek::constants;
 
@@ -55,7 +54,7 @@ mod blitzar_benches {
 
     fn run_computation(num_commits: usize, num_rows: usize, c: &mut Criterion, use_scalars: bool) {
         let generators = construct_generators(num_rows);
-        let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); num_commits];
+        let mut commitments = vec![CompressedRistretto::default(); num_commits];
 
         let num_commits_label: String = num_commits.to_string() + " commits";
 
@@ -79,11 +78,14 @@ mod blitzar_benches {
 
         if use_scalars {
             let data = construct_scalars_data(num_commits, num_rows);
-            let table: Vec<&[Scalar]> = (0..num_commits).map(|i| (&data[i][..])).collect();
+            let table: Vec<Sequence> = (0..num_commits).map(|i| (&data[i]).into()).collect();
 
-            group.bench_function(&without_generators_label, |b| {
-                b.iter(|| compute_commitments(&mut commitments, &table, 0_u64))
-            });
+            group.bench_function(
+                &without_generators_label,
+                |b: &mut criterion::Bencher<'_>| {
+                    b.iter(|| compute_commitments(&mut commitments, &table, 0_u64))
+                },
+            );
 
             group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
@@ -92,14 +94,7 @@ mod blitzar_benches {
             });
         } else {
             let data = construct_sequences_data(num_commits, num_rows);
-            let table: Vec<Sequence> = (0..num_commits)
-                .map(|i| {
-                    Sequence::Dense(DenseSequence {
-                        data_slice: data[i].as_byte_slice(),
-                        element_size: std::mem::size_of_val(&data[i][0]),
-                    })
-                })
-                .collect();
+            let table: Vec<Sequence> = (0..num_commits).map(|i| (&data[i]).into()).collect();
 
             group.bench_function(&without_generators_label, |b| {
                 b.iter(|| compute_commitments(&mut commitments, &table, 0_u64))

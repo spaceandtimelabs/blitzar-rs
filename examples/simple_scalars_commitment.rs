@@ -40,20 +40,15 @@ fn main() {
     }
 
     /////////////////////////////////////////////
-    // Fill the table with entries
-    /////////////////////////////////////////////
-    let table: Vec<&[Scalar]> = vec![&data];
-
-    /////////////////////////////////////////////
     // We need to define a commitment vector which
     // will store all the commitment results
     /////////////////////////////////////////////
-    let mut commitments = vec![CompressedRistretto::from_slice(&[0_u8; 32]); table.len()];
+    let mut commitments = vec![CompressedRistretto::default(); 1];
 
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments(&mut commitments, &table, 0_u64);
+    compute_commitments(&mut commitments, &[(&data).into()], 0_u64);
 
     for (i, commit) in commitments.iter().enumerate() {
         println!("commitment {}: {:?}\n", i, commit);
