@@ -63,7 +63,7 @@ pub struct Sequence<'a> {
     is_signed: bool,
 }
 
-impl Sequence<'_> {
+impl<'a> Sequence<'a> {
     /// Returns the number of elements in the Dense Sequence
     pub fn len(&self) -> usize {
         self.data_slice.len() / self.element_size
@@ -80,7 +80,7 @@ impl Sequence<'_> {
     ///
     /// The size of the elements in the slice must be between 1 and 16 bytes (inclusive) if `is_signed` is true,
     /// and between 1 and 32 bytes (inclusive) if `is_signed` is false.
-    pub fn from_raw_parts<T>(slice: &[T], is_signed: bool) -> Self {
+    pub fn from_raw_parts<T>(slice: &'a [T], is_signed: bool) -> Self {
         let element_size = core::mem::size_of::<T>();
         if is_signed {
             assert!(element_size > 0);
@@ -130,8 +130,8 @@ where
 macro_rules! impl_dense_sequence_for_unsigned {
     ($($t:ty),*) => {
         $(
-            impl From<&[$t]> for Sequence<'_> {
-                fn from(other: &[$t]) -> Self {
+            impl<'a> From<&'a [$t]> for Sequence<'a> {
+                fn from(other: &'a [$t]) -> Self {
                     Sequence::from_raw_parts(other, false)
                 }
             }
@@ -150,8 +150,8 @@ impl_dense_sequence_for_unsigned!(
 macro_rules! impl_dense_sequence_for_signed {
     ($($t:ty),*) => {
         $(
-            impl From<&[$t]> for Sequence<'_> {
-                fn from(other: &[$t]) -> Self {
+            impl<'a> From<&'a [$t]> for Sequence<'a> {
+                fn from(other: &'a [$t]) -> Self {
                     Sequence::from_raw_parts(other, true)
                 }
             }
@@ -162,8 +162,8 @@ impl_dense_sequence_for_signed!(i8, i16, i32, i64, i128);
 macro_rules! impl_dense_sequence_for_unsigned_array {
     ($($t:ty),*) => {
         $(
-            impl<const N:usize> From<&[[$t;N]]> for Sequence<'_> {
-                fn from(other: &[[$t;N]]) -> Self {
+            impl<'a, const N:usize> From<&'a [[$t;N]]> for Sequence<'a> {
+                fn from(other: &'a [[$t;N]]) -> Self {
                     Sequence::from_raw_parts(other, false)
                 }
             }
@@ -173,8 +173,8 @@ macro_rules! impl_dense_sequence_for_unsigned_array {
 impl_dense_sequence_for_unsigned_array!(bool, u8, u16, u32, u64, u128);
 
 #[cfg(feature = "arkworks")]
-impl<const N: usize> From<&[ark_ff::BigInt<N>]> for Sequence<'_> {
-    fn from(other: &[ark_ff::BigInt<N>]) -> Self {
+impl<'a, const N: usize> From<&'a [ark_ff::BigInt<N>]> for Sequence<'a> {
+    fn from(other: &'a [ark_ff::BigInt<N>]) -> Self {
         Sequence::from_raw_parts(other, false)
     }
 }
