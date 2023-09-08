@@ -89,7 +89,7 @@ impl<'a> Sequence<'a> {
             assert!(element_size > 0);
             assert!(element_size <= 32);
         }
-        let len = slice.len() * element_size;
+        let len = std::mem::size_of_val(slice);
         let data_slice = unsafe { core::slice::from_raw_parts(slice.as_ptr() as *const u8, len) };
         Sequence {
             data_slice,
