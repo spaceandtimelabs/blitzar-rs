@@ -12,7 +12,7 @@ fi
 # configure rust lib to release
 sed -i 's/version = "*.*.*" # This version will be automatically updated/version = "'${NEW_VERSION}'"/' Cargo.toml
 
-FILES=".cargo/ benches/ examples/ src/ Cargo.toml README.md"
+FILES="benches/ examples/ src/ Cargo.toml README.md"
 
 cargo publish --allow-dirty --token ${CRATES_TOKEN}
 
