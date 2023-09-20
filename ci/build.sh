@@ -1,6 +1,10 @@
 #!/bin/bash
 set -eou pipefail
 
+export PATH=$PATH:/root/.cargo/bin/
+
+rustup default stable
+
 NEW_VERSION=$1
 
 if ! [[ ${NEW_VERSION} =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]
