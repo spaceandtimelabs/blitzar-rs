@@ -92,38 +92,17 @@ Although the primary goal of this library is to provide GPU acceleration for cry
 
 #### Multi-Scalar Multiplication (MSM) / Generalized Pedersen Commitment / Multiexponentiation
 
-Blitzar provides an implementation of Multi-Scalar Multiplication (i.e. generalized Pedersen commitments)
-
-Let $g_0\ldots g_n\in \mathbb{G}$ be elements of a group (with prime order), and let $a_0\ldots a_n\in\mathbb{F}$ be elements of the corresponding scalar field. (i.e. the field $\mathbb{F}_p$ where $p$ is the order of the group.)
-
-Then, the Generalized Pedersen Commitment of the vector $\mathbf{a}=(a_1,\ldots, a_n)$ is
-```math
-P = a_1\cdot g_1+\cdots+ a_n\cdot g_n
-```
+Blitzar provides an implementation of Multi-Scalar Multiplication (i.e. generalized Pedersen commitments). Mathematical details behind MSM are outlined in the [Blitzar Github repository](https://github.com/spaceandtimelabs/blitzar#multi-scalar-multiplication-msm--generalized-pedersen-commitment--multiexponentiation).
 
 Note: we interchangeably use the terms "multi-scalar multiplication" and "multiexponentiation" to refer to the this operation because when the group is written additively, the operation is a multi-scalar multiplication, and when the group is written multiplicatively, the operation is a multiexponentiation.
 
-The Blitzar implementation allows for computation of multiple, potentially different length, MSMs simultaneously. Additionally, either built-in, precomputed, generators $g_n$ can be used, or they can be provided as needed.
+The Blitzar implementation allows for computation of multiple, potentially different length, MSMs simultaneously. Additionally, either built-in, precomputed, generators can be used, or they can be provided as needed.
 
 Currently, Blitzar supports Curve25519 as the group. We're always working to expand the curves that we support, so check back for updates.
 
 #### Inner Product Argument
 
-Blitzar provides a modified implementation of an inner product argument (e.g. [Bulletproofs](https://eprint.iacr.org/2017/1066.pdf) and [Halo2](https://zcash.github.io/halo2/background/pc-ipa.html)).
-
-Given generators $g_1, \ldots, g_n$; Pedersen commitment $P$; scalar $c$; and vectors 
-$\mathbf{a}=(a_1,\ldots, a_n)$ and $\mathbf{b}=(b_1,\ldots, b_n)$;
-Blitzar's version of the inner product proof allows a Prover to establish that
-```math
-\begin{aligned}
-P &= a_1\cdot g_1+\cdots+ a_n\cdot g_n \\
-c &= \langle \mathbf{a}, \mathbf{b} \rangle = a_1\cdot b_1+\cdots+ a_n\cdot b_n
-\end{aligned}
-```
-where it is assumed that $\boldsymbol{g}$, $\boldsymbol{b}$, and $c$ are known to both the Prover
-and Verifier.
-
-This version of the inner product argument can be used in the context of a broader protocol.
+Blitzar provides a modified implementation of an inner product argument (e.g. [Bulletproofs](https://eprint.iacr.org/2017/1066.pdf) and [Halo2](https://zcash.github.io/halo2/background/pc-ipa.html)). Mathematical details of the modified inner product argument are outlined in the [Blitzar Github repository](https://github.com/spaceandtimelabs/blitzar#inner-product-argument).
 
 #### Other Features to Come
 
