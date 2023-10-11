@@ -9,7 +9,7 @@
 <img
  alt="blitzar logo"
  width="200px"
- src="https://github.com/spaceandtimelabs/blitzar-rs/blob/assets/logo.png"/>
+ src="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo.png"/>
 </p>
 
   <a href="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml">
