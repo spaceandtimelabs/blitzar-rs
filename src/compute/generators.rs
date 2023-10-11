@@ -27,9 +27,9 @@ pub fn get_generators(generators: &mut [RistrettoPoint], offset_generators: u64)
     init_backend();
 
     unsafe {
-        let sxt_ristretto_generators = generators.as_mut_ptr() as *mut blitzar_sys::sxt_ristretto;
+        let sxt_ristretto_generators = generators.as_mut_ptr() as *mut blitzar_sys::sxt_ristretto255;
 
-        let ret_get_generators = blitzar_sys::sxt_get_generators(
+        let ret_get_generators = blitzar_sys::sxt_ristretto255_get_generators(
             sxt_ristretto_generators,
             generators.len() as u64,
             offset_generators,
@@ -54,9 +54,9 @@ pub fn get_one_commit(n: u64) -> RistrettoPoint {
 
     unsafe {
         let mut one_commit: MaybeUninit<RistrettoPoint> = MaybeUninit::uninit();
-        let one_commit_ptr = one_commit.as_mut_ptr() as *mut blitzar_sys::sxt_ristretto;
+        let one_commit_ptr = one_commit.as_mut_ptr() as *mut blitzar_sys::sxt_ristretto255;
 
-        let ret_get_one_commit = blitzar_sys::sxt_get_one_commit(one_commit_ptr, n);
+        let ret_get_one_commit = blitzar_sys::sxt_curve25519_get_one_commit(one_commit_ptr, n);
 
         if ret_get_one_commit != 0 {
             panic!("Error during get_one_commit call");

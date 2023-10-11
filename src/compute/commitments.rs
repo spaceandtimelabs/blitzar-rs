@@ -48,12 +48,12 @@ pub fn compute_commitments(
     let sxt_descriptors: Vec<blitzar_sys::sxt_sequence_descriptor> =
         data.iter().map(Into::into).collect();
 
-    let sxt_compressed_ristretto =
-        commitments.as_mut_ptr() as *mut blitzar_sys::sxt_compressed_ristretto;
+    let sxt_ristretto255_compressed =
+        commitments.as_mut_ptr() as *mut blitzar_sys::sxt_ristretto255_compressed;
 
     unsafe {
-        blitzar_sys::sxt_compute_pedersen_commitments(
-            sxt_compressed_ristretto,
+        blitzar_sys::sxt_curve25519_compute_pedersen_commitments(
+            sxt_ristretto255_compressed,
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),
             offset_generators,
@@ -95,14 +95,14 @@ pub fn compute_commitments_with_generators(
         })
         .collect();
 
-    let sxt_ristretto_generators = generators.as_ptr() as *const blitzar_sys::sxt_ristretto;
+    let sxt_ristretto_generators = generators.as_ptr() as *const blitzar_sys::sxt_ristretto255;
 
-    let sxt_compressed_ristretto =
-        commitments.as_mut_ptr() as *mut blitzar_sys::sxt_compressed_ristretto;
+    let sxt_ristretto255_compressed =
+        commitments.as_mut_ptr() as *mut blitzar_sys::sxt_ristretto255_compressed;
 
     unsafe {
-        blitzar_sys::sxt_compute_pedersen_commitments_with_generators(
-            sxt_compressed_ristretto,
+        blitzar_sys::sxt_curve25519_compute_pedersen_commitments_with_generators(
+            sxt_ristretto255_compressed,
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),
             sxt_ristretto_generators,
