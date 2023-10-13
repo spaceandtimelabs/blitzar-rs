@@ -27,7 +27,8 @@ pub fn get_generators(generators: &mut [RistrettoPoint], offset_generators: u64)
     init_backend();
 
     unsafe {
-        let sxt_ristretto_generators = generators.as_mut_ptr() as *mut blitzar_sys::sxt_ristretto255;
+        let sxt_ristretto_generators =
+            generators.as_mut_ptr() as *mut blitzar_sys::sxt_ristretto255;
 
         let ret_get_generators = blitzar_sys::sxt_ristretto255_get_generators(
             sxt_ristretto_generators,
