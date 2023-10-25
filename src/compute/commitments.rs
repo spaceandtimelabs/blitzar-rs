@@ -14,6 +14,8 @@
 
 use super::backend::init_backend;
 use crate::sequence::Sequence;
+use ark_bls12_381::G1Affine;
+use ark_ec::AffineRepr;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 #[doc = include_str!("../../docs/commitments/compute_commitments.md")]
@@ -106,6 +108,58 @@ pub fn compute_commitments_with_generators(
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),
             sxt_ristretto_generators,
+        );
+    }
+}
+
+#[doc = include_str!("../../docs/commitments/compute_commitments_with_generators.md")]
+///
+///# Example 1 - Pass generators to Commitment Computation
+///```no_run
+#[doc = include_str!("../../examples/pass_generators_to_commitment.rs")]
+///```
+///
+/// Example 2 - Compute Commitments with Scalars and User Generators
+///```no_run
+#[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
+///```
+pub fn compute_bls12_381_g1_commitments_with_generators(
+    commitments: &mut [u8; 48],
+    data: &[Sequence],
+    generators: &[G1Affine],
+) {
+    init_backend();
+
+    let sxt_descriptors: Vec<blitzar_sys::sxt_sequence_descriptor> = data
+        .iter()
+        .map(|s| {
+            assert!(
+                s.len() <= generators.len(),
+                "generators has a length smaller than the longest sequence in the input data"
+            );
+            s.into()
+        })
+        .collect();
+
+    // Convert to G1Projective elements. This section can be deleted
+    // after Blitzar accepts G1Affine elements.
+    let mut generators_p2 = vec![G1Affine::identity().into_group(); generators.len()];
+    for g in 0..generators.len() {
+        generators_p2[g] = generators[g].into_group();
+    }
+
+    let sxt_bls12_381_g1_generators =
+        generators_p2.as_ptr() as *const blitzar_sys::sxt_bls12_381_g1;
+
+    let sxt_bls12_381_g1_compressed =
+        commitments.as_mut_ptr() as *mut blitzar_sys::sxt_bls12_381_g1_compressed;
+
+    unsafe {
+        blitzar_sys::sxt_bls12_381_g1_compute_pedersen_commitments_with_generators(
+            sxt_bls12_381_g1_compressed,
+            sxt_descriptors.len() as u32,
+            sxt_descriptors.as_ptr(),
+            sxt_bls12_381_g1_generators,
         );
     }
 }

@@ -13,6 +13,10 @@
 // limitations under the License.
 
 use super::*;
+use ark_bls12_381::{Fr, G1Affine, G1Projective};
+use ark_ec::VariableBaseMSM;
+use ark_serialize::CanonicalSerialize;
+use ark_std::UniformRand;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 use curve25519_dalek::scalar::Scalar;
 use rand_core::OsRng;
@@ -455,6 +459,47 @@ fn sending_generators_to_gpu_produces_correct_commitment_results() {
 
     assert_eq!(commitments[0], expected_commit.compress());
     assert_ne!(CompressedRistretto::default(), commitments[0]);
+}
+
+#[test]
+fn sending_generators_to_gpu_produces_correct_bls12_381_g1_commitment_results() {
+    // generate input table
+    let data: Vec<u64> = vec![2, 3, 1, 5, 4, 7, 6, 8, 9, 10];
+
+    // randomly obtain the generator points
+    let mut rng = ark_std::test_rng();
+    let generator_points: Vec<G1Affine> =
+        (0..data.len()).map(|_| G1Affine::rand(&mut rng)).collect();
+
+    // initialize commitments
+    let mut commitments = vec![[0_u8; 48]; 1];
+
+    // compute commitment in Blitzar
+    compute_bls12_381_g1_commitments_with_generators(
+        &mut commitments[0],
+        &[(&data).into()],
+        &generator_points,
+    );
+
+    // convert data to scalar
+    let mut scalar_data: Vec<Fr> = Vec::new();
+    for i in 0..data.len() {
+        scalar_data.push(Fr::try_from(data[i]).unwrap());
+    }
+
+    // compute msm in Arkworks
+    let ark_commitment = G1Projective::msm(&generator_points, &scalar_data).unwrap();
+
+    // compress point from Arkworks
+    let mut compressed_bytes = Vec::new();
+    ark_commitment
+        .serialize_compressed(&mut compressed_bytes)
+        .unwrap();
+
+    // verify results
+    assert_eq!(commitments[0].len(), compressed_bytes.len());
+    assert_eq!(&commitments[0][..], compressed_bytes.as_slice());
+    assert_ne!([0_u8; 48], commitments[0]);
 }
 
 #[test]
