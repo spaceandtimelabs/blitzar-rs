@@ -15,7 +15,6 @@
 use super::backend::init_backend;
 use crate::sequence::Sequence;
 use ark_bls12_381::G1Affine;
-use ark_ec::AffineRepr;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 #[doc = include_str!("../../docs/commitments/compute_commitments.md")]
@@ -141,15 +140,7 @@ pub fn compute_bls12_381_g1_commitments_with_generators(
         })
         .collect();
 
-    // Convert to G1Projective elements. This section can be deleted
-    // after Blitzar accepts G1Affine elements.
-    let mut generators_p2 = vec![G1Affine::identity().into_group(); generators.len()];
-    for g in 0..generators.len() {
-        generators_p2[g] = generators[g].into_group();
-    }
-
-    let sxt_bls12_381_g1_generators =
-        generators_p2.as_ptr() as *const blitzar_sys::sxt_bls12_381_g1;
+    let sxt_bls12_381_g1_generators = generators.as_ptr() as *const blitzar_sys::sxt_bls12_381_g1;
 
     let sxt_bls12_381_g1_compressed =
         commitments.as_mut_ptr() as *mut blitzar_sys::sxt_bls12_381_g1_compressed;
