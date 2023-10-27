@@ -111,6 +111,10 @@ pub fn compute_commitments_with_generators(
     }
 }
 
+/// The documentation linked here is related to curve25519.
+/// The doc tag does not seem to be working as expected. When the doc tag issue
+/// is sorted out, documentation for the bls12-381 G1 commitment computation
+/// will be created and linked below.
 #[doc = include_str!("../../docs/commitments/compute_commitments_with_generators.md")]
 ///
 ///# Example 1 - Pass generators to Commitment Computation
