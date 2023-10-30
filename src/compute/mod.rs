@@ -19,7 +19,8 @@ pub use backend::{init_backend, init_backend_with_config, BackendConfig};
 
 mod commitments;
 pub use commitments::{
-    compute_commitments, compute_commitments_with_generators, update_commitments,
+    compute_bls12_381_g1_commitments_with_generators, compute_commitments,
+    compute_commitments_with_generators, update_commitments,
 };
 
 #[cfg(test)]
