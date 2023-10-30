@@ -5,13 +5,13 @@
 <div align="center">
   <h1 align="center">Blitzar Crate</h1>
 
-<p align="center">
-<img
- alt="blitzar logo"
- width="200px"
- src="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo.png"/>
-</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" width="200px" srcset="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo.png">
+  <source media="(prefers-color-scheme: light)" width="200px" srcset="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo_dark_crop.png">
+  <img alt="Blitzar" width="200px" src="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo_dark_crop.png">
+</picture>
 
+<p align="center">
   <a href="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml">
     <img alt="Build State" src="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml/badge.svg">
   </a>
