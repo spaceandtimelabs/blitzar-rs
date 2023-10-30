@@ -7,8 +7,8 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" width="200px" srcset="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo.png">
-  <source media="(prefers-color-scheme: light)" width="200px" srcset="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo_dark.png">
-  <img alt="Blitzar" width="200px" src="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo_dark.png">
+  <source media="(prefers-color-scheme: light)" width="200px" srcset="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo_dark_crop.png">
+  <img alt="Blitzar" width="200px" src="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo_dark_crop.png">
 </picture>
 
 <p align="center">
