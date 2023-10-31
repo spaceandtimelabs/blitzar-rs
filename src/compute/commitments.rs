@@ -127,7 +127,7 @@ pub fn compute_commitments_with_generators(
 #[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
 ///```
 pub fn compute_bls12_381_g1_commitments_with_generators(
-    commitments: &mut [u8; 48],
+    commitments: &mut [[u8; 48]],
     data: &[Sequence],
     generators: &[G1Affine],
 ) {

@@ -476,7 +476,7 @@ fn sending_generators_to_gpu_produces_correct_bls12_381_g1_commitment_results() 
 
     // compute commitment in Blitzar
     compute_bls12_381_g1_commitments_with_generators(
-        &mut commitments[0],
+        &mut commitments,
         &[(&data).into()],
         &generator_points,
     );
