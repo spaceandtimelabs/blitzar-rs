@@ -19,7 +19,7 @@ pub struct BackendConfig {
     pub num_precomputed_generators: u64,
 }
 
-// holds the state of the backend initalization (0 for success, non-zero otherwise)
+// holds the state of the backend initialization (0 for success, non-zero otherwise)
 static mut INIT_STATE: i32 = 0;
 
 // static variable used to assure that the backend initialization is triggered only once

@@ -54,7 +54,7 @@ fn main() {
     // Notice that we only pass the scalar values from 2 to 3.
     // Therefore, we need to specify the offsets
     // that will be used do query the correct generators.
-    // For instance, the following is aplied:
+    // For instance, the following is applied:
     // commitment += (generator[0 + 2] * scalar_data[0] +
     //                  + generator[1 + 2] * scalar_data[1])
     /////////////////////////////////////////////
