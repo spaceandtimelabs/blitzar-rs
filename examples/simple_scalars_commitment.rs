@@ -28,15 +28,15 @@ fn main() {
     //
     /////////////////////////////////////////////
     let mut data: Vec<Scalar> = vec![
-        Scalar::zero(),
-        Scalar::one(),
-        Scalar::zero(),
+        Scalar::ZERO,
+        Scalar::ONE,
+        Scalar::ZERO,
         Scalar::from_bytes_mod_order([4; 32]),
     ];
 
     // data[2] = 2000 as 256-bits
     for _i in 0..2000 {
-        data[2] += Scalar::one();
+        data[2] += Scalar::ONE;
     }
 
     /////////////////////////////////////////////
