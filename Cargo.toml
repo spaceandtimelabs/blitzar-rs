@@ -34,6 +34,7 @@ rand_core = "0.6"
 [[bench]]
 harness = false
 name = "blitzar_benchmarks"
+required-features = ["rand_core"]
 
 [features]
 arkworks = ["dep:ark-ff"]
