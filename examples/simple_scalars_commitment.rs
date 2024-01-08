@@ -48,7 +48,7 @@ fn main() {
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments(&mut commitments, &[(&data).into()], 0_u64);
+    compute_curve25519_commitments(&mut commitments, &[(&data).into()], 0_u64);
 
     for (i, commit) in commitments.iter().enumerate() {
         println!("commitment {}: {:?}\n", i, commit);

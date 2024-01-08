@@ -28,9 +28,9 @@ fn we_can_compute_commitments_with_a_zero_offset() {
     let data: Vec<u32> = vec![2000, 7500, 5000, 1500];
     let mut commitments = vec![CompressedRistretto::default(); 1];
     let mut generators = vec![RistrettoPoint::default(); data.len()];
-    get_generators(&mut generators, offset_generators);
+    get_curve25519_generators(&mut generators, offset_generators);
 
-    compute_commitments(&mut commitments, &[(&data).into()], offset_generators);
+    compute_curve25519_commitments(&mut commitments, &[(&data).into()], offset_generators);
 
     let expected_commit = data
         .iter()
@@ -51,9 +51,9 @@ fn we_can_compute_commitments_with_a_non_zero_offset() {
     let data: Vec<u32> = vec![2000, 7500, 5000, 1500];
     let mut commitments = vec![CompressedRistretto::default(); 1];
     let mut generators = vec![RistrettoPoint::default(); data.len()];
-    get_generators(&mut generators, offset_generators);
+    get_curve25519_generators(&mut generators, offset_generators);
 
-    compute_commitments(&mut commitments, &[(&data).into()], offset_generators);
+    compute_curve25519_commitments(&mut commitments, &[(&data).into()], offset_generators);
 
     let expected_commit = data
         .iter()
@@ -79,11 +79,11 @@ fn we_can_update_commitments() {
     let mut commitments = vec![CompressedRistretto::default(); 1];
     let mut expected_commitments = vec![CompressedRistretto::default(); 1];
 
-    update_commitments(&mut commitments, &[(&dense_data).into()], 0_u64);
+    update_curve25519_commitments(&mut commitments, &[(&dense_data).into()], 0_u64);
 
-    update_commitments(&mut commitments, &sliced_scalar_data, 2_u64);
+    update_curve25519_commitments(&mut commitments, &sliced_scalar_data, 2_u64);
 
-    compute_commitments(
+    compute_curve25519_commitments(
         &mut expected_commitments,
         &[(&expected_data).into()],
         offset_generators,
@@ -120,11 +120,11 @@ fn we_can_update_multiple_commitments() {
 
     let expected_data_as_sequences: Vec<_> = expected_data.iter().map(|v| v.into()).collect();
 
-    update_commitments(&mut commitments, &dense_data_as_sequences, 0_u64);
+    update_curve25519_commitments(&mut commitments, &dense_data_as_sequences, 0_u64);
 
-    update_commitments(&mut commitments, &sliced_scalar_data, 5_u64);
+    update_curve25519_commitments(&mut commitments, &sliced_scalar_data, 5_u64);
 
-    compute_commitments(
+    compute_curve25519_commitments(
         &mut expected_commitments,
         &expected_data_as_sequences,
         offset_generators,
@@ -144,7 +144,7 @@ fn compute_commitments_with_scalars_works() {
     let offset_generators = 0_u64;
     let mut data: Vec<Scalar> = vec![Scalar::ZERO; 4];
     let mut generators = vec![RistrettoPoint::default(); data.len()];
-    get_generators(&mut generators, offset_generators);
+    get_curve25519_generators(&mut generators, offset_generators);
 
     for _i in 0..2000 {
         data[0] += Scalar::ONE;
@@ -161,7 +161,7 @@ fn compute_commitments_with_scalars_works() {
 
     let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_commitments(&mut commitments, &[(&data).into()], offset_generators);
+    compute_curve25519_commitments(&mut commitments, &[(&data).into()], offset_generators);
 
     let expected_commit = data
         .iter()
@@ -185,7 +185,7 @@ fn commit_a_plus_commit_b_equal_to_commit_c() {
 
     let mut commitments = vec![CompressedRistretto::default(); 3];
 
-    compute_commitments(
+    compute_curve25519_commitments(
         &mut commitments,
         &[(&data_a).into(), (&data_b).into(), (&data_c).into()],
         offset_generators,
@@ -229,7 +229,7 @@ fn commit_1_plus_commit_1_plus_commit_1_equal_to_commit_3() {
 
     let mut commitments = vec![CompressedRistretto::default(); 4];
 
-    compute_commitments(
+    compute_curve25519_commitments(
         &mut commitments,
         &[
             (&data_a).into(),
@@ -284,7 +284,7 @@ fn commit_a_times_52_plus_commit_b_equal_to_commit_c() {
 
     let mut commitments = vec![CompressedRistretto::default(); 3];
 
-    compute_commitments(
+    compute_curve25519_commitments(
         &mut commitments,
         &[(&data_a).into(), (&data_b).into(), (&data_c).into()],
         offset_generators,
@@ -335,7 +335,7 @@ fn commit_negative_a_plus_commit_negative_b_equal_to_commit_c() {
 
     let mut commitments = vec![CompressedRistretto::default(); 3];
 
-    compute_commitments(
+    compute_curve25519_commitments(
         &mut commitments,
         &[(&data_a).into(), (&data_b).into(), (&data_c).into()],
         offset_generators,
@@ -385,7 +385,7 @@ fn different_word_size_and_rows_in_commit_a_plus_commit_b_plus_commit_c_equal_to
 
     let mut commitments = vec![CompressedRistretto::default(); 4];
 
-    compute_commitments(
+    compute_curve25519_commitments(
         &mut commitments,
         &[
             (&data_a).into(),
@@ -441,7 +441,7 @@ fn sending_generators_to_gpu_produces_correct_commitment_results() {
         .collect();
     let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_commitments_with_generators(&mut commitments, &[(&data).into()], &generator_points);
+    compute_curve25519_commitments_with_generators(&mut commitments, &[(&data).into()], &generator_points);
 
     let mut expected_commit = RistrettoPoint::from_uniform_bytes(&[0_u8; 64]);
 
@@ -520,7 +520,7 @@ fn sending_generators_and_scalars_to_gpu_produces_correct_commitment_results() {
         .collect();
     let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_commitments_with_generators(&mut commitments, &[(&data).into()], &generators);
+    compute_curve25519_commitments_with_generators(&mut commitments, &[(&data).into()], &generators);
 
     let expected_commit = data
         .iter()
@@ -538,7 +538,7 @@ fn we_can_compute_commitments_to_signed_values_with_a_zero_offset() {
     let data1: Vec<i64> = vec![-2];
     let data2: Vec<i64> = vec![2];
     let mut commitments = vec![CompressedRistretto::default(); 2];
-    compute_commitments(&mut commitments, &[(&data1).into(), (&data2).into()], 0);
+    compute_curve25519_commitments(&mut commitments, &[(&data1).into(), (&data2).into()], 0);
 
     assert_eq!(
         commitments[0].decompress().unwrap(),
@@ -552,7 +552,7 @@ fn commit_to_signed_slice_and_its_negatives_gives_the_zero_commit() {
     let b: &[i32] = &[2, -4, 6, -7, -8];
     let z: &[i32] = &[0, 0, 0, 0, 0];
     let mut commitments = vec![CompressedRistretto::default(); 3];
-    compute_commitments(&mut commitments, &[a.into(), b.into(), z.into()], 0);
+    compute_curve25519_commitments(&mut commitments, &[a.into(), b.into(), z.into()], 0);
     assert!(
         commitments[0].decompress().unwrap() + commitments[1].decompress().unwrap()
             == commitments[2].decompress().unwrap()

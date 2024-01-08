@@ -40,13 +40,13 @@ fn main() {
     // We compute the commitments using the exact
     // data, which stores `dense_data + scalar_data`
     /////////////////////////////////////////////
-    compute_commitments(&mut expected_commitment, &[(&expected_data).into()], 0_u64);
+    compute_curve25519_commitments(&mut expected_commitment, &[(&expected_data).into()], 0_u64);
 
     /////////////////////////////////////////////
     // Up to this point, commitment was 0. Then
     // we update it, so that `commitment = dense_data`
     /////////////////////////////////////////////
-    update_commitments(&mut commitment, &[(&dense_data).into()], 0_u64);
+    update_curve25519_commitments(&mut commitment, &[(&dense_data).into()], 0_u64);
 
     /////////////////////////////////////////////
     // We then we update the commiment, so that
@@ -58,7 +58,7 @@ fn main() {
     // commitment += (generator[0 + 2] * scalar_data[0] +
     //                  + generator[1 + 2] * scalar_data[1])
     /////////////////////////////////////////////
-    update_commitments(&mut commitment, &[(&scalar_data).into()], 2_u64);
+    update_curve25519_commitments(&mut commitment, &[(&scalar_data).into()], 2_u64);
 
     /////////////////////////////////////////////
     // We then compare the commitment results

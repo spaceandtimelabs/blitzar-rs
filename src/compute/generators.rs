@@ -15,15 +15,15 @@ use super::backend::init_backend;
 use curve25519_dalek::ristretto::RistrettoPoint;
 use std::mem::MaybeUninit;
 
-#[doc = include_str!("../../docs/commitments/get_generators.md")]
+#[doc = include_str!("../../docs/commitments/get_curve25519_generators.md")]
 ///
-/// # Example - Getting the Generators used in the `compute_commitments` function
+/// # Example - Getting the Generators used in the `compute_curve25519_commitments` function
 //
 /// ```no_run
 #[doc = include_str!("../../examples/get_generators.rs")]
 /// ```
-#[tracing::instrument(name = "compute.generators.get_generators", level = "info", skip_all)]
-pub fn get_generators(generators: &mut [RistrettoPoint], offset_generators: u64) {
+#[tracing::instrument(name = "compute.generators.get_curve25519_generators", level = "info", skip_all)]
+pub fn get_curve25519_generators(generators: &mut [RistrettoPoint], offset_generators: u64) {
     init_backend();
 
     unsafe {
@@ -37,20 +37,20 @@ pub fn get_generators(generators: &mut [RistrettoPoint], offset_generators: u64)
         );
 
         if ret_get_generators != 0 {
-            panic!("Error during get_generators call");
+            panic!("Error during get_curve25519_generators call");
         }
     }
 }
 
-#[doc = include_str!("../../docs/commitments/get_one_commit.md")]
+#[doc = include_str!("../../docs/commitments/get_one_curve25519_commit.md")]
 ///
 /// # Example - Getting the i-th One Commit
 //
 /// ```no_run
 #[doc = include_str!("../../examples/get_one_commit.rs")]
 /// ```
-#[tracing::instrument(name = "compute.generators.get_one_commit", level = "info", skip_all)]
-pub fn get_one_commit(n: u64) -> RistrettoPoint {
+#[tracing::instrument(name = "compute.generators.get_one_curve25519_commit", level = "info", skip_all)]
+pub fn get_one_curve25519_commit(n: u64) -> RistrettoPoint {
     init_backend();
 
     unsafe {
@@ -60,7 +60,7 @@ pub fn get_one_commit(n: u64) -> RistrettoPoint {
         let ret_get_one_commit = blitzar_sys::sxt_curve25519_get_one_commit(one_commit_ptr, n);
 
         if ret_get_one_commit != 0 {
-            panic!("Error during get_one_commit call");
+            panic!("Error during get_one_curve25519_commit call");
         }
 
         one_commit.assume_init()

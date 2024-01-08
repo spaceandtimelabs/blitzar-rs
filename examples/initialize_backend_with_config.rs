@@ -32,6 +32,6 @@ fn main() {
     /////////////////////////////////////////////
     let data: &[u64] = &[40, 32, 21, 10, 20, 35, 444];
     let mut commitments = vec![CompressedRistretto::default(); 1];
-    compute_commitments(&mut commitments, &[data.into()], 0_u64);
+    compute_curve25519_commitments(&mut commitments, &[data.into()], 0_u64);
     assert_ne!(commitments[0], CompressedRistretto::default())
 }

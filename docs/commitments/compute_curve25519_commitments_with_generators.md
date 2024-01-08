@@ -41,21 +41,24 @@ let M_j = [
 ];
 ```
 
-This message M_j cannot be decrypted from C_j. The curve point C_j is generated in a unique way using M_j and a
-set of random 1280-bit curve25519 points G_{i + offset_generators}, called row generators. The total number of generators used to compute C_j is equal to the number of `num_rows` in the data\[j] sequence. To access those generators, use the [get_generators] function.
-
-
-The following formula
+This message M_j cannot be decrypted from C_j. The curve point C_j
+is generated in a unique way using M_j and a
+set of 1280-bit curve25519 points G_i, called row generators.
+Although our GPU code uses 1280-bit generators during the scalar 
+multiplication, these generators are passed as 256-bit Ristretto points
+and only converted to 1280-bit points inside the GPU/CPU.
+The total number of generators used to compute C_j is equal to 
+the number of `num_rows` in the data\[j] sequence. The following formula
 is specified to obtain the C_j commitment when the input table is a 
 [crate::sequence::Sequence] view:
 
 ```text
 let C_j_temp = 0; // this is a 1280-bit curve25519 point
 
-for i in 0..num_rows {
-    let G_{i + offset_generators} = generators[i + offset_generators].decompress(); // we decompress to convert 256-bit to 1280-bit points
+for j in 0..num_rows {
+    let G_i = generators[j].decompress(); // we decompress to convert 256-bit to 1280-bit points
     let curr_data_ji = data[j].data_slice[i*el_size:(i + 1)*el_size];
-    C_j_temp = C_j_temp + curr_data_ji * G_{i + offset_generators};
+    C_j_temp = C_j_temp + curr_data_ji * G_i;
 }
 
 let C_j = convert_to_ristretto(C_j_temp); // this is a 256-bit Ristretto point
@@ -66,10 +69,10 @@ When we have a [curve25519_dalek::scalar::Scalar] view for the input table, we u
 ```text
 let C_j_temp = 0; // this is a 1280-bit curve25519 point
 
-for i in 0..num_rows {
-    let G_{i + offset_generators} = generators[i + offset_generators].decompress();
+for j in 0..num_rows {
+    let G_i = get_random_ristretto_point(j);
     let curr_data_ji = data[j][i];
-    C_j_temp = C_j_temp + curr_data_ji * G_{i + offset_generators};
+    C_j_temp = C_j_temp + curr_data_ji * G_i;
 }
 
 let C_j = convert_to_ristretto(C_j_temp); // this is a 256-bit Ristretto point
@@ -77,18 +80,18 @@ let C_j = convert_to_ristretto(C_j_temp); // this is a 256-bit Ristretto point
 
 Ps: the above is only illustrative code. It will not compile.
 
-Here `curr_data_ji` are simply 256-bit scalars, C_j_temp and G_{i + offset_generators} are
+Here `curr_data_ji` are simply 256-bit scalars, C_j_temp and G_i are
 1280-bit curve25519 points and C_j is a 256-bit Ristretto point.
 
-Given M_j and G_{i + offset_generators}, it is easy to verify that the Pedersen
+Given M_j and G_i, it is easy to verify that the Pedersen
 commitment C_j is the correctly generated output. However,
-the Pedersen commitment generated from M_j and G_{i + offset_generators} is cryptographically
+the Pedersen commitment generated from M_j and G_i is cryptographically
 binded to the message M_j because finding alternative inputs M_j* and 
-G_{i + offset_generators}* for which the Pedersen commitment generates the same point C_j
+G_i* for which the Pedersen commitment generates the same point C_j
 requires an infeasible amount of computation.
 
-To guarantee proper execution so that the backend is correctly set,
-this `compute_commitments` always calls the `init_backend()` function.
+To guarantee proper execution, so that the backend is correctly set,
+this `compute_curve25519_commitments` always calls the `init_backend()` function.
 
 Portions of this documentation were extracted from
 [here](findora.org/faq/crypto/pedersen-commitment-with-elliptic-curves/)
@@ -100,8 +103,8 @@ Portions of this documentation were extracted from
                you need to guarantee that this slice captures exactly
                data.len() element positions.
 
-* `data` - A generic slice view T. Currently, we support
-        two different types of slices. First, a slice view of a [crate::sequence::Sequence], 
+* `data` - A generic sliced view T. Currently, we support
+        two different types of slices. First, is a slice view of a [crate::sequence::Sequence], 
         which captures the slices of contiguous u8 memory elements.
         In this case, you need to guarantee that the contiguous u8 slice view
         captures the correct amount of bytes that can reflect
@@ -110,11 +113,15 @@ Portions of this documentation were extracted from
         The second accepted data input is a slice view of a [curve25519_dalek::scalar::Scalar] memory area,
         which captures the slices of contiguous Dalek Scalar elements.
 
-* `offset_generators` - Specifies the offset used to fetch the generators
+* `generators` - A sliced view of a Ristretto memory area where the
+              256-bit Ristretto Point generators used in the commitment computation are
+              stored. Bear in mind that the size of this slice must always be greater
+              or equal to the longest sequence, in terms of rows, in the table.
 
 # Asserts
 
-If the data.len() value is different from the commitments.len() value.
+If the longest sequence in the input data is bigger than the generators` length, or If
+the data.len() value is different from the commitments.len() value.
 
 # Panics
 

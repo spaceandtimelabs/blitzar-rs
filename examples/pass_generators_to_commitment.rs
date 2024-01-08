@@ -47,7 +47,7 @@ fn main() {
     // Do the actual commitment computation
     /////////////////////////////////////////////
     let mut commitments = vec![CompressedRistretto::default(); 1];
-    compute_commitments_with_generators(&mut commitments, &[data.into()], &gs);
+    compute_curve25519_commitments_with_generators(&mut commitments, &[data.into()], &gs);
 
     /////////////////////////////////////////////
     // Then we use the above generators `gs`,
