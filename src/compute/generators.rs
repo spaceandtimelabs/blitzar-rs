@@ -22,7 +22,11 @@ use std::mem::MaybeUninit;
 /// ```no_run
 #[doc = include_str!("../../examples/get_generators.rs")]
 /// ```
-#[tracing::instrument(name = "compute.generators.get_curve25519_generators", level = "info", skip_all)]
+#[tracing::instrument(
+    name = "compute.generators.get_curve25519_generators",
+    level = "info",
+    skip_all
+)]
 pub fn get_curve25519_generators(generators: &mut [RistrettoPoint], offset_generators: u64) {
     init_backend();
 
@@ -49,7 +53,11 @@ pub fn get_curve25519_generators(generators: &mut [RistrettoPoint], offset_gener
 /// ```no_run
 #[doc = include_str!("../../examples/get_one_commit.rs")]
 /// ```
-#[tracing::instrument(name = "compute.generators.get_one_curve25519_commit", level = "info", skip_all)]
+#[tracing::instrument(
+    name = "compute.generators.get_one_curve25519_commit",
+    level = "info",
+    skip_all
+)]
 pub fn get_one_curve25519_commit(n: u64) -> RistrettoPoint {
     init_backend();
 

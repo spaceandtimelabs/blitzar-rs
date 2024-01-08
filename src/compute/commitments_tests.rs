@@ -441,7 +441,11 @@ fn sending_generators_to_gpu_produces_correct_commitment_results() {
         .collect();
     let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_curve25519_commitments_with_generators(&mut commitments, &[(&data).into()], &generator_points);
+    compute_curve25519_commitments_with_generators(
+        &mut commitments,
+        &[(&data).into()],
+        &generator_points,
+    );
 
     let mut expected_commit = RistrettoPoint::from_uniform_bytes(&[0_u8; 64]);
 
@@ -520,7 +524,11 @@ fn sending_generators_and_scalars_to_gpu_produces_correct_commitment_results() {
         .collect();
     let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    compute_curve25519_commitments_with_generators(&mut commitments, &[(&data).into()], &generators);
+    compute_curve25519_commitments_with_generators(
+        &mut commitments,
+        &[(&data).into()],
+        &generators,
+    );
 
     let expected_commit = data
         .iter()

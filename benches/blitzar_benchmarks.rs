@@ -89,7 +89,11 @@ mod blitzar_benches {
 
             group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
-                    compute_curve25519_commitments_with_generators(&mut commitments, &table, &generators)
+                    compute_curve25519_commitments_with_generators(
+                        &mut commitments,
+                        &table,
+                        &generators,
+                    )
                 })
             });
         } else {
@@ -102,7 +106,11 @@ mod blitzar_benches {
 
             group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
-                    compute_curve25519_commitments_with_generators(&mut commitments, &table, &generators)
+                    compute_curve25519_commitments_with_generators(
+                        &mut commitments,
+                        &table,
+                        &generators,
+                    )
                 })
             });
         }
