@@ -83,13 +83,17 @@ mod blitzar_benches {
             group.bench_function(
                 &without_generators_label,
                 |b: &mut criterion::Bencher<'_>| {
-                    b.iter(|| compute_commitments(&mut commitments, &table, 0_u64))
+                    b.iter(|| compute_curve25519_commitments(&mut commitments, &table, 0_u64))
                 },
             );
 
             group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
-                    compute_commitments_with_generators(&mut commitments, &table, &generators)
+                    compute_curve25519_commitments_with_generators(
+                        &mut commitments,
+                        &table,
+                        &generators,
+                    )
                 })
             });
         } else {
@@ -97,12 +101,16 @@ mod blitzar_benches {
             let table: Vec<Sequence> = (0..num_commits).map(|i| (&data[i]).into()).collect();
 
             group.bench_function(&without_generators_label, |b| {
-                b.iter(|| compute_commitments(&mut commitments, &table, 0_u64))
+                b.iter(|| compute_curve25519_commitments(&mut commitments, &table, 0_u64))
             });
 
             group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
-                    compute_commitments_with_generators(&mut commitments, &table, &generators)
+                    compute_curve25519_commitments_with_generators(
+                        &mut commitments,
+                        &table,
+                        &generators,
+                    )
                 })
             });
         }

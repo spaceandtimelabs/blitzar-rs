@@ -13,7 +13,7 @@
 // limitations under the License.
 use super::*;
 
-use crate::compute::get_generators;
+use crate::compute::get_curve25519_generators;
 use core::{mem, slice};
 use curve25519_dalek::ristretto::RistrettoPoint;
 use curve25519_dalek::scalar::Scalar;
@@ -35,7 +35,7 @@ fn test_prove_and_verify_with_given_n_and_generators_offset(n: u64, generators_o
     let b: Vec<_> = (0..n).map(|_| Scalar::random(&mut rng)).collect();
     let g = {
         let mut temp_g = vec![RistrettoPoint::default(); n as usize];
-        get_generators(&mut temp_g, generators_offset);
+        get_curve25519_generators(&mut temp_g, generators_offset);
         temp_g
     };
 

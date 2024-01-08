@@ -20,28 +20,28 @@ use curve25519_dalek::traits::Identity;
 
 fn main() {
     let mut generators = vec![Default::default(); 3];
-    get_generators(&mut generators, 0);
+    get_curve25519_generators(&mut generators, 0);
 
     /////////////////////////////////////////////
     // The first one_commit must always be the identity
     /////////////////////////////////////////////
-    assert_eq!(get_one_commit(0), RistrettoPoint::identity());
+    assert_eq!(get_one_curve25519_commit(0), RistrettoPoint::identity());
 
     /////////////////////////////////////////////
     // The second one_commit must always be the first generator
     /////////////////////////////////////////////
-    assert_eq!(get_one_commit(1), generators[0]);
+    assert_eq!(get_one_curve25519_commit(1), generators[0]);
 
     /////////////////////////////////////////////
     // The third one_commit must always be the sum of the first and second generator
     /////////////////////////////////////////////
-    assert_eq!(get_one_commit(2), generators[0] + generators[1]);
+    assert_eq!(get_one_curve25519_commit(2), generators[0] + generators[1]);
 
     /////////////////////////////////////////////
     // The fourth one_commit must always be the sum of the first through third generators
     /////////////////////////////////////////////
     assert_eq!(
-        get_one_commit(3),
+        get_one_curve25519_commit(3),
         generators[0] + generators[1] + generators[2]
     );
 }

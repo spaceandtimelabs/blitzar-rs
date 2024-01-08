@@ -17,7 +17,7 @@ use crate::sequence::Sequence;
 use ark_bls12_381::G1Affine;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
-#[doc = include_str!("../../docs/commitments/compute_commitments.md")]
+#[doc = include_str!("../../docs/commitments/compute_curve25519_commitments.md")]
 ///
 /// # Example 1 - Simple Commitment Computation
 ///```no_run
@@ -35,11 +35,11 @@ use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 ///```
 ///```
 #[tracing::instrument(
-    name = "compute.commitments.compute_commitments",
+    name = "compute.commitments.compute_curve25519_commitments",
     level = "info",
     skip_all
 )]
-pub fn compute_commitments(
+pub fn compute_curve25519_commitments(
     commitments: &mut [CompressedRistretto],
     data: &[Sequence],
     offset_generators: u64,
@@ -62,7 +62,7 @@ pub fn compute_commitments(
     }
 }
 
-#[doc = include_str!("../../docs/commitments/compute_commitments_with_generators.md")]
+#[doc = include_str!("../../docs/commitments/compute_curve25519_commitments_with_generators.md")]
 ///
 ///# Example 1 - Pass generators to Commitment Computation
 ///```no_run
@@ -74,11 +74,11 @@ pub fn compute_commitments(
 #[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
 ///```
 #[tracing::instrument(
-    name = "compute.commitments.compute_commitments_with_generators",
+    name = "compute.commitments.compute_curve25519_commitments_with_generators",
     level = "info",
     skip_all
 )]
-pub fn compute_commitments_with_generators(
+pub fn compute_curve25519_commitments_with_generators(
     commitments: &mut [CompressedRistretto],
     data: &[Sequence],
     generators: &[RistrettoPoint],
@@ -115,7 +115,7 @@ pub fn compute_commitments_with_generators(
 /// The doc tag does not seem to be working as expected. When the doc tag issue
 /// is sorted out, documentation for the bls12-381 G1 commitment computation
 /// will be created and linked below.
-#[doc = include_str!("../../docs/commitments/compute_commitments_with_generators.md")]
+#[doc = include_str!("../../docs/commitments/compute_curve25519_commitments_with_generators.md")]
 ///
 ///# Example 1 - Pass generators to Commitment Computation
 ///```no_run
@@ -126,6 +126,11 @@ pub fn compute_commitments_with_generators(
 ///```no_run
 #[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
 ///```
+#[tracing::instrument(
+    name = "compute.commitments.compute_bls12_381_g1_commitments_with_generators",
+    level = "info",
+    skip_all
+)]
 pub fn compute_bls12_381_g1_commitments_with_generators(
     commitments: &mut [[u8; 48]],
     data: &[Sequence],
@@ -159,7 +164,7 @@ pub fn compute_bls12_381_g1_commitments_with_generators(
     }
 }
 
-#[doc = include_str!("../../docs/commitments/update_commitments.md")]
+#[doc = include_str!("../../docs/commitments/update_curve25519_commitments.md")]
 ///
 /// # Example - Update commitments with dense and dalek scalars
 //
@@ -167,11 +172,11 @@ pub fn compute_bls12_381_g1_commitments_with_generators(
 #[doc = include_str!("../../examples/simple_update_commitment.rs")]
 /// ```
 #[tracing::instrument(
-    name = "compute.commitments.update_commitments",
+    name = "compute.commitments.update_curve25519_commitments",
     level = "info",
     skip_all
 )]
-pub fn update_commitments(
+pub fn update_curve25519_commitments(
     commitments: &mut [CompressedRistretto],
     data: &[Sequence],
     offset_generators: u64,
@@ -181,16 +186,16 @@ pub fn update_commitments(
 
     let mut partial_commitments = vec![CompressedRistretto::default(); num_columns];
 
-    compute_commitments(&mut partial_commitments, data, offset_generators);
+    compute_curve25519_commitments(&mut partial_commitments, data, offset_generators);
 
     commitments
         .iter_mut()
         .zip(partial_commitments)
         .for_each(|(c_a, c_b)| {
             *c_a = (c_a.decompress().unwrap_or_else(|| {
-                panic!("invalid ristretto point decompression on update_commitments")
+                panic!("invalid ristretto point decompression on update_curve25519_commitments")
             }) + c_b.decompress().unwrap_or_else(|| {
-                panic!("invalid ristretto point decompression on update_commitments")
+                panic!("invalid ristretto point decompression on update_curve25519_commitments")
             }))
             .compress()
         });

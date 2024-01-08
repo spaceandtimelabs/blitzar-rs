@@ -19,15 +19,15 @@ pub use backend::{init_backend, init_backend_with_config, BackendConfig};
 
 mod commitments;
 pub use commitments::{
-    compute_bls12_381_g1_commitments_with_generators, compute_commitments,
-    compute_commitments_with_generators, update_commitments,
+    compute_bls12_381_g1_commitments_with_generators, compute_curve25519_commitments,
+    compute_curve25519_commitments_with_generators, update_curve25519_commitments,
 };
 
 #[cfg(test)]
 mod commitments_tests;
 
 mod generators;
-pub use generators::{get_generators, get_one_commit};
+pub use generators::{get_curve25519_generators, get_one_curve25519_commit};
 
 #[cfg(test)]
 mod generators_tests;

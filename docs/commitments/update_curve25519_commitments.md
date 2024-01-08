@@ -16,7 +16,7 @@ for i in 0..data.len() {
 }
 ```
 
-The `partial_commitments` is computed by [compute_commitments].
+The `partial_commitments` is computed by [compute_curve25519_commitments].
 
 # Arguments
 
@@ -47,6 +47,6 @@ If the data.len() value is different from the commitments.len() value.
 
 # Panics
 
-If the compute `compute_commitments` execution fails.
-If the compute `compute_commitments_with_generators` execution fails.
-If the compute `get_generators` execution in the GPU / CPU fails.
+If the compute `compute_curve25519_commitments` execution fails.
+If the compute `compute_curve25519_commitments_with_generators` execution fails.
+If the compute `get_curve25519_generators` execution in the GPU / CPU fails.

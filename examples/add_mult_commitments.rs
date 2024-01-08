@@ -39,7 +39,7 @@ fn main() {
     // Do the actual commitment computation (either in cpu / gpu)
     /////////////////////////////////////////////
     let mut commitments = vec![Default::default(); 3];
-    compute_commitments(
+    compute_curve25519_commitments(
         &mut commitments,
         &[
             weekly_pay_data.into(),

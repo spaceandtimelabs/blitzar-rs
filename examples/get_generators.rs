@@ -36,13 +36,13 @@ fn main() {
     let offset_generators: usize = 4;
     let generators_len = 3;
     let mut gs = vec![Default::default(); generators_len];
-    get_generators(&mut gs, offset_generators as u64);
+    get_curve25519_generators(&mut gs, offset_generators as u64);
 
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
     let mut commitments = vec![Default::default(); 1];
-    compute_commitments(&mut commitments, &[data.into()], 0);
+    compute_curve25519_commitments(&mut commitments, &[data.into()], 0);
 
     /////////////////////////////////////////////
     // Then we use the above generators `gs`,

@@ -8,7 +8,7 @@ if n == 0 {
 }
 ```
 
-where `g[i]` is the i-th generator provided by `get_generators` function at the offset 0.
+where `g[i]` is the i-th generator provided by `get_curve25519_generators` function at the offset 0.
 
 # Arguments:
 
@@ -20,5 +20,5 @@ The n-th ristretto point defined as above.
 
 # Panics
 
-If the compute `get_one_commit` execution in the GPU / CPU fails.
+If the compute `get_one_curve25519_commit` execution in the GPU / CPU fails.
 

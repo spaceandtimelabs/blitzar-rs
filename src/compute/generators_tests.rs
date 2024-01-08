@@ -26,9 +26,9 @@ fn get_generators_is_the_same_used_in_commitment_computation() {
     let mut generators = vec![RistrettoPoint::from_uniform_bytes(&[0_u8; 64]); data.len()];
 
     // convert the generator points to compressed ristretto
-    get_generators(&mut generators, 0_u64);
+    get_curve25519_generators(&mut generators, 0_u64);
 
-    compute_commitments(&mut commitments, &[(&data).into()], offset_generators);
+    compute_curve25519_commitments(&mut commitments, &[(&data).into()], offset_generators);
 
     let mut expected_commit = RistrettoPoint::from_uniform_bytes(&[0_u8; 64]);
 
@@ -57,9 +57,9 @@ fn get_generators_with_offset_is_the_same_used_in_commitment_computation() {
     let mut generators = vec![RistrettoPoint::from_uniform_bytes(&[0_u8; 64]); generators_len];
     let mut commitments = vec![CompressedRistretto::default(); 1];
 
-    get_generators(&mut generators, offset_generators as u64);
+    get_curve25519_generators(&mut generators, offset_generators as u64);
 
-    compute_commitments(&mut commitments, &[(&data).into()], 0_u64);
+    compute_curve25519_commitments(&mut commitments, &[(&data).into()], 0_u64);
 
     let expected_commit = data[offset_generators..]
         .iter()
@@ -77,9 +77,9 @@ fn get_one_commit_is_valid() {
     let generators_len = 3;
     let mut generators = vec![RistrettoPoint::from_uniform_bytes(&[0_u8; 64]); generators_len];
 
-    get_generators(&mut generators, 0);
+    get_curve25519_generators(&mut generators, 0);
 
-    assert_eq!(get_one_commit(0), RistrettoPoint::identity());
-    assert_eq!(get_one_commit(1), generators[0]);
-    assert_eq!(get_one_commit(2), generators[0] + generators[1]);
+    assert_eq!(get_one_curve25519_commit(0), RistrettoPoint::identity());
+    assert_eq!(get_one_curve25519_commit(1), generators[0]);
+    assert_eq!(get_one_curve25519_commit(2), generators[0] + generators[1]);
 }

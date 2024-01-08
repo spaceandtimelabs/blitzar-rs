@@ -52,7 +52,7 @@ fn main() {
     /////////////////////////////////////////////
     // Do the actual commitment computation
     /////////////////////////////////////////////
-    compute_commitments(
+    compute_curve25519_commitments(
         &mut commitments,
         &[data0.into(), data1.into(), data2.into(), data3.into()],
         0,

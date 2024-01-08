@@ -34,7 +34,7 @@ impl InnerProductProof {
     /// ```text
     /// let np = 1ull << ceil(log2(n));
     /// let G = vec![RISTRETTO_BASEPOINT_POINT; np + 1];
-    /// crate::compute::get_generators(G, generators_offset)`.
+    /// crate::compute::get_curve25519_generators(G, generators_offset)`.
     /// ```
     ///
     /// The `verifier` transcript is passed in as a parameter so that the
@@ -163,7 +163,7 @@ impl InnerProductProof {
     /// ```text
     /// let np = 1ull << ceil(log2(n));
     /// let G = vec![RISTRETTO_BASEPOINT_POINT; np + 1];
-    /// crate::compute::get_generators(G, generators_offset)`.
+    /// crate::compute::get_curve25519_generators(G, generators_offset)`.
     /// ```
     ///
     /// Note that we don't have any restriction to the `n` value, other than

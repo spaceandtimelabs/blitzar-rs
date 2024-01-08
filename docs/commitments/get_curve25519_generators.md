@@ -1,4 +1,4 @@
-Gets the generators used in the `compute_commitments` function
+Gets the generators used in the `compute_curve25519_commitments` function
 
 In total, the function gets `generators.len()` points. These points
 are converted from 1280-bit Curve25519 points used in the scalar multiplication
@@ -25,5 +25,5 @@ for i in 0..generators.len() {
 
 # Panics
 
-If the compute `get_generators` execution in the GPU / CPU fails.
+If the compute `get_curve25519_generators` execution in the GPU / CPU fails.
 
