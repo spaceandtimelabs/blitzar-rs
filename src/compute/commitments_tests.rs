@@ -142,21 +142,21 @@ fn we_can_update_multiple_commitments() {
 fn compute_commitments_with_scalars_works() {
     // generate input table
     let offset_generators = 0_u64;
-    let mut data: Vec<Scalar> = vec![Scalar::zero(); 4];
+    let mut data: Vec<Scalar> = vec![Scalar::ZERO; 4];
     let mut generators = vec![RistrettoPoint::default(); data.len()];
     get_generators(&mut generators, offset_generators);
 
     for _i in 0..2000 {
-        data[0] += Scalar::one();
+        data[0] += Scalar::ONE;
     }
     for _i in 0..7500 {
-        data[1] += Scalar::one();
+        data[1] += Scalar::ONE;
     }
     for _i in 0..5000 {
-        data[2] += Scalar::one();
+        data[2] += Scalar::ONE;
     }
     for _i in 0..1500 {
-        data[3] += Scalar::one();
+        data[3] += Scalar::ONE;
     }
 
     let mut commitments = vec![CompressedRistretto::default(); 1];

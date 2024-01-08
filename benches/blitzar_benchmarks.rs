@@ -48,7 +48,7 @@ mod blitzar_benches {
     fn construct_generators(n: usize) -> Vec<RistrettoPoint> {
         let mut rng = thread_rng();
         (0..n)
-            .map(|_| (&Scalar::random(&mut rng) * &constants::RISTRETTO_BASEPOINT_TABLE))
+            .map(|_| (&Scalar::random(&mut rng) * constants::RISTRETTO_BASEPOINT_TABLE))
             .collect()
     }
 
