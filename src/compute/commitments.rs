@@ -33,7 +33,6 @@ use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 ///```no_run
 #[doc = include_str!("../../examples/simple_scalars_commitment.rs")]
 ///```
-///```
 #[tracing::instrument(
     name = "compute.commitments.compute_curve25519_commitments",
     level = "info",

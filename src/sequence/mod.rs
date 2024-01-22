@@ -51,11 +51,11 @@ pub struct Sequence<'a> {
     /// and the `element_size` value are properly defined. For instance,
     /// you must secure that for:
     ///
-    /// - u8 data slice types: element_size = std::mem::size_of::<u8>()
-    /// - u16 data slice types: element_size = std::mem::size_of::<u16>()
-    /// - u32 data slice types: element_size = std::mem::size_of::<u32>()
-    /// - u64 data slice types: element_size = std::mem::size_of::<u64>()
-    /// - u128 data slice types: element_size = std::mem::size_of::<u128>()
+    /// - u8 data slice types: element_size = `std::mem::size_of::<u8>`()
+    /// - u16 data slice types: element_size = `std::mem::size_of::<u16>`()
+    /// - u32 data slice types: element_size = `std::mem::size_of::<u32>`()
+    /// - u64 data slice types: element_size = `std::mem::size_of::<u64>`()
+    /// - u128 data slice types: element_size = `std::mem::size_of::<u128>`()
     element_size: usize,
 
     /// Represents whether the data slice should be interpreted

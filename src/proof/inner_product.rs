@@ -46,7 +46,7 @@ impl InnerProductProof {
     ///
     /// # Algorithm description
     ///
-    /// Initially, we compute G and Q = G[np], where np = 1ull << ceil(log2(n))
+    /// Initially, we compute G and Q = G\[np\], where np = 1ull << ceil(log2(n))
     /// and G is zero-indexed.
     ///
     /// The protocol consists of k = ceil(lg_2(n)) rounds, indexed by j = k - 1 , ... , 0.
@@ -69,9 +69,9 @@ impl InnerProductProof {
     /// then `a` or `b` is padded with zeros until it has a power of 2.
     /// G always has a power of 2 given how it is constructed.
     ///
-    /// Then the prover sends l_vector[j] and r_vector[j] to the verifier,
+    /// Then the prover sends l_vector\[j\] and r_vector\[j\] to the verifier,
     /// and the verifier responds with a
-    /// challenge value u[j] <- Z_p (finite field of order p),
+    /// challenge value u\[j\] <- Z_p (finite field of order p),
     /// which is non-interactively simulated by
     /// the input strobe-based transcript:
     ///
@@ -82,7 +82,7 @@ impl InnerProductProof {
     /// u[j] = transcript.challenge_value("x");
     /// ```
     ///
-    /// Then the prover uses u[j] to compute
+    /// Then the prover uses u\[j\] to compute
     ///
     /// ```text
     /// a = a_lo * u[j] + (u[j]^-1) * a_hi;
@@ -99,7 +99,7 @@ impl InnerProductProof {
     ///
     /// and use these vectors (all of length 2^j) for the next round.
     ///
-    /// After the last (j = 0) round, the prover sends ap_value = a[0] to the verifier.
+    /// After the last (j = 0) round, the prover sends ap_value = a\[0\] to the verifier.
     ///
     /// # Arguments:
     ///
