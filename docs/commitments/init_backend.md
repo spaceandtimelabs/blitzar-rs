@@ -15,7 +15,7 @@ another one. Therefore, if the GPU feature is specified during build time,
 then it is not possible to use the CPU to do the computations. 
 In the case, no feature is specified during build time, 
 the backend will initialize with the pip-cpu as default.
-//
+
 Also, any `compute` function will call this `init_backend`
 securing that the backend is always in a proper state.
  
