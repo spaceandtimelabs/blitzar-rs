@@ -63,12 +63,12 @@ pub fn compute_curve25519_commitments(
 
 #[doc = include_str!("../../docs/commitments/compute_curve25519_commitments_with_generators.md")]
 ///
-///# Example 1 - Pass generators to Commitment Computation
+/// # Example 1 - Pass generators to Commitment Computation
 ///```no_run
 #[doc = include_str!("../../examples/pass_generators_to_commitment.rs")]
 ///```
 ///
-/// Example 2 - Compute Commitments with Dalek Scalars and User Generators
+/// # Example 2 - Compute Commitments with Dalek Scalars and User Generators
 ///```no_run
 #[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
 ///```
@@ -116,12 +116,12 @@ pub fn compute_curve25519_commitments_with_generators(
 /// will be created and linked below.
 #[doc = include_str!("../../docs/commitments/compute_curve25519_commitments_with_generators.md")]
 ///
-///# Example 1 - Pass generators to Commitment Computation
+/// # Example 1 - Pass generators to Commitment Computation
 ///```no_run
 #[doc = include_str!("../../examples/pass_generators_to_commitment.rs")]
 ///```
 ///
-/// Example 2 - Compute Commitments with Scalars and User Generators
+/// # Example 2 - Compute Commitments with Scalars and User Generators
 ///```no_run
 #[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
 ///```
@@ -165,8 +165,7 @@ pub fn compute_bls12_381_g1_commitments_with_generators(
 
 #[doc = include_str!("../../docs/commitments/update_curve25519_commitments.md")]
 ///
-/// # Example - Update commitments with dense and dalek scalars
-//
+/// # Example - Update Commitments with Dense and Dalek Scalars
 /// ```no_run
 #[doc = include_str!("../../examples/simple_update_commitment.rs")]
 /// ```
