@@ -94,7 +94,7 @@ To guarantee proper execution, so that the backend is correctly set,
 this `compute_curve25519_commitments` always calls the `init_backend()` function.
 
 Portions of this documentation were extracted from
-[here](findora.org/faq/crypto/pedersen-commitment-with-elliptic-curves/)
+[here](https://findora.org/faq/crypto/pedersen-commitment-with-elliptic-curves/)
 
 # Arguments
 
