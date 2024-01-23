@@ -65,7 +65,7 @@ pub fn compute_curve25519_commitments(
 ///
 /// # Example 1 - Pass generators to Commitment Computation
 ///```no_run
-#[doc = include_str!("../../examples/pass_generators_to_commitment.rs")]
+#[doc = include_str!("../../examples/pass_curve25519_generators_to_commitment.rs")]
 ///```
 ///
 /// # Example 2 - Compute Commitments with Dalek Scalars and User Generators
@@ -110,20 +110,11 @@ pub fn compute_curve25519_commitments_with_generators(
     }
 }
 
-/// The documentation linked here is related to curve25519.
-/// The doc tag does not seem to be working as expected. When the doc tag issue
-/// is sorted out, documentation for the bls12-381 G1 commitment computation
-/// will be created and linked below.
-#[doc = include_str!("../../docs/commitments/compute_curve25519_commitments_with_generators.md")]
+#[doc = include_str!("../../docs/commitments/compute_bls12_381_g1_commitments_with_generators.md")]
 ///
-/// # Example 1 - Pass generators to Commitment Computation
+/// # Example - Pass generators to Commitment Computation
 ///```no_run
-#[doc = include_str!("../../examples/pass_generators_to_commitment.rs")]
-///```
-///
-/// # Example 2 - Compute Commitments with Scalars and User Generators
-///```no_run
-#[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
+#[doc = include_str!("../../examples/pass_bls12_381_g1_generators_to_commitment.rs")]
 ///```
 #[tracing::instrument(
     name = "compute.commitments.compute_bls12_381_g1_commitments_with_generators",
