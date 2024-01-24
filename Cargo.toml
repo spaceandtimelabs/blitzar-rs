@@ -24,7 +24,6 @@ curve25519-dalek = { version = "4", features = ["serde"] }
 merlin = "2"
 serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
-tracing = { version = "0.1.36" }
 
 # this sections is shared by tests, benchmarks, and examples
 [dev-dependencies]
