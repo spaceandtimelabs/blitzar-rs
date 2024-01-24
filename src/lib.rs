@@ -15,10 +15,16 @@
 // Refuse to compile if documentation is missing.
 #![deny(missing_docs)]
 
-//! <h1 align="center" style="border-bottom: none;">Blitzar Crate 🦀🔑</h1>
+//! <p align="center">
+//!   <picture>
+//!     <source media="(prefers-color-scheme: dark)" width="200px" srcset="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo_dark_background.png">
+//!     <source media="(prefers-color-scheme: light)" width="200px" srcset="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo_light_background.png">
+//!     <img alt="Blitzar" width="200px" src="https://raw.githubusercontent.com/spaceandtimelabs/blitzar-rs/assets/logo_light_background.png">
+//!   </picture>
+//! </p>
 //! <p align="center">
 //!   <a href="">
-//!     <img alt="Build states" src="">
+//!     <img alt="Build states" src="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml/badge.svg">
 //!   </a>
 //!   <a href="#badge">
 //!     <img alt="semantic-release: conventional-commits" src="https://img.shields.io/badge/semantic--release-conventional--commits-blueviolet">

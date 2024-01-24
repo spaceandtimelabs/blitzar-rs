@@ -42,7 +42,7 @@ let M_j = [
 ```
 
 This message M_j cannot be decrypted from C_j. The curve point C_j is generated in a unique way using M_j and a
-set of random 1280-bit curve25519 points G_{i + offset_generators}, called row generators. The total number of generators used to compute C_j is equal to the number of `num_rows` in the data\[j] sequence. To access those generators, use the [get_curve25519_generators] function.
+set of random 1280-bit curve25519 points G_{i + offset_generators}, called row generators. The total number of generators used to compute C_j is equal to the number of `num_rows` in the data\[j] sequence. To access those generators, use the \[get_curve25519_generators\] function.
 
 
 The following formula
