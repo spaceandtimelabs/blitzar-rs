@@ -33,11 +33,6 @@ use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 ///```no_run
 #[doc = include_str!("../../examples/simple_scalars_commitment.rs")]
 ///```
-#[tracing::instrument(
-    name = "compute.commitments.compute_curve25519_commitments",
-    level = "info",
-    skip_all
-)]
 pub fn compute_curve25519_commitments(
     commitments: &mut [CompressedRistretto],
     data: &[Sequence],
@@ -72,11 +67,6 @@ pub fn compute_curve25519_commitments(
 ///```no_run
 #[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
 ///```
-#[tracing::instrument(
-    name = "compute.commitments.compute_curve25519_commitments_with_generators",
-    level = "info",
-    skip_all
-)]
 pub fn compute_curve25519_commitments_with_generators(
     commitments: &mut [CompressedRistretto],
     data: &[Sequence],
@@ -116,11 +106,6 @@ pub fn compute_curve25519_commitments_with_generators(
 ///```no_run
 #[doc = include_str!("../../examples/pass_bls12_381_g1_generators_to_commitment.rs")]
 ///```
-#[tracing::instrument(
-    name = "compute.commitments.compute_bls12_381_g1_commitments_with_generators",
-    level = "info",
-    skip_all
-)]
 pub fn compute_bls12_381_g1_commitments_with_generators(
     commitments: &mut [[u8; 48]],
     data: &[Sequence],
@@ -160,11 +145,6 @@ pub fn compute_bls12_381_g1_commitments_with_generators(
 /// ```no_run
 #[doc = include_str!("../../examples/simple_update_commitment.rs")]
 /// ```
-#[tracing::instrument(
-    name = "compute.commitments.update_curve25519_commitments",
-    level = "info",
-    skip_all
-)]
 pub fn update_curve25519_commitments(
     commitments: &mut [CompressedRistretto],
     data: &[Sequence],
