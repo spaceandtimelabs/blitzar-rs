@@ -1,11 +1,11 @@
-Computes the Pedersen commitment for a given input data using curve25519 elements.
+Computes the Pedersen commitment for a given input data using `curve25519` elements.
 
 In total, the function computes `data.len()` commitments,
 which is related to the total number of columns in the data table. The commitment
 results are stored as 256-bit Ristretto points in the `commitments` variable.
 
 The `j`-th Pedersen commitment is a 256-bit Ristretto point `C_j` over the
-curve25519 elliptic curve that is cryptographically binded to a data message vector `M_j`. This `M_j` vector is populated according to the type of the `data` given.
+`curve25519` elliptic curve that is cryptographically binded to a data message vector `M_j`. This `M_j` vector is populated according to the type of the `data` given.
 
 For instance, for an input data table specified as a [crate::sequence::Sequence] slice view, we populate `M_j` as follows:
 
@@ -43,7 +43,7 @@ let M_j = [
 
 This message `M_j` cannot be decrypted from `C_j`. The curve point `C_j`
 is generated in a unique way using `M_j` and a
-set of 1280-bit curve25519 points `G_i`, called row generators.
+set of 1280-bit `curve25519` points `G_i`, called row generators.
 Although our GPU code uses 1280-bit generators during the scalar 
 multiplication, these generators are passed as 256-bit Ristretto points
 and only converted to 1280-bit points inside the GPU/CPU.
@@ -81,7 +81,7 @@ let C_j = convert_to_ristretto(C_j_temp); // this is a 256-bit Ristretto point
 Ps: the above is only illustrative code. It will not compile.
 
 Here `curr_data_ji` are simply 256-bit scalars, `C_j_temp` and `G_i` are
-1280-bit curve25519 points and `C_j` is a 256-bit Ristretto point.
+1280-bit `curve25519` points and `C_j` is a 256-bit Ristretto point.
 
 Given `M_j` and `G_i`, it is easy to verify that the Pedersen
 commitment `C_j` is the correctly generated output. However,
@@ -98,7 +98,7 @@ Portions of this documentation were extracted from
 
 # Arguments
 
-* `commitments` - A sliced view of a CompressedRistretto memory area where the 
+* `commitments` - A sliced view of a `CompressedRistretto` memory area where the 
                256-bit Ristretto point results will be written to. Please,
                you need to guarantee that this slice captures exactly
                data.len() element positions.
@@ -120,7 +120,7 @@ Portions of this documentation were extracted from
 
 # Asserts
 
-If the longest sequence in the input data is bigger than the generators` length, or if
+If the longest sequence in the input data is bigger than the generators length, or if
 the `data.len()` value is different from the `commitments.len()` value.
 
 # Panics

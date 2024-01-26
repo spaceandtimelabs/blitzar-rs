@@ -1,7 +1,7 @@
-Gets the generators used in the `compute_curve25519_commitments` function
+Gets the generators used in the `compute_curve25519_commitments` function.
 
 In total, the function gets `generators.len()` points. These points
-are converted from 1280-bit Curve25519 points used in the scalar multiplication
+are converted from 1280-bit `curve25519` points used in the scalar multiplication
 of the commitment computation, to 256-bit Ristretto points. This function
 also allows the user to provide an offset so that a shift is applied in the
 retrieval. The following operation is applied:
@@ -19,8 +19,8 @@ for i in 0..generators.len() {
               be written into.
 * `offset_generators` - A value that is used to shift the get generator operation by
                         `offset_generators` values. With this shift, we have
-                        generator\[0] holding the value of randomly_generate_curve25519_point(0 + offset),
-                        generator\[1] holding the value of randomly_generate_curve25519_point(1 + offset),
+                        `generator[0]` holding the value of `randomly_generate_curve25519_point(0 + offset)`,
+                        `generator[1]` holding the value of `randomly_generate_curve25519_point(1 + offset)`,
                         and so on.
 
 # Panics

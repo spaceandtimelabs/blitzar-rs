@@ -1,11 +1,11 @@
-Responsible for initializing only once the C++ commitment backend.
+Responsible for initializing the C++ commitment backend.
 
 This function initializes the backend so that computations
-can proceed either in the CPU or in the GPU. The backend
+can proceed either in the CPU or in the GPU. It is only called once. The backend
 type must be specified during `build` time using the following flags:
 
 ```text
-cargo build --features pip-cpu # only the pippenger commitment CPU is used
+cargo build --features pip-cpu # only the Pippenger commitment CPU is used
 cargo build --features naive-gpu # only the naive commitment GPU is used
 cargo build --features naive-cpu # only the naive commitment CPU is used
 ```

@@ -13,9 +13,9 @@
 // limitations under the License.
 use std::sync::Once;
 
-/// struct to hold configuration values about the chosen backend
+/// Struct to hold configuration values about the chosen backend.
 pub struct BackendConfig {
-    /// The total number of precomputed values to be generated
+    /// The total number of precomputed values to be generated.
     pub num_precomputed_generators: u64,
 }
 
