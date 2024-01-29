@@ -119,7 +119,7 @@ To get a local copy up and running, consider the following steps.
 
 * [Rust 1.69.0](https://www.rust-lang.org/tools/install)
 * `x86_64` Linux instance.
-* Nvidia Toolkit Driver Version: >= 525.60.13 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
+* Nvidia Toolkit Driver Version: >= 535.104.05 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
 
 </details>
 
