@@ -42,7 +42,7 @@ pub fn get_curve25519_generators(generators: &mut [RistrettoPoint], offset_gener
 
 #[doc = include_str!("../../docs/commitments/get_one_curve25519_commit.md")]
 ///
-/// # Example - Getting the i-th One Commit
+/// # Example - Getting the `n`-th One Commit
 /// ```no_run
 #[doc = include_str!("../../examples/get_one_commit.rs")]
 /// ```

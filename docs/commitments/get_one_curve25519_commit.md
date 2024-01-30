@@ -1,4 +1,6 @@
-Gets the n-th ristretto point defined as:
+Gets the `n`-th Ristretto point.
+
+The `n`-th Ristretto point is defined as:
 
 ```text
 if n == 0 {
@@ -8,15 +10,15 @@ if n == 0 {
 }
 ```
 
-where `g[i]` is the i-th generator provided by `get_curve25519_generators` function at the offset 0.
+where `g[i]` is the `i`-th generator provided by `get_curve25519_generators` function at the offset `0`.
 
-# Arguments:
+# Arguments
 
-* `n` - the n-th ristretto point to be fetched.
+* `n` - the `n`-th Ristretto point to be fetched.
 
-# Return:
+# Return
 
-The n-th ristretto point defined as above.
+The `n`-th Ristretto point defined as above.
 
 # Panics
 

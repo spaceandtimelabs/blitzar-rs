@@ -18,7 +18,7 @@ use curve25519_dalek::scalar::Scalar;
 use merlin::Transcript;
 use serde::{Deserialize, Serialize};
 
-/// InnerProductProof construct.
+/// InnerProductProof construct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InnerProductProof {
     pub(crate) l_vector: Vec<CompressedRistretto>,
@@ -27,14 +27,14 @@ pub struct InnerProductProof {
 }
 
 impl InnerProductProof {
-    /// Creates an inner product proof
+    /// Creates an inner product proof.
     ///
-    /// The proof is created with respect to the base G, provided by:
+    /// The proof is created with respect to the base `G`, provided by:
     ///
     /// ```text
     /// let np = 1ull << ceil(log2(n));
     /// let G = vec![RISTRETTO_BASEPOINT_POINT; np + 1];
-    /// crate::compute::get_curve25519_generators(G, generators_offset)`.
+    /// crate::compute::get_curve25519_generators(G, generators_offset)
     /// ```
     ///
     /// The `verifier` transcript is passed in as a parameter so that the
@@ -46,34 +46,34 @@ impl InnerProductProof {
     ///
     /// # Algorithm description
     ///
-    /// Initially, we compute G and Q = G\[np\], where np = 1ull << ceil(log2(n))
-    /// and G is zero-indexed.
+    /// Initially, we compute `G` and `Q = G[np]`, where `np = 1ull << ceil(log2(n))`
+    /// and `G` is zero-indexed.
     ///
-    /// The protocol consists of k = ceil(lg_2(n)) rounds, indexed by j = k - 1 , ... , 0.
+    /// The protocol consists of `k = ceil(lg_2(n))` rounds, indexed by `j = k - 1 , ... , 0`.
     ///
-    /// In the j-th round, the prover computes:
+    /// In the `j`-th round, the prover computes:
     ///
     /// ```text
-    /// a_lo = {a[0], a[1], ..., a[n / 2 - 1]}
+    /// a_lo = {a[0], a[1], ..., a[n/2 - 1]}
     /// a_hi = {a[n/2], a[n/2 + 1], ..., a[n - 1]}
-    /// b_lo = {b[0], b[1], ..., b[n / 2 - 1]}
+    /// b_lo = {b[0], b[1], ..., b[n/2 - 1]}
     /// b_hi = {b[n/2], b[n/2 + 1], ..., b[n - 1]}
-    /// G_lo = {G[0], G[1], ..., G[n / 2 - 1]}
+    /// G_lo = {G[0], G[1], ..., G[n/2 - 1]}
     /// G_hi = {G[n/2], G[n/2 + 1], ..., G[n-1]}
     ///
     /// l_vector[j] = <a_lo, G_hi> + <a_lo, b_hi> * Q
     /// r_vector[j] = <a_hi, G_lo> + <a_hi, b_lo> * Q
     /// ```
     ///
-    /// Note that if the `a` or `b` length is not a power of 2,
-    /// then `a` or `b` is padded with zeros until it has a power of 2.
-    /// G always has a power of 2 given how it is constructed.
+    /// Note that if the `a` or `b` length is not a power of `2`,
+    /// then `a` or `b` is padded with zeros until it has a power of `2`.
+    /// `G` always has a power of `2` given how it is constructed.
     ///
-    /// Then the prover sends l_vector\[j\] and r_vector\[j\] to the verifier,
+    /// Then the prover sends `l_vector[j]` and `r_vector[j]` to the verifier,
     /// and the verifier responds with a
-    /// challenge value u\[j\] <- Z_p (finite field of order p),
+    /// challenge value `u[j]` <- `Z_p` (finite field of order `p`),
     /// which is non-interactively simulated by
-    /// the input strobe-based transcript:
+    /// the input strobe-based transcript.
     ///
     /// ```text
     /// transcript.append("L", l_vector[j]);
@@ -82,31 +82,31 @@ impl InnerProductProof {
     /// u[j] = transcript.challenge_value("x");
     /// ```
     ///
-    /// Then the prover uses u\[j\] to compute
+    /// Then the prover uses `u[j]` to compute
     ///
     /// ```text
-    /// a = a_lo * u[j] + (u[j]^-1) * a_hi;
-    /// b = b_lo * (u[j]^-1) + u[j] * b_hi;
+    /// a = a_lo * u[j] + (u[j]^(-1)) * a_hi;
+    /// b = b_lo * (u[j]^(-1)) + u[j] * b_hi;
     /// ```
     ///
     /// Then, the prover and verifier both compute
     ///
     /// ```text
-    /// G = G_lo * (u[j]^-1) + u[j] * G_hi
+    /// G = G_lo * (u[j]^(-1)) + u[j] * G_hi
     ///
     /// n = n / 2;
     /// ```
     ///
-    /// and use these vectors (all of length 2^j) for the next round.
+    /// and use these vectors (all of length `2^j`) for the next round.
     ///
-    /// After the last (j = 0) round, the prover sends ap_value = a\[0\] to the verifier.
+    /// After the last (`j = 0`) round, the prover sends `ap_value = a[0]` to the verifier.
     ///
     /// # Arguments:
     ///
-    /// - transcript (in/out): a single strobe-based transcript
-    /// - a (in): array with non-zero length n
-    /// - b (in): array with non-zero length n
-    /// - generators_offset (in): offset used to fetch the bases
+    /// - `transcript` (in/out): a single strobe-based transcript
+    /// - `a` (in): array with non-zero length `n`
+    /// - `b` (in): array with non-zero length `n`
+    /// - `generators_offset` (in): offset used to fetch the bases
     pub fn create(
         transcript: &mut Transcript,
         a: &[Scalar],
@@ -155,9 +155,9 @@ impl InnerProductProof {
         }
     }
 
-    /// Verifies an inner product proof
+    /// Verifies an inner product proof.
     ///
-    /// The proof is verified with respect to the base G, provided by:
+    /// The proof is verified with respect to the base `G`, provided by:
     ///
     /// ```text
     /// let np = 1ull << ceil(log2(n));
@@ -170,14 +170,14 @@ impl InnerProductProof {
     ///
     /// # Arguments:
     ///
-    /// - transcript (in/out): a single strobe-based transcript
-    /// - a_commit (in): a single ristretto point,
-    ///                  represented by <a, G> (the inner product of the two vectors)
-    /// - product (in): a single scalar, represented by <a, b>,
+    /// - `transcript` (in/out): a single strobe-based transcript
+    /// - `a_commit` (in): a single Ristretto point,
+    ///                  represented by `<a, G>` (the inner product of the two vectors)
+    /// - `product` (in): a single scalar, represented by `<a, b>`,
     ///                 the inner product of the two vectors `a` and `b` used by
     ///                 `InnerProductProof::create(...)`
-    /// - b (in): array with non-zero length n, the same one used by `InnerProductProof::create(...)`
-    /// - generators_offset (in): offset used to fetch the bases
+    /// - `b` (in): array with non-zero length `n`, the same one used by `InnerProductProof::create(...)`
+    /// - `generators_offset` (in): offset used to fetch the bases
     pub fn verify(
         &self,
         transcript: &mut Transcript,

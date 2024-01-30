@@ -1,11 +1,11 @@
-Responsible for initializing only once the C++ commitment backend.
+Responsible for initializing the C++ commitment backend and producing a specified number of generators.
 
 This function initializes the backend so that computations
-can proceed either in the CPU or in the GPU. The backend
+can proceed either in the CPU or in the GPU. It is only called once. The backend
 type must be specified during `build` time using the following flags:
 
 ```text
-cargo build --features pip-cpu # only the pippenger commitment CPU is used
+cargo build --features pip-cpu # only the Pippenger commitment CPU is used
 cargo build --features naive-gpu # only the naive commitment GPU is used
 cargo build --features naive-cpu # only the naive commitment CPU is used
 ```
@@ -21,11 +21,10 @@ During this initialization process, the user can also specify a
 some generators. Those are later used in the commitment computation,
 preventing the generators from being created over and over again.
 
-//
-Also, any `compute` function will call this `init_backend_with_precomputation`
+Any `compute` function will call this `init_backend_with_precomputation`
 securing that the backend is always in a proper state.
  
-Finally, to guarantee that the code inside this function is not
+To guarantee that the code inside this function is not
 initialized multiple times, we use the `std::sync::Once` scheme.
 
 # Arguments

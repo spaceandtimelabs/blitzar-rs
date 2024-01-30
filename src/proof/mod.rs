@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! High-Level Rust wrapper for the blitzar-sys crate proof primitives.
+//! proof primitives
 
 mod error;
 pub use error::ProofError;

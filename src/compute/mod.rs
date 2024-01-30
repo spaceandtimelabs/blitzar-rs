@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! High-Level Rust wrapper for the blitzar-sys crate.
+//! commitment and generator computation
 
 mod backend;
 pub use backend::{init_backend, init_backend_with_config, BackendConfig};

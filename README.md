@@ -73,7 +73,7 @@ Blitzar-rs is a High-Level rust wrapper for the [blitzar-sys crate](https://gith
 
 The crate provides
 
-* Functions for doing group operations on [Curve-25519](https://en.wikipedia.org/wiki/Curve25519) and [Ristretto25519](https://ristretto.group/) elements.
+* Functions for doing group operations on [Curve-25519](https://en.wikipedia.org/wiki/Curve25519), [Ristretto25519](https://ristretto.group/) and [bls12-381 G1](https://electriccoin.co/blog/new-snark-curve/) elements.
 * An implementation of [Inner Product Argument Protocol](https://eprint.iacr.org/2017/1066.pdf) for producing and verifying a compact proof of the inner product of two vectors.
 
 **WARNING**: This project has not undergone a security audit and is NOT ready
@@ -98,7 +98,7 @@ Note: we interchangeably use the terms "multi-scalar multiplication" and "multie
 
 The Blitzar implementation allows for computation of multiple, potentially different length, MSMs simultaneously. Additionally, either built-in, precomputed, generators can be used, or they can be provided as needed.
 
-Currently, Blitzar supports Curve25519 as the group. We're always working to expand the curves that we support, so check back for updates.
+Currently, Blitzar supports Curve25519 and bls12-381 G1 as groups. We're always working to expand the curves that we support, so check back for updates.
 
 #### Inner Product Argument
 
@@ -119,7 +119,7 @@ To get a local copy up and running, consider the following steps.
 
 * [Rust 1.69.0](https://www.rust-lang.org/tools/install)
 * `x86_64` Linux instance.
-* Nvidia Toolkit Driver Version: >= 530.30.02 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
+* Nvidia Toolkit Driver Version: >= 535.104.05 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
 
 </details>
 
@@ -141,7 +141,7 @@ To add this library to your project, update your `Cargo.toml` file with the foll
 
 ```
 [dependencies]
-blitzar = "0.2.0"
+blitzar = <version_number>
 ```
 
 ### Feature Flags

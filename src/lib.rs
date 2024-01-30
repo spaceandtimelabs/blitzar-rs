@@ -23,45 +23,44 @@
 //!   </picture>
 //! </p>
 //! <p align="center">
-//!   <a href="">
+//!   <a href="https://crates.io/crates/blitzar">
+//!     <img alt="crates.io version" src="https://img.shields.io/crates/v/blitzar.svg">
+//!   </a>
+//!   <a href="https://github.com/spaceandtimelabs/blitzar-rs">
 //!     <img alt="Build states" src="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml/badge.svg">
+//!   </a>
+//!   <a href="https://docs.rs/crate/blitzar/">
+//!     <img alt="docs.rs" src="https://img.shields.io/docsrs/blitzar">
 //!   </a>
 //!   <a href="#badge">
 //!     <img alt="semantic-release: conventional-commits" src="https://img.shields.io/badge/semantic--release-conventional--commits-blueviolet">
 //!   </a>
-//!   <a href="#badge">
-//!     <img alt="docs" src="https://img.shields.io/badge/docs-passing-green">
-//!   </a>
 //! </p>
 //!
-//! High-Level Rust wrapper for the blitzar-sys crate
-//! For the rust sys-crate and the C++ repo, check
+//! High-Level Rust wrapper for the `blitzar-sys` crate.
+//! For the Rust sys-crate and the C++ repo, check
 //! [here](https://github.com/spaceandtimelabs/blitzar).
 //!
-//!## Considerations:
+//! ## Considerations:
 //!
-//!1. The current library only supports `x86_64` architectures and only the linux operating system.
-//!2. Until this point, the library was tested only in the `ubuntu20.04` linux environment.
-//!3. Consider using `docker` or a virtual machine.
-//!4. You must have the latest rust environment installed in your linux machine. Download [here](https://www.rust-lang.org/tools/install).
+//! 1. The current library only supports `x86_64` architectures and only the Linux operating system.
+//! 2. The library was tested in the `ubuntu22.04` Linux environment.
+//! 3. Consider using `docker` or a virtual machine.
+//! 4. You must have the latest Rust environment installed in your Linux machine. Download [here](https://www.rust-lang.org/tools/install).
 //!
 
 //! ## Use
-
+//!
 //! Add the following two lines to your `Cargo.toml` file:
-
 //! ```text
-//! [dependencies.blitzar]
-//! path = "/path/to/directory/blitzar/"
+//! [dependencies]
+//! blitzar = <version_number>
 //! ```
-
-//! Don't forget to substitute this `path` with the correct location of your `blitzar` directory.
-
+//!
 //! Import the necessary modules to your rust code:
-
 //! ```text
 //! extern crate blitzar;
-
+//!
 //! use blitzar::sequence::*;
 //! use blitzar::compute::*;
 //! ```
@@ -71,7 +70,7 @@
 //!All the examples are located in the `examples/` directory. Each one has its own `.rs` file. To run some example, use the following command:
 //!
 //!```text
-//! cargo run --features <cpu | gpu> --example <example_name>
+//! cargo run --features <cpu|gpu> --example <example_name>
 //!```
 //!
 //! ## Tests
