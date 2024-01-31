@@ -73,7 +73,7 @@ Blitzar-rs is a High-Level rust wrapper for the [blitzar-sys crate](https://gith
 
 The crate provides
 
-* Functions for doing group operations on [Curve-25519](https://en.wikipedia.org/wiki/Curve25519), [Ristretto25519](https://ristretto.group/) and [bls12-381 G1](https://electriccoin.co/blog/new-snark-curve/) elements.
+* Functions for doing group operations on [Curve-25519](https://en.wikipedia.org/wiki/Curve25519), [Ristretto25519](https://ristretto.group/), [bls12-381 G1](https://electriccoin.co/blog/new-snark-curve/), and [bn254 G1](https://hackmd.io/@jpw/bn254) elements.
 * An implementation of [Inner Product Argument Protocol](https://eprint.iacr.org/2017/1066.pdf) for producing and verifying a compact proof of the inner product of two vectors.
 
 **WARNING**: This project has not undergone a security audit and is NOT ready

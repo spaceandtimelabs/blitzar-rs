@@ -5,7 +5,7 @@ name = "blitzar"
 edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/spaceandtimelabs/blitzar-rs"
-keywords = ["gpu-cryptography", "gpu-crypto", "gpu-ristretto", "gpu-curve25519", "gpu-ristretto255"]
+keywords = ["gpu-cryptography", "gpu-crypto", "gpu-ristretto", "gpu-curve25519", "gpu-ristretto255", "gpu-bls12-381", "gpu-bn254"]
 description = "High-Level Rust wrapper for the blitzar-sys crate "
 exclude = [
     "**/.gitignore",
