@@ -15,6 +15,7 @@
 use super::backend::init_backend;
 use crate::sequence::Sequence;
 use ark_bls12_381::G1Affine;
+use ark_bn254::G1Affine as bn254_g1_affine;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 #[doc = include_str!("../../docs/commitments/compute_curve25519_commitments.md")]
@@ -135,6 +136,44 @@ pub fn compute_bls12_381_g1_commitments_with_generators(
             sxt_descriptors.len() as u32,
             sxt_descriptors.as_ptr(),
             sxt_bls12_381_g1_generators,
+        );
+    }
+}
+
+#[doc = include_str!("../../docs/commitments/compute_bn254_g1_commitments_with_generators.md")]
+///
+/// # Example - Pass generators to Commitment Computation
+///```no_run
+#[doc = include_str!("../../examples/pass_bn254_g1_generators_to_commitment.rs")]
+///```
+pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
+    commitments: &mut [bn254_g1_affine],
+    data: &[Sequence],
+    generators: &[bn254_g1_affine],
+) {
+    init_backend();
+
+    let sxt_descriptors: Vec<blitzar_sys::sxt_sequence_descriptor> = data
+        .iter()
+        .map(|s| {
+            assert!(
+                s.len() <= generators.len(),
+                "generators has a length smaller than the longest sequence in the input data"
+            );
+            s.into()
+        })
+        .collect();
+
+    let sxt_bn254_g1_generators = generators.as_ptr() as *const blitzar_sys::sxt_bn254_g1;
+
+    let sxt_bn254_g1_uncompressed = commitments.as_mut_ptr() as *mut blitzar_sys::sxt_bn254_g1;
+
+    unsafe {
+        blitzar_sys::sxt_bn254_g1_uncompressed_compute_pedersen_commitments_with_generators(
+            sxt_bn254_g1_uncompressed,
+            sxt_descriptors.len() as u32,
+            sxt_descriptors.as_ptr(),
+            sxt_bn254_g1_generators,
         );
     }
 }

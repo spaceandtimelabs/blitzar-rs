@@ -19,7 +19,8 @@ pub use backend::{init_backend, init_backend_with_config, BackendConfig};
 
 mod commitments;
 pub use commitments::{
-    compute_bls12_381_g1_commitments_with_generators, compute_curve25519_commitments,
+    compute_bls12_381_g1_commitments_with_generators,
+    compute_bn254_g1_uncompressed_commitments_with_generators, compute_curve25519_commitments,
     compute_curve25519_commitments_with_generators, update_curve25519_commitments,
 };
 

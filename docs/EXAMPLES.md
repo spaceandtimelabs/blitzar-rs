@@ -4,7 +4,7 @@
 All the examples are located in the `examples/` directory. Each one has its own `.rs` file. To run some examples, use the following command:
 
 ```
-$ cargo run --features <pip-cpu | naive-cpu | naive-gpu> --example <example_name>
+$ cargo run --features <cpu | gpu> --example <example_name>
 ```
 
 In this command, you can either specify if the computations should proceed in the cpu or in the gpu. Also, you need to specify the example name as it is in the `.rs` files.
@@ -23,7 +23,7 @@ $$
 Use the following command to run the example in the cpu:
 
 ```
-$ cargo run --features naive-cpu --example simple_commitment
+$ cargo run --features cpu --example simple_commitment
 ```
 
 ---------
@@ -62,7 +62,7 @@ $C_w$ = Commit(w) = Commit(52u + v) = 52 Commit(u) + Commit(v) = 52$C_u$ + $C_v$
 Use the following command to run this example in the gpu:
 
 ```
-$ cargo run --features naive-gpu --example add_mult_commitments
+$ cargo run --features gpu --example add_mult_commitments
 ```
 
 ---------
@@ -72,7 +72,7 @@ $ cargo run --features naive-gpu --example add_mult_commitments
 During the previous executions, you had to specify the backend where the computation must proceed - either `cpu` or `gpu`. Implicitly, those backends need to be initialized before the commitment computation is called. Inside this commitment function, we call the backend initialization. But this process takes time. So you may want to call this function at the beginning of your program so that you don't pay this price later. The following examples demonstrate this process:
 
 ```
-$ cargo run --features naive-gpu --example initialize_backend
+$ cargo run --features gpu --example initialize_backend
 ```
 
 ---------
@@ -82,7 +82,7 @@ $ cargo run --features naive-gpu --example initialize_backend
 This example shows how to fetch the ristretto point generators used in the commitment computation.
 
 ```
-$ cargo run --features naive-gpu --example get_generators
+$ cargo run --features gpu --example get_generators
 ```
 
 ---------
@@ -92,7 +92,19 @@ $ cargo run --features naive-gpu --example get_generators
 This example shows how to pass user-defined ristretto point generators to the commitment computation.
 
 ```
-$ cargo run --features naive-gpu --example pass_generators_to_commitment
+$ cargo run --features gpu --example pass_curve25519_generators_to_commitment
+```
+
+This example shows how to pass user-defined `bls12-381` `G1` point generators to the commitment computation.
+
+```
+$ cargo run --features gpu --example pass_bls12_381_g1_generators_to_commitment
+```
+
+This example shows how to pass user-defined `bn254` `G1` point generators to the commitment computation.
+
+```
+$ cargo run --features gpu --example pass_bn254_g1_generators_to_commitment
 ```
 
 ---------
@@ -102,7 +114,7 @@ $ cargo run --features naive-gpu --example pass_generators_to_commitment
 This example shows how to compute commitments using Dalek scalars.
 
 ```
-$ cargo run --features naive-gpu --example simple_scalars_commitment
+$ cargo run --features gpu --example simple_scalars_commitment
 ```
 
 ---------
@@ -112,7 +124,7 @@ $ cargo run --features naive-gpu --example simple_scalars_commitment
 This example shows how to compute commitments using Dalek scalars and user generators.
 
 ```
-$ cargo run --features naive-gpu --example pass_generators_and_scalars_to_commitment
+$ cargo run --features gpu --example pass_generators_and_scalars_to_commitment
 ```
 
 ---------
@@ -122,7 +134,7 @@ $ cargo run --features naive-gpu --example pass_generators_and_scalars_to_commit
 This example shows how to update a commitment using all the available data types.
 
 ```
-$ cargo run --features naive-gpu --example simple_update_commitment
+$ cargo run --features gpu --example simple_update_commitment
 ```
 
 ---------
@@ -132,5 +144,5 @@ $ cargo run --features naive-gpu --example simple_update_commitment
 This example shows how to fetch the i-th one-commit ristretto point.
 
 ```
-$ cargo run --features naive-gpu --example get_one_commit
+$ cargo run --features gpu --example get_one_commit
 ```
