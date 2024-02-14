@@ -26,14 +26,14 @@
 //!   <a href="https://crates.io/crates/blitzar">
 //!     <img alt="crates.io version" src="https://img.shields.io/crates/v/blitzar.svg">
 //!   </a>
+//!   <a href="https://www.rust-lang.org/">
+//!     <img alt="Rust" src="https://img.shields.io/badge/rust-1.76.0-blue">
+//!  </a>
+//!  <a href="https://developer.nvidia.com/cuda-downloads">
+//!     <img alt="CUDA" src="https://img.shields.io/badge/CUDA-12.3.1-green?style=flat&logo=nvidia">
+//!  </a>
 //!   <a href="https://github.com/spaceandtimelabs/blitzar-rs">
 //!     <img alt="Build states" src="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml/badge.svg">
-//!   </a>
-//!   <a href="https://docs.rs/crate/blitzar/">
-//!     <img alt="docs.rs" src="https://img.shields.io/docsrs/blitzar">
-//!   </a>
-//!   <a href="#badge">
-//!     <img alt="semantic-release: conventional-commits" src="https://img.shields.io/badge/semantic--release-conventional--commits-blueviolet">
 //!   </a>
 //! </p>
 //!
