@@ -58,7 +58,7 @@ fn main() {
     /////////////////////////////////////////////
     let mut scalar_data: Vec<Fr> = Vec::new();
     for d in &data {
-        scalar_data.push(Fr::try_from(*d).unwrap());
+        scalar_data.push(Fr::from(*d));
     }
     let ark_commitment = G1Projective::msm(&generator_points, &scalar_data).unwrap();
     let mut compressed_bytes = Vec::new();
