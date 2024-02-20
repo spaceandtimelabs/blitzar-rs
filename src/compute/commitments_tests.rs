@@ -489,7 +489,7 @@ fn sending_generators_to_gpu_produces_correct_bls12_381_g1_commitment_results() 
     // convert data to scalar
     let mut scalar_data: Vec<Fr> = Vec::new();
     for d in &data {
-        scalar_data.push(Fr::try_from(*d).unwrap());
+        scalar_data.push(Fr::from(*d));
     }
 
     // compute msm in Arkworks
@@ -531,7 +531,7 @@ fn sending_generators_to_gpu_produces_correct_bn254_g1_commitment_results() {
     // convert data to scalar
     let mut scalar_data: Vec<bn254_fr> = Vec::new();
     for d in &data {
-        scalar_data.push(bn254_fr::try_from(*d).unwrap());
+        scalar_data.push(bn254_fr::from(*d));
     }
 
     // compute msm in Arkworks

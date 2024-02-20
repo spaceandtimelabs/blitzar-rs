@@ -48,7 +48,7 @@ fn we_can_convert_an_empty_slice_of_u8_arrays_to_a_sequence() {
 
 #[test]
 fn we_can_convert_a_slice_of_uints_to_a_sequence_with_correct_data() {
-    let s = vec![123u8, 45u8, 78u8];
+    let s = [123u8, 45u8, 78u8];
     let d = Sequence::from(&s[..]);
     assert_eq!(d.element_size, std::mem::size_of::<u8>());
     assert_eq!(d.len(), 3);
@@ -64,7 +64,7 @@ fn we_can_convert_a_slice_of_uints_to_a_sequence_with_correct_data() {
     );
     assert!(!d.is_signed);
 
-    let s = vec![123u32, 456u32, 789u32];
+    let s = [123u32, 456u32, 789u32];
     let d = Sequence::from(&s[..]);
     assert_eq!(d.element_size, std::mem::size_of::<u32>());
     assert_eq!(d.len(), 3);
@@ -83,7 +83,7 @@ fn we_can_convert_a_slice_of_uints_to_a_sequence_with_correct_data() {
 
 #[test]
 fn we_can_convert_a_slice_of_u64_arrays_to_a_sequence_with_correct_data() {
-    let s = vec![
+    let s = [
         [123u64, 456u64, 789u64, 101112u64],
         [0, 0, 0, 0],
         [321u64, 654u64, 987u64, 121110u64],
@@ -104,7 +104,7 @@ fn we_can_convert_a_slice_of_u64_arrays_to_a_sequence_with_correct_data() {
 }
 #[test]
 fn we_can_convert_a_slice_of_u8_arrays_to_a_sequence_with_correct_data() {
-    let s = vec![
+    let s = [
         [123u8, 45u8, 78u8],
         [0, 0, 0],
         [1, 1, 1],
@@ -121,7 +121,7 @@ fn we_can_convert_a_slice_of_u8_arrays_to_a_sequence_with_correct_data() {
 
 #[test]
 fn we_can_convert_a_slice_of_bools_to_a_sequence_with_correct_data() {
-    let s = vec![true, false, true];
+    let s = [true, false, true];
     let d = Sequence::from(&s[..]);
     assert_eq!(d.element_size, std::mem::size_of::<bool>());
     assert_eq!(d.len(), 3);
@@ -132,7 +132,7 @@ fn we_can_convert_a_slice_of_bools_to_a_sequence_with_correct_data() {
 
 #[test]
 fn we_can_convert_a_slice_of_signed_ints_to_a_sequence_with_correct_data() {
-    let s = vec![123i8, -45i8, 78i8];
+    let s = [123i8, -45i8, 78i8];
     let d = Sequence::from(&s[..]);
     assert_eq!(d.element_size, std::mem::size_of::<i8>());
     assert_eq!(d.len(), 3);
@@ -148,7 +148,7 @@ fn we_can_convert_a_slice_of_signed_ints_to_a_sequence_with_correct_data() {
     );
     assert!(d.is_signed);
 
-    let s = vec![123i32, -456i32, 789i32];
+    let s = [123i32, -456i32, 789i32];
     let d = Sequence::from(&s[..]);
     assert_eq!(d.element_size, std::mem::size_of::<i32>());
     assert_eq!(d.len(), 3);
@@ -167,7 +167,7 @@ fn we_can_convert_a_slice_of_signed_ints_to_a_sequence_with_correct_data() {
 
 #[test]
 fn we_can_convert_a_slice_of_scalars_to_a_sequence_with_correct_data() {
-    let s = vec![
+    let s = [
         Scalar::from(123u32),
         -Scalar::from(456u32),
         Scalar::from(789u32),
@@ -193,12 +193,12 @@ fn we_can_convert_a_slice_of_scalars_to_a_sequence_with_correct_data() {
 #[test]
 #[cfg(feature = "arkworks")]
 fn we_can_convert_a_slice_of_arkworks_bigint_to_the_same_values_as_scalars() {
-    let a = vec![
+    let a = [
         ark_ff::BigInt::<4>::from(123u32),
         ark_ff::BigInt::<4>::from(456u32),
         ark_ff::BigInt::<4>::from(789u32),
     ];
-    let b = vec![
+    let b = [
         Scalar::from(123u32),
         Scalar::from(456u32),
         Scalar::from(789u32),

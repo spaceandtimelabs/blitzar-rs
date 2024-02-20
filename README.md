@@ -12,10 +12,6 @@
 </picture>
 
 <p align="center">
-  <a href="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml">
-    <img alt="Build State" src="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml/badge.svg">
-  </a>
-
   <a href="https://twitter.com/intent/follow?screen_name=spaceandtimedb">
     <img alt="Twitter" src="https://img.shields.io/twitter/follow/spaceandtimedb.svg?style=social&label=Follow">
   </a>
@@ -29,24 +25,28 @@
     </a>
   </a>
 
-  <a href="https://en.cppreference.com/w/cpp/20">
-    <img alt="C++ Logo" src="https://img.shields.io/badge/C%2B%2B-20-blue?style=flat&logo=c%2B%2B">
-    </a>
-  </a>
-
   <a href="https://www.linux.org/">
     <img alt="OS" src="https://img.shields.io/badge/OS-Linux-blue?logo=linux">
     </a>
   </a>
 
   <a href="https://www.linux.org/">
-    <img alt="CPU" src="https://img.shields.io/badge/CPU-x86-red">
+    <img alt="CPU" src="https://img.shields.io/badge/CPU-x86-blue">
+    </a>
+  </a>
+
+  <a href="https://www.rust-lang.org/">
+    <img alt="Rust" src="https://img.shields.io/badge/rust-1.76.0-blue">
     </a>
   </a>
 
   <a href="https://developer.nvidia.com/cuda-downloads">
-    <img alt="CUDA" src="https://img.shields.io/badge/CUDA-12.2-green?style=flat&logo=nvidia">
+    <img alt="CUDA" src="https://img.shields.io/badge/CUDA-12.3.1-green?style=flat&logo=nvidia">
     </a>
+  </a>
+
+  <a href="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml">
+    <img alt="Build State" src="https://github.com/spaceandtimelabs/blitzar-rs/actions/workflows/release.yml/badge.svg">
   </a>
 
   <p align="center">
@@ -117,9 +117,9 @@ To get a local copy up and running, consider the following steps.
 <details open>
 <summary>GPU backend prerequisites:</summary>
 
-* [Rust 1.71.1](https://www.rust-lang.org/tools/install)
+* [Rust 1.76.0](https://www.rust-lang.org/tools/install)
 * `x86_64` Linux instance.
-* Nvidia Toolkit Driver Version: >= 535.104.05 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
+* Nvidia Toolkit Driver Version: >= 545.23.08 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
 
 </details>
 
@@ -128,7 +128,7 @@ To get a local copy up and running, consider the following steps.
 
 You'll need the following requirements to run the environment:
 
-* [Rust 1.71.1](https://www.rust-lang.org/tools/install)
+* [Rust 1.76.0](https://www.rust-lang.org/tools/install)
 * `x86_64` Linux instance.
 
 </details>
