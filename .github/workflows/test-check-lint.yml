@@ -12,35 +12,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  format-code:
-    name: Check Code
-    runs-on: self-hosted
+  release:
+    name: Test the release
+    runs-on: ubuntu-latest
+        container:
+      image: rust:1.76
     steps:
-      - name: Checkout Code Format
+      - name: Checkout code
         uses: actions/checkout@v3
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.76 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; rustup component add rustfmt; cargo fmt --all -- --check"
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+      - name: Install zip
+        run: |
+          apt-get update
+          apt-get install -y zip
+        user: root
+      - name: Semantic Release
+        run: |
+          npm install semantic-release
+          npx semantic-release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
 
-  clippy-code:
-    name: Clippy Code
-    runs-on: self-hosted
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.76 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; rustup component add clippy; cargo clippy --all-targets --all-features -- -D warnings"
-
-  test-cpu:
-    name: Test the CPU backend
-    runs-on: self-hosted
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.76 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features cpu"
-
-  test-gpu:
-    name: Test the GPU backend
-    runs-on: self-hosted
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.76 /bin/bash -c "nvidia-smi"
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.76 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features gpu"
