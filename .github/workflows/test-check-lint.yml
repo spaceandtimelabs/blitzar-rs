@@ -12,9 +12,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release:
+  format-code:
     name: Test the release
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
         container:
       image: rust:1.76
     steps:
