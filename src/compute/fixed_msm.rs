@@ -23,6 +23,23 @@ impl<T: Curve> MsmHandle<T> {
             }
         }
     }
+
+    /// TODO(rnburn): document me
+    pub fn msm(&self, res: &mut [T], element_num_bytes: u32, scalars: &[u8]) {
+        let num_outputs = res.len() as u32;
+        assert!(scalars.len() as u32 % (num_outputs * element_num_bytes) == 0);
+        let n = scalars.len() as u32 / (num_outputs * element_num_bytes);
+        unsafe {
+            blitzar_sys::sxt_fixed_multiexponentiation(
+                res.as_ptr() as *mut std::ffi::c_void,
+                self.handle,
+                element_num_bytes,
+                num_outputs as u32,
+                n as u32,
+                scalars.as_ptr()
+            );
+        }
+    }
 }
 
 impl<T: Curve> Drop for MsmHandle<T> {
