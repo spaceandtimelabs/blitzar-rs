@@ -34,6 +34,8 @@ mod fixed_msm;
 pub use fixed_msm::{
     MsmHandle,
 };
+#[cfg(test)]
+mod fixed_msm_tests;
 
 mod generators;
 pub use generators::{get_curve25519_generators, get_one_curve25519_commit};
