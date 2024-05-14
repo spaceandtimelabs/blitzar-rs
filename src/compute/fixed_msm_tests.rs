@@ -17,9 +17,13 @@ fn we_can_compute_msms_using_a_single_generator() {
     // create handle
     let handle = MsmHandle::new(&generators);
 
-    // try different multiexponentiations
+    // 1 * g
     let scalars: Vec<u8> = vec![1];
-
     handle.msm(&mut res, 1, &scalars);
     assert_eq!(res[0], generators[0]);
+
+    // 2 * g
+    let scalars: Vec<u8> = vec![2];
+    handle.msm(&mut res, 1, &scalars);
+    assert_eq!(res[0], generators[0] + generators[0]);
 }
