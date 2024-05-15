@@ -1,6 +1,4 @@
-use ark_bls12_381::G1Projective;
-use ark_bn254::G1Projective as bn254_g1_projective;
-use ark_ec::CurveGroup;
+use ark_ec::short_weierstrass::Projective;
 use curve25519_dalek::ristretto::RistrettoPoint;
 
 pub trait Curve {
@@ -13,14 +11,14 @@ impl Curve for RistrettoPoint {
     }
 }
 
-impl Curve for G1Projective {
+impl Curve for Projective<ark_bls12_381::g1::Config> {
     fn curve_id() -> u32 {
         blitzar_sys::SXT_CURVE_BLS_381
     }
 }
 
-// impl Curve for bn254_g1_projective {
-//     fn curve_id() -> u32 {
-//         blitzar_sys::SXT_CURVE_BN_254
-//     }
-// }
+impl Curve for Projective<ark_bn254::g1::Config> {
+    fn curve_id() -> u32 {
+        blitzar_sys::SXT_CURVE_BN_254
+    }
+}
