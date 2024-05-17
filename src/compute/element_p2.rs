@@ -4,6 +4,7 @@ use ark_std::{One, Zero};
 use ark_ff::fields::Field;
 
 /// TODO(rnburn): doc me
+#[derive(Clone)]
 pub struct ElementP2<P: SWCurveConfig> {
     /// TODO(rnburn): doc me
     pub x: P::BaseField,
@@ -13,6 +14,16 @@ pub struct ElementP2<P: SWCurveConfig> {
 
     /// TODO(rnburn): doc me
     pub z: P::BaseField,
+}
+
+impl<P: SWCurveConfig> Default for ElementP2<P> {
+    fn default() -> Self {
+        Self {
+            x: P::BaseField::zero(),
+            y: P::BaseField::zero(),
+            z: P::BaseField::zero(),
+        }
+    }
 }
 
 impl<P: SWCurveConfig> From<Affine<P>> for ElementP2<P> {
