@@ -11,6 +11,7 @@ pub struct MsmHandle<T: Curve> {
 impl<T: Curve> MsmHandle<T> {
     /// TODO(rnburn): document me
     pub fn new(generators: &[T] ) -> Self {
+        println!("curve_id = {}", T::curve_id());
         unsafe {
           let handle =
             blitzar_sys::sxt_multiexp_handle_new(

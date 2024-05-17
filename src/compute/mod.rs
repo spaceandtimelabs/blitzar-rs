@@ -30,6 +30,9 @@ pub use commitments::{
 #[cfg(test)]
 mod commitments_tests;
 
+mod element_p2;
+pub use element_p2::ElementP2;
+
 mod fixed_msm;
 pub use fixed_msm::{
     MsmHandle,
