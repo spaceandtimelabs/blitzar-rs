@@ -1,7 +1,7 @@
-use std::convert::{From, Into};
 use ark_ec::short_weierstrass::{Affine, SWCurveConfig};
-use ark_std::{One, Zero};
 use ark_ff::fields::Field;
+use ark_std::{One, Zero};
+use std::convert::{From, Into};
 
 /// TODO(rnburn): doc me
 #[derive(Clone)]
@@ -28,10 +28,14 @@ impl<P: SWCurveConfig> Default for ElementP2<P> {
 
 impl<P: SWCurveConfig> From<Affine<P>> for ElementP2<P> {
     fn from(pt: Affine<P>) -> Self {
-        Self{
+        Self {
             x: pt.x,
             y: pt.y,
-            z: if pt.infinity { P::BaseField::zero() } else { P::BaseField::one() },
+            z: if pt.infinity {
+                P::BaseField::zero()
+            } else {
+                P::BaseField::one()
+            },
         }
     }
 }
@@ -39,14 +43,14 @@ impl<P: SWCurveConfig> From<Affine<P>> for ElementP2<P> {
 impl<P: SWCurveConfig> Into<Affine<P>> for ElementP2<P> {
     fn into(self) -> Affine<P> {
         if self.z.is_zero() {
-            return Affine::<P>{
+            return Affine::<P> {
                 x: P::BaseField::zero(),
                 y: P::BaseField::zero(),
                 infinity: true,
-            }
-        } 
+            };
+        }
         let z_inv = self.z.inverse().unwrap();
-        Affine::<P>{
+        Affine::<P> {
             x: self.x * z_inv,
             y: self.y * z_inv,
             infinity: false,

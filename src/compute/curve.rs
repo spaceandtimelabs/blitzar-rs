@@ -1,6 +1,5 @@
-use curve25519_dalek::ristretto::RistrettoPoint;
 use crate::compute::ElementP2;
-
+use curve25519_dalek::ristretto::RistrettoPoint;
 
 pub trait Curve {
     fn curve_id() -> u32;

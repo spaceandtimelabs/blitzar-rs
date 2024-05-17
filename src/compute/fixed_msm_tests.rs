@@ -1,10 +1,10 @@
 use super::*;
 
+use crate::compute::ElementP2;
+use ark_bls12_381::G1Affine;
 use ark_std::UniformRand;
-use ark_bls12_381::{G1Affine};
 use curve25519_dalek::ristretto::RistrettoPoint;
 use rand_core::OsRng;
-use crate::compute::ElementP2;
 
 #[test]
 fn we_can_compute_msms_using_a_single_generator() {
@@ -13,9 +13,8 @@ fn we_can_compute_msms_using_a_single_generator() {
     let mut res = vec![RistrettoPoint::default(); 1];
 
     // randomly obtain the generator points
-    let generators: Vec<RistrettoPoint> = (0..1)
-        .map(|_| RistrettoPoint::random(&mut rng))
-        .collect();
+    let generators: Vec<RistrettoPoint> =
+        (0..1).map(|_| RistrettoPoint::random(&mut rng)).collect();
 
     // create handle
     let handle = MsmHandle::new(&generators);
@@ -41,7 +40,7 @@ fn we_can_compute_msms_using_a_single_generator_bls12_381() {
     let generators: Vec<ElementP2<ark_bls12_381::g1::Config>> =
         (0..1).map(|_| G1Affine::rand(&mut rng).into()).collect();
 
-    let g : G1Affine = generators[0].clone().into();
+    let g: G1Affine = generators[0].clone().into();
     // println!("g = {}", generators[0]);
 
     // create handle
@@ -50,12 +49,12 @@ fn we_can_compute_msms_using_a_single_generator_bls12_381() {
     // 1 * g
     let scalars: Vec<u8> = vec![1];
     handle.msm(&mut res, 1, &scalars);
-    let r : G1Affine = res[0].clone().into();
+    let r: G1Affine = res[0].clone().into();
     assert_eq!(r, g);
 
     // 2 * g
     let scalars: Vec<u8> = vec![2];
     handle.msm(&mut res, 1, &scalars);
-    let r : G1Affine = res[0].clone().into();
+    let r: G1Affine = res[0].clone().into();
     assert_eq!(r, g + g);
 }

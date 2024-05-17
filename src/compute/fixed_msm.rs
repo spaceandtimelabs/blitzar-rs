@@ -10,15 +10,15 @@ pub struct MsmHandle<T: Curve> {
 
 impl<T: Curve> MsmHandle<T> {
     /// TODO(rnburn): document me
-    pub fn new(generators: &[T] ) -> Self {
+    pub fn new(generators: &[T]) -> Self {
         println!("curve_id = {}", T::curve_id());
         unsafe {
-          let handle =
-            blitzar_sys::sxt_multiexp_handle_new(
+            let handle = blitzar_sys::sxt_multiexp_handle_new(
                 T::curve_id(),
                 generators.as_ptr() as *const std::ffi::c_void,
-                generators.len() as u32);
-            Self{
+                generators.len() as u32,
+            );
+            Self {
                 handle: handle,
                 phantom: PhantomData,
             }
@@ -37,7 +37,7 @@ impl<T: Curve> MsmHandle<T> {
                 element_num_bytes,
                 num_outputs as u32,
                 n as u32,
-                scalars.as_ptr()
+                scalars.as_ptr(),
             );
         }
     }
@@ -46,7 +46,7 @@ impl<T: Curve> MsmHandle<T> {
 impl<T: Curve> Drop for MsmHandle<T> {
     fn drop(&mut self) {
         unsafe {
-          blitzar_sys::sxt_multiexp_handle_free(self.handle);
+            blitzar_sys::sxt_multiexp_handle_free(self.handle);
         }
     }
 }

@@ -34,9 +34,7 @@ mod element_p2;
 pub use element_p2::ElementP2;
 
 mod fixed_msm;
-pub use fixed_msm::{
-    MsmHandle,
-};
+pub use fixed_msm::MsmHandle;
 #[cfg(test)]
 mod fixed_msm_tests;
 
