@@ -1,7 +1,7 @@
 use ark_ec::short_weierstrass::{Affine, SWCurveConfig};
 use ark_ff::fields::Field;
 use ark_std::{One, Zero};
-use std::convert::{From, Into};
+use std::convert::From;
 
 /// TODO(rnburn): doc me
 #[derive(Clone)]
@@ -54,19 +54,19 @@ impl<P: SWCurveConfig> From<&Affine<P>> for ElementP2<P> {
     }
 }
 
-impl<P: SWCurveConfig> Into<Affine<P>> for ElementP2<P> {
-    fn into(self) -> Affine<P> {
-        if self.z.is_zero() {
+impl<P: SWCurveConfig> From<ElementP2<P>> for Affine<P> {
+    fn from(pt: ElementP2<P>) -> Self {
+        if pt.z.is_zero() {
             return Affine::<P> {
                 x: P::BaseField::zero(),
                 y: P::BaseField::zero(),
                 infinity: true,
             };
         }
-        let z_inv = self.z.inverse().unwrap();
+        let z_inv = pt.z.inverse().unwrap();
         Affine::<P> {
-            x: self.x * z_inv,
-            y: self.y * z_inv,
+            x: pt.x * z_inv,
+            y: pt.y * z_inv,
             infinity: false,
         }
     }
