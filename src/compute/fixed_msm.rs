@@ -19,7 +19,7 @@ impl<T: Curve> MsmHandle<T> {
                 generators.len() as u32,
             );
             Self {
-                handle: handle,
+                handle,
                 phantom: PhantomData,
             }
         }
@@ -35,8 +35,8 @@ impl<T: Curve> MsmHandle<T> {
                 res.as_ptr() as *mut std::ffi::c_void,
                 self.handle,
                 element_num_bytes,
-                num_outputs as u32,
-                n as u32,
+                num_outputs,
+                n,
                 scalars.as_ptr(),
             );
         }
