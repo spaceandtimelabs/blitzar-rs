@@ -40,6 +40,20 @@ impl<P: SWCurveConfig> From<Affine<P>> for ElementP2<P> {
     }
 }
 
+impl<P: SWCurveConfig> From<&Affine<P>> for ElementP2<P> {
+    fn from(pt: &Affine<P>) -> Self {
+        Self {
+            x: pt.x,
+            y: pt.y,
+            z: if pt.infinity {
+                P::BaseField::zero()
+            } else {
+                P::BaseField::one()
+            },
+        }
+    }
+}
+
 impl<P: SWCurveConfig> Into<Affine<P>> for ElementP2<P> {
     fn into(self) -> Affine<P> {
         if self.z.is_zero() {
