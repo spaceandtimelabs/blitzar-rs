@@ -43,7 +43,7 @@ impl<T: Curve> MsmHandle<T> {
     ///
     /// is an array of scalars of element_num_bytes each.
     ///
-    /// If msm is called with the slice of scalars of element_num_bytes * m * n
+    /// If msm is called with the slice of scalars of size element_num_bytes * m * n
     /// defined by
     ///
     ///    scalars = [s_11, s_21, ..., s_m1, s_12, s_22, ..., s_m2, ..., s_mn ]
