@@ -1,4 +1,5 @@
 // use super::backend::init_backend;
+use super::backend::init_backend;
 use crate::compute::Curve;
 use std::marker::PhantomData;
 
@@ -11,6 +12,8 @@ pub struct MsmHandle<T: Curve> {
 impl<T: Curve> MsmHandle<T> {
     /// TODO(rnburn): document me
     pub fn new(generators: &[T]) -> Self {
+        init_backend();
+
         unsafe {
             let handle = blitzar_sys::sxt_multiexp_handle_new(
                 T::curve_id(),
