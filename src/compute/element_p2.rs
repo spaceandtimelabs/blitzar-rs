@@ -33,15 +33,7 @@ impl<P: SWCurveConfig> Default for ElementP2<P> {
 
 impl<P: SWCurveConfig> From<Affine<P>> for ElementP2<P> {
     fn from(pt: Affine<P>) -> Self {
-        Self {
-            x: pt.x,
-            y: pt.y,
-            z: if pt.infinity {
-                P::BaseField::zero()
-            } else {
-                P::BaseField::one()
-            },
-        }
+        ElementP2::<P>::from(&pt)
     }
 }
 
@@ -61,6 +53,12 @@ impl<P: SWCurveConfig> From<&Affine<P>> for ElementP2<P> {
 
 impl<P: SWCurveConfig> From<ElementP2<P>> for Affine<P> {
     fn from(pt: ElementP2<P>) -> Self {
+        Affine::<P>::from(&pt)
+    }
+}
+
+impl<P: SWCurveConfig> From<&ElementP2<P>> for Affine<P> {
+    fn from(pt: &ElementP2<P>) -> Self {
         if pt.z.is_zero() {
             return Affine::<P> {
                 x: P::BaseField::zero(),
