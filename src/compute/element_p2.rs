@@ -3,16 +3,21 @@ use ark_ff::fields::Field;
 use ark_std::{One, Zero};
 use std::convert::From;
 
-/// TODO(rnburn): doc me
+/// Projective form for a short Weierstrass curve element.
+///
+/// A point (x, y, z) represents the affine point (x / z, y / z) or
+/// the identity if z == 0
 #[derive(Clone)]
 pub struct ElementP2<P: SWCurveConfig> {
-    /// TODO(rnburn): doc me
+    /// (x, z) maps to the affine point x / z
     pub x: P::BaseField,
 
-    /// TODO(rnburn): doc me
+    /// (y, z) maps to the affine point y / z
     pub y: P::BaseField,
 
-    /// TODO(rnburn): doc me
+    /// divisor to convert to affine points
+    ///
+    /// if z == 0, the point represents the identity element
     pub z: P::BaseField,
 }
 
