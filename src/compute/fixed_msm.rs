@@ -10,7 +10,7 @@ pub struct MsmHandle<T: Curve> {
 }
 
 impl<T: Curve> MsmHandle<T> {
-    /// new handle from the specified generators.
+    /// New handle from the specified generators.
     ///
     /// Note: any MSMs computed with the handle must have length less than or equal
     /// to the number of generators used to create the handle.
@@ -30,7 +30,31 @@ impl<T: Curve> MsmHandle<T> {
         }
     }
 
-    /// TODO(rnburn): document me
+    /// Compute an MSM using pre-specified generators.
+    ///
+    /// Suppose g_1, ..., g_n are pre-specified generators and
+    ///
+    ///    s_11, s_12, ..., s_1n
+    ///    s_21, s_22, ..., s_2n
+    ///    .
+    ///    .   .
+    ///    .       .
+    ///    s_m1, sm2, ..., s_mn
+    ///
+    /// is an array of scalars of element_num_bytes each.
+    ///
+    /// If msm is called with the slice of scalars of element_num_bytes * m * n
+    /// defined by
+    ///
+    ///    scalars = [s_11, s_21, ..., s_m1, s_12, s_22, ..., s_m2, ..., s_mn ]
+    ///
+    /// then res will contain the MSM result
+    ///
+    ///    res[0] = s_11 * g_1 + s_12 * g_2 + ... + s_1n * g_n
+    ///       .
+    ///       .
+    ///       .
+    ///    res[m-1] = s_m1 * g_1 + s_12 * g_2 + ... + s_mn * g_n
     pub fn msm(&self, res: &mut [T], element_num_bytes: u32, scalars: &[u8]) {
         let num_outputs = res.len() as u32;
         assert!(scalars.len() as u32 % (num_outputs * element_num_bytes) == 0);
