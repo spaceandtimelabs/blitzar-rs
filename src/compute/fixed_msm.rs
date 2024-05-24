@@ -3,14 +3,17 @@ use super::backend::init_backend;
 use crate::compute::Curve;
 use std::marker::PhantomData;
 
-/// TODO(rnburn): document me
+/// Handle to compute multi-scalar multiplications (MSMs) with pre-specified generators
 pub struct MsmHandle<T: Curve> {
     handle: *mut blitzar_sys::sxt_multiexp_handle,
     phantom: PhantomData<T>,
 }
 
 impl<T: Curve> MsmHandle<T> {
-    /// TODO(rnburn): document me
+    /// new handel from the specified generators.
+    ///
+    /// Note: any MSMs computed with the handle must have length less than or equal
+    /// to the number of generators used to create the handle.
     pub fn new(generators: &[T]) -> Self {
         init_backend();
 
