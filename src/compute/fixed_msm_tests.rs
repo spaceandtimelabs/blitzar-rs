@@ -50,6 +50,30 @@ fn we_can_compute_msms_using_multiple_generator() {
 }
 
 #[test]
+fn we_can_compute_msms_using_multiple_outputs() {
+    let mut rng = OsRng;
+
+    let mut res = vec![RistrettoPoint::default(); 2];
+
+    // randomly obtain the generator points
+    let generators: Vec<RistrettoPoint> =
+        (0..2).map(|_| RistrettoPoint::random(&mut rng)).collect();
+
+    // create handle
+    let handle = MsmHandle::new(&generators);
+
+    // g[0] + 2 * g[1]
+    // 3 * g[0] + g[1]
+    let scalars: Vec<u8> = vec![1, 3, 2, 1];
+    handle.msm(&mut res, 1, &scalars);
+    assert_eq!(res[0], generators[0] + generators[1] + generators[1]);
+    assert_eq!(
+        res[1],
+        generators[0] + generators[0] + generators[0] + generators[1]
+    );
+}
+
+#[test]
 fn we_can_compute_msms_using_a_single_generator_bls12_381() {
     let mut rng = ark_std::test_rng();
 
