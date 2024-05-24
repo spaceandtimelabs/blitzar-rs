@@ -10,7 +10,7 @@ pub struct MsmHandle<T: Curve> {
 }
 
 impl<T: Curve> MsmHandle<T> {
-    /// new handel from the specified generators.
+    /// new handle from the specified generators.
     ///
     /// Note: any MSMs computed with the handle must have length less than or equal
     /// to the number of generators used to create the handle.
