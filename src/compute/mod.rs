@@ -17,6 +17,9 @@
 mod backend;
 pub use backend::{init_backend, init_backend_with_config, BackendConfig};
 
+mod curve;
+use curve::Curve;
+
 mod commitments;
 pub use commitments::{
     compute_bls12_381_g1_commitments_with_generators,
@@ -26,6 +29,16 @@ pub use commitments::{
 
 #[cfg(test)]
 mod commitments_tests;
+
+mod element_p2;
+pub use element_p2::ElementP2;
+#[cfg(test)]
+mod element_p2_test;
+
+mod fixed_msm;
+pub use fixed_msm::MsmHandle;
+#[cfg(test)]
+mod fixed_msm_tests;
 
 mod generators;
 pub use generators::{get_curve25519_generators, get_one_curve25519_commit};
