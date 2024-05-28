@@ -1,4 +1,3 @@
-// use super::backend::init_backend;
 use super::backend::init_backend;
 use crate::compute::Curve;
 use std::marker::PhantomData;
