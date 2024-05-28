@@ -1,7 +1,7 @@
 use crate::compute::ElementP2;
 use curve25519_dalek::ristretto::RistrettoPoint;
 
-pub trait SwCurveConfig {
+pub trait SwCurveConfig: ark_ec::short_weierstrass::SWCurveConfig {
     fn curve_id() -> u32;
 }
 
@@ -27,7 +27,7 @@ impl Curve for RistrettoPoint {
     }
 }
 
-impl<C: SwCurveConfig + ark_ec::short_weierstrass::SWCurveConfig> Curve for ElementP2<C> {
+impl<C: SwCurveConfig> Curve for ElementP2<C> {
     fn curve_id() -> u32 {
         C::curve_id()
     }

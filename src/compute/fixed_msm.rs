@@ -1,6 +1,8 @@
 use super::backend::init_backend;
-use crate::compute::Curve;
+use crate::compute::{ElementP2, Curve};
+use crate::compute::curve::SwCurveConfig;
 use std::marker::PhantomData;
+use ark_ec::short_weierstrass::Affine;
 
 /// Handle to compute multi-scalar multiplications (MSMs) with pre-specified generators
 pub struct MsmHandle<T: Curve> {
@@ -75,6 +77,26 @@ impl<T: Curve> Drop for MsmHandle<T> {
     fn drop(&mut self) {
         unsafe {
             blitzar_sys::sxt_multiexp_handle_free(self.handle);
+        }
+    }
+}
+
+pub trait SwMsmHandle {
+    type Element;
+
+    // fn new(generators: &[Self::Element]) -> Self;
+
+    fn msm(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]);
+}
+
+impl<C:SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
+    type Element = Affine<C>;
+
+    fn msm(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]) {
+        let mut res_p : Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
+        self.msm(&mut res_p, element_num_bytes, scalars);
+        for (resi, resi_p) in res.iter_mut().zip(res_p) {
+            *resi = resi_p.into();
         }
     }
 }
