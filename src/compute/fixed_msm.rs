@@ -81,12 +81,16 @@ impl<T: Curve> Drop for MsmHandle<T> {
     }
 }
 
+/// TODO(rnburn)
 pub trait SwMsmHandle {
+    /// TODO(rnburn)
     type Element;
 
+    /// todo
     fn new(generators: &[Self::Element]) -> Self;
 
-    fn msm(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]);
+    /// todo
+    fn msmAffine(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]);
 }
 
 impl<C:SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
@@ -97,7 +101,7 @@ impl<C:SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
         MsmHandle::new(&generators)
     }
 
-    fn msm(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]) {
+    fn msmAffine(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]) {
         let mut res_p : Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
         self.msm(&mut res_p, element_num_bytes, scalars);
         for (resi, resi_p) in res.iter_mut().zip(res_p) {
