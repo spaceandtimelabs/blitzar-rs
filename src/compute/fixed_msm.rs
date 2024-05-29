@@ -2,6 +2,7 @@ use super::backend::init_backend;
 use crate::compute::curve::SwCurveConfig;
 use crate::compute::{Curve, ElementP2};
 use ark_ec::short_weierstrass::Affine;
+use rayon::prelude::*;
 use std::marker::PhantomData;
 
 /// Handle to compute multi-scalar multiplications (MSMs) with pre-specified generators
@@ -104,8 +105,8 @@ impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
     fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]) {
         let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
         self.msm(&mut res_p, element_num_bytes, scalars);
-        for (resi, resi_p) in res.iter_mut().zip(res_p) {
+        res.par_iter_mut().zip(res_p).for_each(|(resi, resi_p)| {
             *resi = resi_p.into();
-        }
+        });
     }
 }
