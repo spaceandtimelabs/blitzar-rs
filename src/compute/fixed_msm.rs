@@ -81,27 +81,27 @@ impl<T: Curve> Drop for MsmHandle<T> {
     }
 }
 
-/// TODO(rnburn)
+/// Extend MsmHandle to work with affine coordinates for short Weierstrass curve elements
 pub trait SwMsmHandle {
-    /// TODO(rnburn)
-    type Element;
+    /// Type of an Affine curve element
+    type AffineElement;
 
-    /// todo
-    fn new(generators: &[Self::Element]) -> Self;
+    /// Create a handle from affine generators
+    fn new(generators: &[Self::AffineElement]) -> Self;
 
-    /// todo
-    fn msmAffine(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]);
+    /// Compute a MSM with the result given as affine elements
+    fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]);
 }
 
 impl<C:SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
-    type Element = Affine<C>;
+    type AffineElement = Affine<C>;
 
-    fn new(generators: &[Self::Element]) -> Self {
+    fn new(generators: &[Self::AffineElement]) -> Self {
         let generators : Vec<ElementP2<C>> = generators.iter().map(|e| e.into()).collect();
         MsmHandle::new(&generators)
     }
 
-    fn msmAffine(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]) {
+    fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]) {
         let mut res_p : Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
         self.msm(&mut res_p, element_num_bytes, scalars);
         for (resi, resi_p) in res.iter_mut().zip(res_p) {
