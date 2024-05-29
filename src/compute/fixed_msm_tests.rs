@@ -102,13 +102,12 @@ fn for_short_weierstrass_curvs_we_can_compute_msms_with_affine_elements() {
     let mut res = vec![G1Affine::default(); 1];
 
     // randomly obtain the generator points
-    let generators : Vec<G1Affine> =
-        (0..1).map(|_| G1Affine::rand(&mut rng)).collect();
+    let generators: Vec<G1Affine> = (0..1).map(|_| G1Affine::rand(&mut rng)).collect();
 
     let g = generators[0];
 
     // create handle
-    let handle : MsmHandle<ElementP2<ark_bls12_381::g1::Config>> = SwMsmHandle::new(&generators);
+    let handle: MsmHandle<ElementP2<ark_bls12_381::g1::Config>> = SwMsmHandle::new(&generators);
 
     // 2 * g
     let scalars: Vec<u8> = vec![2];

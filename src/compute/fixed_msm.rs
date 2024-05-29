@@ -1,8 +1,8 @@
 use super::backend::init_backend;
-use crate::compute::{ElementP2, Curve};
 use crate::compute::curve::SwCurveConfig;
-use std::marker::PhantomData;
+use crate::compute::{Curve, ElementP2};
 use ark_ec::short_weierstrass::Affine;
+use std::marker::PhantomData;
 
 /// Handle to compute multi-scalar multiplications (MSMs) with pre-specified generators
 pub struct MsmHandle<T: Curve> {
@@ -93,16 +93,16 @@ pub trait SwMsmHandle {
     fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]);
 }
 
-impl<C:SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
+impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
     type AffineElement = Affine<C>;
 
     fn new(generators: &[Self::AffineElement]) -> Self {
-        let generators : Vec<ElementP2<C>> = generators.iter().map(|e| e.into()).collect();
+        let generators: Vec<ElementP2<C>> = generators.iter().map(|e| e.into()).collect();
         MsmHandle::new(&generators)
     }
 
     fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]) {
-        let mut res_p : Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
+        let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
         self.msm(&mut res_p, element_num_bytes, scalars);
         for (resi, resi_p) in res.iter_mut().zip(res_p) {
             *resi = resi_p.into();
