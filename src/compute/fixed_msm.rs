@@ -1,15 +1,17 @@
-// use super::backend::init_backend;
 use super::backend::init_backend;
-use crate::compute::Curve;
+use crate::compute::curve::SwCurveConfig;
+use crate::compute::{CurveId, ElementP2};
+use ark_ec::short_weierstrass::Affine;
+use rayon::prelude::*;
 use std::marker::PhantomData;
 
 /// Handle to compute multi-scalar multiplications (MSMs) with pre-specified generators
-pub struct MsmHandle<T: Curve> {
+pub struct MsmHandle<T: CurveId> {
     handle: *mut blitzar_sys::sxt_multiexp_handle,
     phantom: PhantomData<T>,
 }
 
-impl<T: Curve> MsmHandle<T> {
+impl<T: CurveId> MsmHandle<T> {
     /// New handle from the specified generators.
     ///
     /// Note: any MSMs computed with the handle must have length less than or equal
@@ -19,7 +21,7 @@ impl<T: Curve> MsmHandle<T> {
 
         unsafe {
             let handle = blitzar_sys::sxt_multiexp_handle_new(
-                T::curve_id(),
+                T::CURVE_ID,
                 generators.as_ptr() as *const std::ffi::c_void,
                 generators.len() as u32,
             );
@@ -72,10 +74,39 @@ impl<T: Curve> MsmHandle<T> {
     }
 }
 
-impl<T: Curve> Drop for MsmHandle<T> {
+impl<T: CurveId> Drop for MsmHandle<T> {
     fn drop(&mut self) {
         unsafe {
             blitzar_sys::sxt_multiexp_handle_free(self.handle);
         }
+    }
+}
+
+/// Extend MsmHandle to work with affine coordinates for short Weierstrass curve elements
+pub trait SwMsmHandle {
+    /// Type of an Affine curve element
+    type AffineElement;
+
+    /// Create a handle from affine generators
+    fn new_with_affine(generators: &[Self::AffineElement]) -> Self;
+
+    /// Compute a MSM with the result given as affine elements
+    fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]);
+}
+
+impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
+    type AffineElement = Affine<C>;
+
+    fn new_with_affine(generators: &[Self::AffineElement]) -> Self {
+        let generators: Vec<ElementP2<C>> = generators.iter().map(|e| e.into()).collect();
+        MsmHandle::new(&generators)
+    }
+
+    fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]) {
+        let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
+        self.msm(&mut res_p, element_num_bytes, scalars);
+        res.par_iter_mut().zip(res_p).for_each(|(resi, resi_p)| {
+            *resi = resi_p.into();
+        });
     }
 }

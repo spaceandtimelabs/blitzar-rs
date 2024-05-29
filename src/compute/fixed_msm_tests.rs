@@ -94,3 +94,24 @@ fn we_can_compute_msms_using_a_single_generator_bls12_381() {
     let r: G1Affine = res[0].clone().into();
     assert_eq!(r, g + g);
 }
+
+#[test]
+fn for_short_weierstrass_curvs_we_can_compute_msms_with_affine_elements() {
+    let mut rng = ark_std::test_rng();
+
+    let mut res = vec![G1Affine::default(); 1];
+
+    // randomly obtain the generator points
+    let generators: Vec<G1Affine> = (0..1).map(|_| G1Affine::rand(&mut rng)).collect();
+
+    let g = generators[0];
+
+    // create handle
+    let handle: MsmHandle<ElementP2<ark_bls12_381::g1::Config>> =
+        MsmHandle::new_with_affine(&generators);
+
+    // 2 * g
+    let scalars: Vec<u8> = vec![2];
+    handle.affine_msm(&mut res, 1, &scalars);
+    assert_eq!(res[0], g + g);
+}

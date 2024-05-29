@@ -18,7 +18,7 @@ mod backend;
 pub use backend::{init_backend, init_backend_with_config, BackendConfig};
 
 mod curve;
-use curve::Curve;
+use curve::CurveId;
 
 mod commitments;
 pub use commitments::{
@@ -36,7 +36,7 @@ pub use element_p2::ElementP2;
 mod element_p2_test;
 
 mod fixed_msm;
-pub use fixed_msm::MsmHandle;
+pub use fixed_msm::{MsmHandle, SwMsmHandle};
 #[cfg(test)]
 mod fixed_msm_tests;
 
