@@ -84,13 +84,18 @@ impl<T: Curve> Drop for MsmHandle<T> {
 pub trait SwMsmHandle {
     type Element;
 
-    // fn new(generators: &[Self::Element]) -> Self;
+    fn new(generators: &[Self::Element]) -> Self;
 
     fn msm(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]);
 }
 
 impl<C:SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
     type Element = Affine<C>;
+
+    fn new(generators: &[Self::Element]) -> Self {
+        let generators : Vec<ElementP2<C>> = generators.iter().map(|e| e.into()).collect();
+        MsmHandle::new(&generators)
+    }
 
     fn msm(&self, res: &mut [Self::Element], element_num_bytes: u32, scalars: &[u8]) {
         let mut res_p : Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
