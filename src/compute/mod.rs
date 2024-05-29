@@ -18,7 +18,7 @@ mod backend;
 pub use backend::{init_backend, init_backend_with_config, BackendConfig};
 
 mod curve;
-use curve::Curve;
+use curve::CurveId;
 
 mod commitments;
 pub use commitments::{

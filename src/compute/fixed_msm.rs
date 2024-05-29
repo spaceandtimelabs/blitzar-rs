@@ -1,17 +1,17 @@
 use super::backend::init_backend;
 use crate::compute::curve::SwCurveConfig;
-use crate::compute::{Curve, ElementP2};
+use crate::compute::{CurveId, ElementP2};
 use ark_ec::short_weierstrass::Affine;
 use rayon::prelude::*;
 use std::marker::PhantomData;
 
 /// Handle to compute multi-scalar multiplications (MSMs) with pre-specified generators
-pub struct MsmHandle<T: Curve> {
+pub struct MsmHandle<T: CurveId> {
     handle: *mut blitzar_sys::sxt_multiexp_handle,
     phantom: PhantomData<T>,
 }
 
-impl<T: Curve> MsmHandle<T> {
+impl<T: CurveId> MsmHandle<T> {
     /// New handle from the specified generators.
     ///
     /// Note: any MSMs computed with the handle must have length less than or equal
@@ -21,7 +21,7 @@ impl<T: Curve> MsmHandle<T> {
 
         unsafe {
             let handle = blitzar_sys::sxt_multiexp_handle_new(
-                T::curve_id(),
+                T::CURVE_ID,
                 generators.as_ptr() as *const std::ffi::c_void,
                 generators.len() as u32,
             );
@@ -74,7 +74,7 @@ impl<T: Curve> MsmHandle<T> {
     }
 }
 
-impl<T: Curve> Drop for MsmHandle<T> {
+impl<T: CurveId> Drop for MsmHandle<T> {
     fn drop(&mut self) {
         unsafe {
             blitzar_sys::sxt_multiexp_handle_free(self.handle);
