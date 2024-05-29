@@ -107,7 +107,8 @@ fn for_short_weierstrass_curvs_we_can_compute_msms_with_affine_elements() {
     let g = generators[0];
 
     // create handle
-    let handle: MsmHandle<ElementP2<ark_bls12_381::g1::Config>> = SwMsmHandle::new(&generators);
+    let handle: MsmHandle<ElementP2<ark_bls12_381::g1::Config>> =
+        MsmHandle::new_with_affine(&generators);
 
     // 2 * g
     let scalars: Vec<u8> = vec![2];

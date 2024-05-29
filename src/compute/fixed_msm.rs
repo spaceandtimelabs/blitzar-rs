@@ -87,7 +87,7 @@ pub trait SwMsmHandle {
     type AffineElement;
 
     /// Create a handle from affine generators
-    fn new(generators: &[Self::AffineElement]) -> Self;
+    fn new_with_affine(generators: &[Self::AffineElement]) -> Self;
 
     /// Compute a MSM with the result given as affine elements
     fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]);
@@ -96,7 +96,7 @@ pub trait SwMsmHandle {
 impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
     type AffineElement = Affine<C>;
 
-    fn new(generators: &[Self::AffineElement]) -> Self {
+    fn new_with_affine(generators: &[Self::AffineElement]) -> Self {
         let generators: Vec<ElementP2<C>> = generators.iter().map(|e| e.into()).collect();
         MsmHandle::new(&generators)
     }
