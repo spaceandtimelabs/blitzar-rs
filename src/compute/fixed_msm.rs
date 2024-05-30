@@ -6,6 +6,11 @@ use rayon::prelude::*;
 use std::marker::PhantomData;
 
 /// Handle to compute multi-scalar multiplications (MSMs) with pre-specified generators
+///
+/// # Example 1 - compute an MSM using the handle
+///```no_run
+#[doc = include_str!("../../examples/simple_fixed_msm.rs")]
+///```
 pub struct MsmHandle<T: CurveId> {
     handle: *mut blitzar_sys::sxt_multiexp_handle,
     phantom: PhantomData<T>,
