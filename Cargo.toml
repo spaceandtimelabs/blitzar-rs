@@ -21,7 +21,7 @@ ark-ff = { version = "0.4.0" }
 ark-serialize = { version = "0.4.2" }
 ark-std = { version = "0.4.0" }
 rayon = { version = "1.5" }
-blitzar-sys = { version = "1.56.0" }
+blitzar-sys = { version = "1.64.1" }
 curve25519-dalek = { version = "4", features = ["serde"] }
 merlin = "2"
 serde = { version = "1", features = ["serde_derive"] }
