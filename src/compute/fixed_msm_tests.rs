@@ -136,4 +136,8 @@ fn for_short_weierstrass_curvs_we_can_compute_msms_with_affine_elements() {
     let scalars: Vec<u8> = vec![2];
     handle.affine_msm(&mut res, 1, &scalars);
     assert_eq!(res[0], g + g);
+
+    let output_bit_table: Vec<u32> = vec![2];
+    handle.affine_packed_msm(&mut res, &output_bit_table, &scalars);
+    assert_eq!(res[0], g + g);
 }
