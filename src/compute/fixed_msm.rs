@@ -78,31 +78,23 @@ impl<T: CurveId> MsmHandle<T> {
         }
     }
 
-    /// Compute an MSM using pre-specified generators.
+    /// Compute an MSM in packed format using pre-specified generators.
     ///
-    /// Suppose g_1, ..., g_n are pre-specified generators and
+    /// On completion `res` contains an array of size `num_outputs` for the multiexponentiation
+    /// of the given `scalars` array.
     ///
-    ///    s_11, s_12, ..., s_1n
-    ///    s_21, s_22, ..., s_2n
-    ///    .
-    ///    .   .
-    ///    .       .
-    ///    s_m1, sm2, ..., s_mn
+    /// An entry output_bit_table[output_index] specifies the number of scalar bits used for
+    /// output_index.
     ///
-    /// is an array of scalars of element_num_bytes each.
+    /// Put
+    ///     bit_sum = sum_{output_index} output_bit_table[output_index]
+    /// and let num_bytes denote the smallest integer greater than or equal to bit_sum that is a
+    /// multiple of 8.
     ///
-    /// If msm is called with the slice of scalars of size element_num_bytes * m * n
-    /// defined by
     ///
-    ///    scalars = [s_11, s_21, ..., s_m1, s_12, s_22, ..., s_m2, ..., s_mn ]
-    ///
-    /// then res will contain the MSM result
-    ///
-    ///    res[0] = s_11 * g_1 + s_12 * g_2 + ... + s_1n * g_n
-    ///       .
-    ///       .
-    ///       .
-    ///    res[m-1] = s_m1 * g_1 + s_12 * g_2 + ... + s_mn * g_n
+    /// `scalars` specifies a contiguous multi-dimension `num_bytes` by `n` array laid out in
+    /// a packed column-major order as specified by output_bit_table. A given row determines the scalar
+    /// exponents for generator g_i with the output scalars packed contiguously and padded with zeros.
     pub fn packed_msm(&self, res: &mut [T], output_bit_table: &[u32], scalars: &[u8]) {
         let num_outputs = res.len() as u32;
         let bit_sum : u32 = output_bit_table.iter().sum();
