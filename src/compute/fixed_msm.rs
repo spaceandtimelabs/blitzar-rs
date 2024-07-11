@@ -106,7 +106,7 @@ impl<T: CurveId> MsmHandle<T> {
     pub fn packed_msm(&self, res: &mut [T], output_bit_table: &[u32], scalars: &[u8]) {
         let num_outputs = res.len() as u32;
         let bit_sum : u32 = output_bit_table.iter().sum();
-        let num_output_bytes = ((bit_sum + 7) / 8) * 8 as u32;
+        let num_output_bytes = ((bit_sum + 7) / 8) as u32;
         assert!(scalars.len() as u32 % num_output_bytes == 0);
         let n = scalars.len() as u32 / num_output_bytes;
         unsafe {
