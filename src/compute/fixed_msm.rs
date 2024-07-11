@@ -140,6 +140,9 @@ pub trait SwMsmHandle {
 
     /// Compute a MSM with the result given as affine elements
     fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]);
+
+    /// Compute a packed MSM with the result given as affine elements
+    fn affine_packed_msm(&self, res: &mut [Self::AffineElement], output_bit_table: &[u32], scalars: &[u8]);
 }
 
 impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
@@ -153,6 +156,14 @@ impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
     fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]) {
         let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
         self.msm(&mut res_p, element_num_bytes, scalars);
+        res.par_iter_mut().zip(res_p).for_each(|(resi, resi_p)| {
+            *resi = resi_p.into();
+        });
+    }
+
+    fn affine_packed_msm(&self, res: &mut [Self::AffineElement], output_bit_table: &[u32], scalars: &[u8]) {
+        let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
+        self.packed_msm(&mut res_p, output_bit_table, scalars);
         res.par_iter_mut().zip(res_p).for_each(|(resi, resi_p)| {
             *resi = resi_p.into();
         });
