@@ -77,6 +77,49 @@ impl<T: CurveId> MsmHandle<T> {
             );
         }
     }
+
+    /// Compute an MSM using pre-specified generators.
+    ///
+    /// Suppose g_1, ..., g_n are pre-specified generators and
+    ///
+    ///    s_11, s_12, ..., s_1n
+    ///    s_21, s_22, ..., s_2n
+    ///    .
+    ///    .   .
+    ///    .       .
+    ///    s_m1, sm2, ..., s_mn
+    ///
+    /// is an array of scalars of element_num_bytes each.
+    ///
+    /// If msm is called with the slice of scalars of size element_num_bytes * m * n
+    /// defined by
+    ///
+    ///    scalars = [s_11, s_21, ..., s_m1, s_12, s_22, ..., s_m2, ..., s_mn ]
+    ///
+    /// then res will contain the MSM result
+    ///
+    ///    res[0] = s_11 * g_1 + s_12 * g_2 + ... + s_1n * g_n
+    ///       .
+    ///       .
+    ///       .
+    ///    res[m-1] = s_m1 * g_1 + s_12 * g_2 + ... + s_mn * g_n
+    pub fn packed_msm(&self, res: &mut [T], output_bit_table: &[u32], scalars: &[u8]) {
+        let num_outputs = res.len() as u32;
+        let bit_sum : u32 = output_bit_table.iter().sum();
+        let num_output_bytes = ((bit_sum + 7) / 8) * 8 as u32;
+        assert!(scalars.len() as u32 % num_output_bytes == 0);
+        let n = scalars.len() as u32 / num_output_bytes;
+        unsafe {
+            blitzar_sys::sxt_fixed_packed_multiexponentiation(
+                res.as_ptr() as *mut std::ffi::c_void,
+                self.handle,
+                output_bit_table.as_ptr(),
+                num_outputs,
+                n,
+                scalars.as_ptr(),
+            );
+        }
+    }
 }
 
 impl<T: CurveId> Drop for MsmHandle<T> {
