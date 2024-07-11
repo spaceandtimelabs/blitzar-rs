@@ -91,7 +91,10 @@ fn we_can_compute_packed_msms() {
     let output_bit_table: Vec<u32> = vec![3, 1];
     let scalars: Vec<u8> = vec![0b1001, 0b0011];
     handle.packed_msm(&mut res, &output_bit_table, &scalars);
-    assert_eq!(res[0], generators[0] + generators[1] + generators[1] + generators[1]);
+    assert_eq!(
+        res[0],
+        generators[0] + generators[1] + generators[1] + generators[1]
+    );
     assert_eq!(res[1], generators[0]);
 }
 

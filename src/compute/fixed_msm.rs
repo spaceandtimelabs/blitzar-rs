@@ -97,7 +97,7 @@ impl<T: CurveId> MsmHandle<T> {
     /// exponents for generator g_i with the output scalars packed contiguously and padded with zeros.
     pub fn packed_msm(&self, res: &mut [T], output_bit_table: &[u32], scalars: &[u8]) {
         let num_outputs = res.len() as u32;
-        let bit_sum : u32 = output_bit_table.iter().sum();
+        let bit_sum: u32 = output_bit_table.iter().sum();
         let num_output_bytes = ((bit_sum + 7) / 8) as u32;
         assert!(scalars.len() as u32 % num_output_bytes == 0);
         let n = scalars.len() as u32 / num_output_bytes;
@@ -134,7 +134,12 @@ pub trait SwMsmHandle {
     fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]);
 
     /// Compute a packed MSM with the result given as affine elements
-    fn affine_packed_msm(&self, res: &mut [Self::AffineElement], output_bit_table: &[u32], scalars: &[u8]);
+    fn affine_packed_msm(
+        &self,
+        res: &mut [Self::AffineElement],
+        output_bit_table: &[u32],
+        scalars: &[u8],
+    );
 }
 
 impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
@@ -153,7 +158,12 @@ impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
         });
     }
 
-    fn affine_packed_msm(&self, res: &mut [Self::AffineElement], output_bit_table: &[u32], scalars: &[u8]) {
+    fn affine_packed_msm(
+        &self,
+        res: &mut [Self::AffineElement],
+        output_bit_table: &[u32],
+        scalars: &[u8],
+    ) {
         let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
         self.packed_msm(&mut res_p, output_bit_table, scalars);
         res.par_iter_mut().zip(res_p).for_each(|(resi, resi_p)| {
