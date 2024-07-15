@@ -74,6 +74,31 @@ fn we_can_compute_msms_using_multiple_outputs() {
 }
 
 #[test]
+fn we_can_compute_packed_msms() {
+    let mut rng = OsRng;
+
+    let mut res = vec![RistrettoPoint::default(); 2];
+
+    // randomly obtain the generator points
+    let generators: Vec<RistrettoPoint> =
+        (0..2).map(|_| RistrettoPoint::random(&mut rng)).collect();
+
+    // create handle
+    let handle = MsmHandle::new(&generators);
+
+    // g[0] + 3 * g[1]
+    // g[0]
+    let output_bit_table: Vec<u32> = vec![3, 1];
+    let scalars: Vec<u8> = vec![0b1001, 0b0011];
+    handle.packed_msm(&mut res, &output_bit_table, &scalars);
+    assert_eq!(
+        res[0],
+        generators[0] + generators[1] + generators[1] + generators[1]
+    );
+    assert_eq!(res[1], generators[0]);
+}
+
+#[test]
 fn we_can_compute_msms_using_a_single_generator_bls12_381() {
     let mut rng = ark_std::test_rng();
 
@@ -113,5 +138,9 @@ fn for_short_weierstrass_curvs_we_can_compute_msms_with_affine_elements() {
     // 2 * g
     let scalars: Vec<u8> = vec![2];
     handle.affine_msm(&mut res, 1, &scalars);
+    assert_eq!(res[0], g + g);
+
+    let output_bit_table: Vec<u32> = vec![2];
+    handle.affine_packed_msm(&mut res, &output_bit_table, &scalars);
     assert_eq!(res[0], g + g);
 }

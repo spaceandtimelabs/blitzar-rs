@@ -77,6 +77,41 @@ impl<T: CurveId> MsmHandle<T> {
             );
         }
     }
+
+    /// Compute an MSM in packed format using pre-specified generators.
+    ///
+    /// On completion `res` contains an array of size `num_outputs` for the multiexponentiation
+    /// of the given `scalars` array.
+    ///
+    /// An entry output_bit_table[output_index] specifies the number of scalar bits used for
+    /// output_index.
+    ///
+    /// Put
+    ///     bit_sum = sum_{output_index} output_bit_table[output_index]
+    /// and let num_bytes denote the smallest integer greater than or equal to bit_sum that is a
+    /// multiple of 8.
+    ///
+    ///
+    /// `scalars` specifies a contiguous multi-dimension `num_bytes` by `n` array laid out in
+    /// a packed column-major order as specified by output_bit_table. A given row determines the scalar
+    /// exponents for generator g_i with the output scalars packed contiguously and padded with zeros.
+    pub fn packed_msm(&self, res: &mut [T], output_bit_table: &[u32], scalars: &[u8]) {
+        let num_outputs = res.len() as u32;
+        let bit_sum: u32 = output_bit_table.iter().sum();
+        let num_output_bytes = (bit_sum + 7) / 8;
+        assert!(scalars.len() as u32 % num_output_bytes == 0);
+        let n = scalars.len() as u32 / num_output_bytes;
+        unsafe {
+            blitzar_sys::sxt_fixed_packed_multiexponentiation(
+                res.as_ptr() as *mut std::ffi::c_void,
+                self.handle,
+                output_bit_table.as_ptr(),
+                num_outputs,
+                n,
+                scalars.as_ptr(),
+            );
+        }
+    }
 }
 
 impl<T: CurveId> Drop for MsmHandle<T> {
@@ -97,6 +132,14 @@ pub trait SwMsmHandle {
 
     /// Compute a MSM with the result given as affine elements
     fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]);
+
+    /// Compute a packed MSM with the result given as affine elements
+    fn affine_packed_msm(
+        &self,
+        res: &mut [Self::AffineElement],
+        output_bit_table: &[u32],
+        scalars: &[u8],
+    );
 }
 
 impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
@@ -110,6 +153,19 @@ impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
     fn affine_msm(&self, res: &mut [Self::AffineElement], element_num_bytes: u32, scalars: &[u8]) {
         let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
         self.msm(&mut res_p, element_num_bytes, scalars);
+        res.par_iter_mut().zip(res_p).for_each(|(resi, resi_p)| {
+            *resi = resi_p.into();
+        });
+    }
+
+    fn affine_packed_msm(
+        &self,
+        res: &mut [Self::AffineElement],
+        output_bit_table: &[u32],
+        scalars: &[u8],
+    ) {
+        let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
+        self.packed_msm(&mut res_p, output_bit_table, scalars);
         res.par_iter_mut().zip(res_p).for_each(|(resi, resi_p)| {
             *resi = resi_p.into();
         });
