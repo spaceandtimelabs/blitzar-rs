@@ -16,6 +16,7 @@ use super::backend::init_backend;
 use crate::sequence::Sequence;
 use ark_bls12_381::G1Affine;
 use ark_bn254::G1Affine as bn254_g1_affine;
+use ark_grumpkin::Affine as grumpkin_affine;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 #[doc = include_str!("../../docs/commitments/compute_curve25519_commitments.md")]
@@ -207,4 +208,42 @@ pub fn update_curve25519_commitments(
             }))
             .compress()
         });
+}
+
+#[doc = include_str!("../../docs/commitments/compute_grumpkin_commitments_with_generators.md")]
+///
+/// # Example - Pass generators to Commitment Computation
+///```no_run
+#[doc = include_str!("../../examples/pass_grumpkin_generators_to_commitment.rs")]
+///```
+pub fn compute_grumpkin_uncompressed_commitments_with_generators(
+    commitments: &mut [grumpkin_affine],
+    data: &[Sequence],
+    generators: &[grumpkin_affine],
+) {
+    init_backend();
+
+    let sxt_descriptors: Vec<blitzar_sys::sxt_sequence_descriptor> = data
+        .iter()
+        .map(|s| {
+            assert!(
+                s.len() <= generators.len(),
+                "generators has a length smaller than the longest sequence in the input data"
+            );
+            s.into()
+        })
+        .collect();
+
+    let sxt_grumpkin_generators = generators.as_ptr() as *const blitzar_sys::sxt_grumpkin;
+
+    let sxt_grumpkin_uncompressed = commitments.as_mut_ptr() as *mut blitzar_sys::sxt_grumpkin;
+
+    unsafe {
+        blitzar_sys::sxt_grumpkin_uncompressed_compute_pedersen_commitments_with_generators(
+            sxt_grumpkin_uncompressed,
+            sxt_descriptors.len() as u32,
+            sxt_descriptors.as_ptr(),
+            sxt_grumpkin_generators,
+        );
+    }
 }
