@@ -112,6 +112,29 @@ impl<T: CurveId> MsmHandle<T> {
             );
         }
     }
+
+    /// TODO doc me
+    pub fn vlen_msm(
+        &self,
+        res: &mut [T],
+        output_bit_table: &[u32],
+        output_lengths: &[u32],
+        scalars: &[u8],
+    ) {
+        let num_outputs = res.len() as u32;
+        assert_eq!(output_bit_table.len(), num_outputs as usize);
+        assert_eq!(output_lengths.len(), num_outputs as usize);
+        unsafe {
+            blitzar_sys::sxt_fixed_vlen_multiexponentiation(
+                res.as_ptr() as *mut std::ffi::c_void,
+                self.handle,
+                output_bit_table.as_ptr(),
+                output_lengths.as_ptr(),
+                num_outputs,
+                scalars.as_ptr(),
+            );
+        }
+    }
 }
 
 impl<T: CurveId> Drop for MsmHandle<T> {
