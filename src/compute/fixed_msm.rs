@@ -113,7 +113,26 @@ impl<T: CurveId> MsmHandle<T> {
         }
     }
 
-    /// TODO doc me
+    /// Compute a varying lengthing multiexponentiation of scalars in packed format using a handle to
+    /// pre-specified generators.
+    ///
+    /// On completion `res` contains an array of size `num_outputs` for the multiexponentiation
+    /// of the given `scalars` array.
+    ///
+    /// An entry output_bit_table[output_index] specifies the number of scalar bits used for
+    /// output_index and output_lengths[output_index] specifies the length used for output_index.
+    ///
+    /// Note: output_lengths must be sorted in ascending order
+    ///
+    /// Put
+    ///     bit_sum = sum_{output_index} output_bit_table[output_index]
+    /// and let num_bytes denote the smallest integer greater than or equal to bit_sum that is a
+    /// multiple of 8.
+    ///
+    /// Let n denote the length of the longest output. Then `scalars` specifies a contiguous
+    /// multi-dimension `num_bytes` by `n` array laid out in a packed column-major order as specified by
+    /// output_bit_table. A given row determines the scalar exponents for generator g_i with the output
+    /// scalars packed contiguously and padded with zeros.
     pub fn vlen_msm(
         &self,
         res: &mut [T],
@@ -163,6 +182,15 @@ pub trait SwMsmHandle {
         output_bit_table: &[u32],
         scalars: &[u8],
     );
+
+    /// Compute a variable length MSM with the result given as affine elements
+    fn affine_vlen_msm(
+        &self,
+        res: &mut [Self::AffineElement],
+        output_bit_table: &[u32],
+        output_lengths: &[u32],
+        scalars: &[u8],
+    );
 }
 
 impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
@@ -189,6 +217,20 @@ impl<C: SwCurveConfig + Clone> SwMsmHandle for MsmHandle<ElementP2<C>> {
     ) {
         let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
         self.packed_msm(&mut res_p, output_bit_table, scalars);
+        res.par_iter_mut().zip(res_p).for_each(|(resi, resi_p)| {
+            *resi = resi_p.into();
+        });
+    }
+
+    fn affine_vlen_msm(
+        &self,
+        res: &mut [Self::AffineElement],
+        output_bit_table: &[u32],
+        output_lengths: &[u32],
+        scalars: &[u8],
+    ) {
+        let mut res_p: Vec<ElementP2<C>> = vec![ElementP2::<C>::default(); res.len()];
+        self.vlen_msm(&mut res_p, output_bit_table, output_lengths, scalars);
         res.par_iter_mut().zip(res_p).for_each(|(resi, resi_p)| {
             *resi = resi_p.into();
         });
