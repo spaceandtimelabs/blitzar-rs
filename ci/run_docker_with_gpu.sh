@@ -2,7 +2,7 @@
 
 set -e
 
-IMAGE=rust:1.76
+IMAGE=rust:1.80
 
 # If you have a GPU instance configured in your machine
 docker run -v "$PWD":/src -w /src --gpus all --privileged -it "$IMAGE"

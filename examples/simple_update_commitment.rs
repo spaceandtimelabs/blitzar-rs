@@ -1,4 +1,4 @@
-// Copyright 2023-present Space and Time Labs, Inc.
+// Copyright 2024-present Space and Time Labs, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@ extern crate blitzar;
 extern crate curve25519_dalek;
 
 use blitzar::compute::*;
-use curve25519_dalek::ristretto::CompressedRistretto;
-use curve25519_dalek::scalar::Scalar;
+use curve25519_dalek::{ristretto::CompressedRistretto, scalar::Scalar};
 
 fn main() {
     let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];

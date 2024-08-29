@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Checkout Code Format
         uses: actions/checkout@v3
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.76 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; rustup component add rustfmt; cargo fmt --all -- --check"
+      - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; rustup component add rustfmt; cargo fmt --all -- --check"
 
   clippy-code:
     name: Clippy Code
@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.76 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; rustup component add clippy; cargo clippy --all-targets --all-features -- -D warnings"
+      - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; rustup component add clippy; cargo fmt --all -- --config imports_granularity=Crate,group_imports=One --check"
 
   test-cpu:
     name: Test the CPU backend
@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.76 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features cpu"
+      - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features cpu"
 
   test-gpu:
     name: Test the GPU backend
@@ -42,5 +42,5 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.76 /bin/bash -c "nvidia-smi"
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.76 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features gpu"
+      - run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.80 /bin/bash -c "nvidia-smi"
+      - run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features gpu"

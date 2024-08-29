@@ -1,4 +1,4 @@
-// Copyright 2023-present Space and Time Labs, Inc.
+// Copyright 2024-present Space and Time Labs, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
 // limitations under the License.
 use super::error::ProofError;
 use crate::compute::init_backend;
-use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
-use curve25519_dalek::scalar::Scalar;
+use curve25519_dalek::{
+    ristretto::{CompressedRistretto, RistrettoPoint},
+    scalar::Scalar,
+};
 use merlin::Transcript;
 use serde::{Deserialize, Serialize};
 
