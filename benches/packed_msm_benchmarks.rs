@@ -1,4 +1,4 @@
-// Copyright 2023-present Space and Time Labs, Inc.
+// Copyright 2024-present Space and Time Labs, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,13 +13,11 @@
 // limitations under the License.
 
 extern crate rand;
+
 use crate::rand::Rng;
-use curve25519_dalek::ristretto::RistrettoPoint;
-
-use criterion::{criterion_group, criterion_main, Criterion};
-
 use blitzar::compute::*;
-
+use criterion::{criterion_group, criterion_main, Criterion};
+use curve25519_dalek::ristretto::RistrettoPoint;
 use rand_core::OsRng;
 
 mod packed_msm_benches {
