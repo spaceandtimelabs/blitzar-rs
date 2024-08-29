@@ -46,3 +46,4 @@ name = "packed_msm_benchmarks"
 cpu = []
 default = ["gpu"]
 gpu = []
+arkworks = []

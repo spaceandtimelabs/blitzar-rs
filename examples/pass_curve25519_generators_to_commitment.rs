@@ -17,10 +17,11 @@ extern crate curve25519_dalek;
 use blitzar::compute::*;
 
 extern crate rand_core;
-use curve25519_dalek::scalar::Scalar;
+use curve25519_dalek::{
+    ristretto::{CompressedRistretto, RistrettoPoint},
+    scalar::Scalar,
+};
 use rand_core::OsRng;
-
-use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 fn main() {
     /////////////////////////////////////////////

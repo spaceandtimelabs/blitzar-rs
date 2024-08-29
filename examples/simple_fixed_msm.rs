@@ -15,7 +15,6 @@ extern crate blitzar;
 extern crate curve25519_dalek;
 
 use blitzar::compute::*;
-
 use curve25519_dalek::ristretto::RistrettoPoint;
 use rand_core::OsRng;
 
