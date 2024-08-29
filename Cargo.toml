@@ -42,3 +42,4 @@ name = "blitzar_benchmarks"
 cpu = []
 default = ["gpu"]
 gpu = []
+arkworks = []

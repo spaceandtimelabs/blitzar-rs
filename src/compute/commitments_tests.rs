@@ -18,8 +18,10 @@ use ark_bn254::{Fr as bn254_fr, G1Affine as bn254_g1_affine, G1Projective as bn2
 use ark_ec::{CurveGroup, VariableBaseMSM};
 use ark_serialize::CanonicalSerialize;
 use ark_std::UniformRand;
-use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
-use curve25519_dalek::scalar::Scalar;
+use curve25519_dalek::{
+    ristretto::{CompressedRistretto, RistrettoPoint},
+    scalar::Scalar,
+};
 use rand_core::OsRng;
 
 #[test]

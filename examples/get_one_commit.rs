@@ -15,8 +15,7 @@ extern crate blitzar;
 extern crate curve25519_dalek;
 
 use blitzar::compute::*;
-use curve25519_dalek::ristretto::RistrettoPoint;
-use curve25519_dalek::traits::Identity;
+use curve25519_dalek::{ristretto::RistrettoPoint, traits::Identity};
 
 fn main() {
     let mut generators = vec![Default::default(); 3];

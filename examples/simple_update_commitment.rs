@@ -15,8 +15,7 @@ extern crate blitzar;
 extern crate curve25519_dalek;
 
 use blitzar::compute::*;
-use curve25519_dalek::ristretto::CompressedRistretto;
-use curve25519_dalek::scalar::Scalar;
+use curve25519_dalek::{ristretto::CompressedRistretto, scalar::Scalar};
 
 fn main() {
     let dense_data: Vec<u32> = vec![1, 0, 2, 0, 3, 4, 0, 0, 0, 9, 0];

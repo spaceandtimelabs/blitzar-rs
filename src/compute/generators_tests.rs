@@ -13,9 +13,11 @@
 // limitations under the License.
 
 use super::*;
-use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
-use curve25519_dalek::scalar::Scalar;
-use curve25519_dalek::traits::Identity;
+use curve25519_dalek::{
+    ristretto::{CompressedRistretto, RistrettoPoint},
+    scalar::Scalar,
+    traits::Identity,
+};
 
 #[test]
 fn get_generators_is_the_same_used_in_commitment_computation() {

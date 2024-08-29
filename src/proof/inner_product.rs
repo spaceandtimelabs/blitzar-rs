@@ -13,8 +13,10 @@
 // limitations under the License.
 use super::error::ProofError;
 use crate::compute::init_backend;
-use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
-use curve25519_dalek::scalar::Scalar;
+use curve25519_dalek::{
+    ristretto::{CompressedRistretto, RistrettoPoint},
+    scalar::Scalar,
+};
 use merlin::Transcript;
 use serde::{Deserialize, Serialize};
 

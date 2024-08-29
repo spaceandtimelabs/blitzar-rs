@@ -13,12 +13,13 @@
 // limitations under the License.
 extern crate blitzar;
 extern crate curve25519_dalek;
+extern crate rand_core;
 
 use blitzar::compute::*;
-
-extern crate rand_core;
-use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
-use curve25519_dalek::scalar::Scalar;
+use curve25519_dalek::{
+    ristretto::{CompressedRistretto, RistrettoPoint},
+    scalar::Scalar,
+};
 use rand_core::OsRng;
 
 fn main() {

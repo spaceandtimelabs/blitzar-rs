@@ -1,5 +1,4 @@
 use super::*;
-
 use crate::compute::ElementP2;
 use ark_bls12_381::G1Affine;
 use ark_std::UniformRand;

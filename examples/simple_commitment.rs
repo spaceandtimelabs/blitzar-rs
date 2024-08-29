@@ -15,9 +15,7 @@ extern crate blitzar;
 extern crate curve25519_dalek;
 
 use blitzar::compute::*;
-
-use curve25519_dalek::ristretto::CompressedRistretto;
-use curve25519_dalek::scalar::Scalar;
+use curve25519_dalek::{ristretto::CompressedRistretto, scalar::Scalar};
 
 fn main() {
     /////////////////////////////////////////////
