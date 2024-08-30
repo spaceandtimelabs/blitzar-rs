@@ -172,7 +172,11 @@ Check [EXAMPLES](docs/EXAMPLES.md) file.
 Benchmarks are run using [criterion.rs](https://github.com/bheisler/criterion.rs):
 
 ```
-$ cargo bench --features <cpu | gpu>
+cargo bench --features <cpu | gpu>
+```
+To run individual tests:
+```
+cargo bench --features <cpu | gpu> --bench <blitzar_benchmarks | packed_msm_benchmarks>
 ```
 
 ## Development Process
