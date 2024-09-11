@@ -28,7 +28,9 @@ jobs:
           rustup component add rustfmt
 
       - name: Run Code Format
-        run: cargo fmt --all -- --config imports_granularity=Crate,group_imports=One --check
+        run: |
+          source ~/.cargo/env
+          cargo fmt --all -- --config imports_granularity=Crate,group_imports=One --check
 
   clippy-code:
     name: Clippy Code
@@ -44,8 +46,11 @@ jobs:
         run: |
           source ~/.cargo/env
           rustup component add clippy
+
       - name: Run Clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: |
+          source ~/.cargo/env
+          cargo clippy --all-targets --all-features -- -D warnings
 
   test-cpu:
     name: Test the CPU backend
