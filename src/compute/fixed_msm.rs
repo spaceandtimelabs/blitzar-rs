@@ -9,7 +9,6 @@ fn count_scalars_per_output(scalars_len: usize, output_bit_table: &[u32]) -> u32
     let num_output_bytes = (bit_sum + 7) / 8;
     assert!(scalars_len % num_output_bytes == 0);
     (scalars_len / num_output_bytes).try_into().unwrap()
-    // let bit_sum: u32 = output_bit_table.iter().sum();
 }
 
 /// Handle to compute multi-scalar multiplications (MSMs) with pre-specified generators
