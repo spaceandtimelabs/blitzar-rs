@@ -256,8 +256,8 @@ mod tests {
         assert_eq!(n, 5);
 
         // we handle cases that overflow
-        let output_bit_table = [std::u32::MAX, 1];
-        let n = count_scalars_per_output((std::u32::MAX as usize) + 1, &output_bit_table);
+        let output_bit_table = [u32::MAX, 1];
+        let n = count_scalars_per_output((u32::MAX as usize) + 1, &output_bit_table);
         assert_eq!(n, 8);
     }
 }
