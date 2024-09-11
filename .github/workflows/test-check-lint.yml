@@ -43,21 +43,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      # - name: Cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       ~/.cargo/bin/
-      #       ~/.cargo/registry/index/
-      #       ~/.cargo/registry/cache/
-      #       ~/.cargo/git/db/
-      #       target/
-      #     key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-cargo-test-
-      #       ${{ runner.os }}-cargo-
-      #       ${{ runner.os }}-
-
       - name: Install stable toolchain
         run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal && source ~/.cargo/env
 
@@ -68,7 +53,9 @@ jobs:
           sudo apt-get install -y software-properties-common
           sudo add-apt-repository ppa:graphics-drivers/ppa
           sudo apt-get update
-          sudo apt-get install -y nvidia-open-560 nvidia-container-runtime
+          sudo apt-get install -y nvidia-open-560
 
       - name: Run GPU test
-        run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --runtime=nvidia nvidia/cuda:12.6.1-runtime-ubuntu24.04 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features gpu"
+        run: |
+          source ~/.cargo/env
+          cargo test --features gpu
