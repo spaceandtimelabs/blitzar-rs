@@ -67,4 +67,4 @@ jobs:
           sudo apt-get install -y nvidia-open-560
 
       - name: Run GPU test
-        run: cargo test --features gpu"
+        run: cargo test --features gpu
