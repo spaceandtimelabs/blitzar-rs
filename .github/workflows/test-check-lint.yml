@@ -71,4 +71,4 @@ jobs:
           sudo apt-get install -y nvidia-open-560
 
       - name: Run GPU test
-        run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features gpu"
+        run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged nvidia/cuda:12.6.1-runtime-ubuntu24.04 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features gpu"
