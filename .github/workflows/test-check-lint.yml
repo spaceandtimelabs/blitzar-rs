@@ -53,6 +53,10 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-test-
+            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-
 
       - name: Install stable toolchain
         run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal && source ~/.cargo/env
