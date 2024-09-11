@@ -42,5 +42,17 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.80 /bin/bash -c "nvidia-smi"
-      - run: docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features gpu"
+
+      - name: Install NVIDIA driver
+        run: |
+          export DEBIAN_FRONTEND=non-interactive
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository ppa:graphics-drivers/ppa
+          sudo apt-get update
+          sudo apt-get install -y nvidia-driver-560
+
+      - name: Run Docker with GPU
+        run: |
+          docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.80 /bin/bash -c "nvidia-smi"
+          docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features gpu"
