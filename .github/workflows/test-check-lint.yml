@@ -40,19 +40,31 @@ jobs:
     name: Test the GPU backend
     runs-on: nvidia-nc4as-t4
     steps:
-      - name: Checkout Code
+      - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Install NVIDIA driver
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Install stable toolchain
+        run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal && source ~/.cargo/env
+
+      - name: Install Dependencies
         run: |
           export DEBIAN_FRONTEND=non-interactive
           sudo apt-get update
           sudo apt-get install -y software-properties-common
           sudo add-apt-repository ppa:graphics-drivers/ppa
           sudo apt-get update
-          sudo apt-get install -y nvidia-open-560
+          sudo apt-get install -y nvidia-driver-560
 
-      - name: Run Docker with GPU
-        run: |
-          docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.80 /bin/bash -c "nvidia-smi"
-          docker run --rm -v "$PWD":/src:ro -w /src --gpus all --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features gpu"
+      - name: Run GPU test
+        run: cargo test --features gpu"
