@@ -12,29 +12,55 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # format-code:
-  #   name: Check Code
-  #   runs-on: nvidia-nc4as-t4
-  #   steps:
-  #     - name: Checkout Code Format
-  #       uses: actions/checkout@v3
-  #     - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; rustup component add rustfmt; cargo fmt --all -- --config imports_granularity=Crate,group_imports=One --check"
+  format-code:
+    name: Check Code
+    runs-on: nvidia-nc4as-t4
+    steps:
+      - name: Checkout Code Format
+        uses: actions/checkout@v3
 
-  # clippy-code:
-  #   name: Clippy Code
-  #   runs-on: nvidia-nc4as-t4
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v3
-  #     - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; rustup component add clippy; cargo clippy --all-targets --all-features -- -D warnings"
+      - name: Install stable toolchain
+        run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal && source ~/.cargo/env
 
-  # test-cpu:
-  #   name: Test the CPU backend
-  #   runs-on: nvidia-nc4as-t4
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v3
-  #     - run: docker run --rm -v "$PWD":/src:ro -w /src --privileged rust:1.80 /bin/bash -c "cp -av /src/ /src_tmp/; cd /src_tmp; cargo test --features cpu"
+      - name: Install Dependencies
+        run: |
+          source ~/.cargo/env
+          rustup component add rustfmt
+
+      - name: Run Code Format
+        run: cargo fmt --all -- --config imports_granularity=Crate,group_imports=One --check
+
+  clippy-code:
+    name: Clippy Code
+    runs-on: nvidia-nc4as-t4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal && source ~/.cargo/env
+
+      - name: Install Dependencies
+        run: |
+          source ~/.cargo/env
+          rustup component add clippy
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  test-cpu:
+    name: Test the CPU backend
+    runs-on: nvidia-nc4as-t4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal && source ~/.cargo/env
+
+      - name: Run CPU test
+        run: |
+          source ~/.cargo/env
+          cargo test --features cpu
 
   test-gpu:
     name: Test the GPU backend
