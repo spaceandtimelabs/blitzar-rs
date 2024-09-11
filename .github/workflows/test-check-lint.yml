@@ -43,7 +43,7 @@ jobs:
 
       - name: Install stable toolchain
         run: |
-          curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal && source ~/.cargo/env
+          curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
           rustup component add clippy
 
       - name: Run Clippy
