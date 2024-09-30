@@ -36,7 +36,7 @@
   </a>
 
   <a href="https://www.rust-lang.org/">
-    <img alt="Rust" src="https://img.shields.io/badge/rust-1.80-blue">
+    <img alt="Rust" src="https://img.shields.io/badge/rust-1.81-blue">
     </a>
   </a>
 
@@ -117,7 +117,7 @@ To get a local copy up and running, consider the following steps.
 <details open>
 <summary>GPU backend prerequisites:</summary>
 
-* [Rust 1.80](https://www.rust-lang.org/tools/install)
+* [Rust 1.81](https://www.rust-lang.org/tools/install)
 * `x86_64` Linux instance.
 * Nvidia Toolkit Driver Version >= 560.28.03 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
 
@@ -128,7 +128,7 @@ To get a local copy up and running, consider the following steps.
 
 You'll need the following requirements to run the environment:
 
-* [Rust 1.80](https://www.rust-lang.org/tools/install)
+* [Rust 1.81](https://www.rust-lang.org/tools/install)
 * `x86_64` Linux instance.
 
 </details>
