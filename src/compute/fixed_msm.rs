@@ -22,6 +22,9 @@ pub struct MsmHandle<T: CurveId> {
     phantom: PhantomData<T>,
 }
 
+unsafe impl<T: CurveId> Send for MsmHandle<T> {}
+unsafe impl<T: CurveId> Sync for MsmHandle<T> {}
+
 impl<T: CurveId> MsmHandle<T> {
     /// New handle from the specified generators.
     ///
