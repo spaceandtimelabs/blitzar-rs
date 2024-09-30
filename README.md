@@ -41,7 +41,7 @@
   </a>
 
   <a href="https://developer.nvidia.com/cuda-downloads">
-    <img alt="CUDA" src="https://img.shields.io/badge/CUDA-12.6-green?style=flat&logo=nvidia">
+    <img alt="CUDA" src="https://img.shields.io/badge/CUDA-12.6.1-green?style=flat&logo=nvidia">
     </a>
   </a>
 
@@ -119,7 +119,7 @@ To get a local copy up and running, consider the following steps.
 
 * [Rust 1.81](https://www.rust-lang.org/tools/install)
 * `x86_64` Linux instance.
-* Nvidia Toolkit Driver Version >= 560.28.03 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
+* NVIDIA driver version >= 560.35.03 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
 
 </details>
 
