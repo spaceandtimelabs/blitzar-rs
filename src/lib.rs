@@ -27,7 +27,7 @@
 //!     <img alt="crates.io version" src="https://img.shields.io/crates/v/blitzar.svg">
 //!   </a>
 //!   <a href="https://www.rust-lang.org/">
-//!     <img alt="Rust" src="https://img.shields.io/badge/rust-1.80-blue">
+//!     <img alt="Rust" src="https://img.shields.io/badge/rust-1.81-blue">
 //!  </a>
 //!  <a href="https://developer.nvidia.com/cuda-downloads">
 //!     <img alt="CUDA" src="https://img.shields.io/badge/CUDA-12.6.1-green?style=flat&logo=nvidia">
