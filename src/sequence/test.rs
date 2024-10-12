@@ -191,6 +191,30 @@ fn we_can_convert_a_slice_of_scalars_to_a_sequence_with_correct_data() {
 }
 
 #[test]
+fn we_can_convert_a_slice_of_fixed_size_binary_to_a_sequence_with_correct_data() {
+    let element_size = 4;
+    let s = vec![
+        [0x01u8, 0x02u8, 0x03u8, 0x04u8],
+        [0x05u8, 0x06u8, 0x07u8, 0x08u8],
+        [0x09u8, 0x0Au8, 0x0Bu8, 0x0Cu8],
+    ];
+
+    let d = Sequence::from_raw_parts_with_size(&s[..], element_size, false);
+
+    assert_eq!(d.element_size, element_size);
+    assert_eq!(d.len(), 3);
+
+    assert_eq!(
+        d.data_slice,
+        [
+            0x01u8, 0x02u8, 0x03u8, 0x04u8, 0x05u8, 0x06u8, 0x07u8, 0x08u8, 0x09u8, 0x0Au8, 0x0Bu8,
+            0x0Cu8
+        ]
+    );
+    assert!(!d.is_signed);
+}
+
+#[test]
 #[cfg(feature = "arkworks")]
 fn we_can_convert_a_slice_of_arkworks_bigint_to_the_same_values_as_scalars() {
     let a = [

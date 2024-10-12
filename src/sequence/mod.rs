@@ -97,6 +97,30 @@ impl<'a> Sequence<'a> {
             is_signed,
         }
     }
+
+    /// Converts a slice of any type to a Sequence by calling `from_raw_parts` on it.
+    ///
+    /// The `is_signed` parameter is used to determine whether the data is interpreted as a signed value or not.
+    /// The `element_size` parameter specifies the size of each element in bytes.
+    pub fn from_raw_parts_with_size<T>(
+        slice: &'a [T],
+        element_size: usize,
+        is_signed: bool,
+    ) -> Self {
+        assert!(element_size > 0);
+        if is_signed {
+            assert!(element_size <= 16);
+        } else {
+            assert!(element_size <= 32);
+        }
+        let len = std::mem::size_of_val(slice);
+        let data_slice = unsafe { core::slice::from_raw_parts(slice.as_ptr() as *const u8, len) };
+        Sequence {
+            data_slice,
+            element_size,
+            is_signed,
+        }
+    }
 }
 
 impl From<&Sequence<'_>> for sxt_sequence_descriptor {
