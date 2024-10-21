@@ -4,6 +4,7 @@ use ark_bls12_381::G1Affine;
 use ark_std::UniformRand;
 use curve25519_dalek::ristretto::RistrettoPoint;
 use rand_core::OsRng;
+use tempfile::TempDir;
 
 #[test]
 fn we_can_compute_msms_using_a_single_generator() {
@@ -43,6 +44,33 @@ fn we_can_compute_msms_using_multiple_generator() {
     let handle = MsmHandle::new(&generators);
 
     // g[0] + 2 * g[1]
+    let scalars: Vec<u8> = vec![1, 2];
+    handle.msm(&mut res, 1, &scalars);
+    assert_eq!(res[0], generators[0] + generators[1] + generators[1]);
+}
+
+#[test]
+fn we_can_serialize_a_handle_to_a_file() {
+    let mut rng = OsRng;
+
+    let mut res = vec![RistrettoPoint::default(); 1];
+
+    // randomly obtain the generator points
+    let generators: Vec<RistrettoPoint> =
+        (0..2).map(|_| RistrettoPoint::random(&mut rng)).collect();
+
+    // create handle
+    let handle = MsmHandle::new(&generators);
+
+    // write the handle to a file
+    let tmp_dir = TempDir::new().unwrap();
+    let filename = tmp_dir.path().join("t").to_str().unwrap().to_string();
+    handle.write(&filename);
+
+    // read the handle back from file
+    let handle = MsmHandle::<RistrettoPoint>::new_from_file(&filename);
+    
+    // we can compute a multiexponentiation
     let scalars: Vec<u8> = vec![1, 2];
     handle.msm(&mut res, 1, &scalars);
     assert_eq!(res[0], generators[0] + generators[1] + generators[1]);
