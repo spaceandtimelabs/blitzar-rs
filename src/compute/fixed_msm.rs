@@ -2,7 +2,7 @@ use super::backend::init_backend;
 use crate::compute::{curve::SwCurveConfig, CurveId, ElementP2};
 use ark_ec::short_weierstrass::Affine;
 use rayon::prelude::*;
-use std::marker::PhantomData;
+use std::{ffi::CString, marker::PhantomData};
 
 fn count_scalars_per_output(scalars_len: usize, output_bit_table: &[u32]) -> u32 {
     let bit_sum: usize = output_bit_table.iter().map(|s| *s as usize).sum();
@@ -43,6 +43,34 @@ impl<T: CurveId> MsmHandle<T> {
                 handle,
                 phantom: PhantomData,
             }
+        }
+    }
+
+    /// New handle from a serialized file.
+    ///
+    /// Note: any MSMs computed with the handle must have length less than or equal
+    /// to the number of generators used to create the handle.
+    pub fn new_from_file(filename: &str) -> Self {
+        init_backend();
+        let filename = CString::new(filename).expect("filename cannot have null bytes");
+        unsafe {
+            let handle =
+                blitzar_sys::sxt_multiexp_handle_new_from_file(T::CURVE_ID, filename.as_ptr());
+            Self {
+                handle,
+                phantom: PhantomData,
+            }
+        }
+    }
+
+    /// Serialize the handle to a file.
+    ///
+    /// This function can be used together with new_from_file to reduce
+    /// the cost of creating a handle.
+    pub fn write(&self, filename: &str) {
+        let filename = CString::new(filename).expect("filename cannot have null bytes");
+        unsafe {
+            blitzar_sys::sxt_multiexp_handle_write_to_file(self.handle, filename.as_ptr());
         }
     }
 

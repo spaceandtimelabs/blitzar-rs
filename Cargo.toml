@@ -21,7 +21,7 @@ ark-ff = { version = "0.4.0" }
 ark-serialize = { version = "0.4.2" }
 ark-std = { version = "0.4.0" }
 rayon = { version = "1.5" }
-blitzar-sys = { version = "1.78.0" }
+blitzar-sys = { version = "1.81.0" }
 curve25519-dalek = { version = "4", features = ["serde"] }
 merlin = "2"
 serde = { version = "1", features = ["serde_derive"] }
@@ -33,6 +33,7 @@ criterion = { version = "0.3", features = ["html_reports"] }
 curve25519-dalek = { version = "4", features = ["rand_core"] }
 rand = "0.8"
 rand_core = "0.6"
+tempfile = "3.13.0"
 
 [[bench]]
 harness = false
