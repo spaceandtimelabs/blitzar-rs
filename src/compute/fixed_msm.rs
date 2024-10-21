@@ -2,8 +2,8 @@ use super::backend::init_backend;
 use crate::compute::{curve::SwCurveConfig, CurveId, ElementP2};
 use ark_ec::short_weierstrass::Affine;
 use rayon::prelude::*;
-use std::marker::PhantomData;
 use std::ffi::CString;
+use std::marker::PhantomData;
 
 fn count_scalars_per_output(scalars_len: usize, output_bit_table: &[u32]) -> u32 {
     let bit_sum: usize = output_bit_table.iter().map(|s| *s as usize).sum();
@@ -55,10 +55,8 @@ impl<T: CurveId> MsmHandle<T> {
         init_backend();
         let filename = CString::new(filename).expect("filename cannot have null bytes");
         unsafe {
-            let handle = blitzar_sys::sxt_multiexp_handle_new_from_file(
-                T::CURVE_ID,
-                filename.as_ptr(),
-            );
+            let handle =
+                blitzar_sys::sxt_multiexp_handle_new_from_file(T::CURVE_ID, filename.as_ptr());
             Self {
                 handle,
                 phantom: PhantomData,
@@ -73,10 +71,7 @@ impl<T: CurveId> MsmHandle<T> {
     pub fn write(&self, filename: &str) {
         let filename = CString::new(filename).expect("filename cannot have null bytes");
         unsafe {
-            blitzar_sys::sxt_multiexp_handle_write_to_file(
-                self.handle,
-                filename.as_ptr(),
-            );
+            blitzar_sys::sxt_multiexp_handle_write_to_file(self.handle, filename.as_ptr());
         }
     }
 

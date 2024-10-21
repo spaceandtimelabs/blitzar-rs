@@ -69,7 +69,7 @@ fn we_can_serialize_a_handle_to_a_file() {
 
     // read the handle back from file
     let handle = MsmHandle::<RistrettoPoint>::new_from_file(&filename);
-    
+
     // we can compute a multiexponentiation
     let scalars: Vec<u8> = vec![1, 2];
     handle.msm(&mut res, 1, &scalars);
