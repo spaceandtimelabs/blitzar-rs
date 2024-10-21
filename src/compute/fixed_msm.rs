@@ -3,6 +3,7 @@ use crate::compute::{curve::SwCurveConfig, CurveId, ElementP2};
 use ark_ec::short_weierstrass::Affine;
 use rayon::prelude::*;
 use std::marker::PhantomData;
+use std::ffi::CString;
 
 fn count_scalars_per_output(scalars_len: usize, output_bit_table: &[u32]) -> u32 {
     let bit_sum: usize = output_bit_table.iter().map(|s| *s as usize).sum();
@@ -38,6 +39,25 @@ impl<T: CurveId> MsmHandle<T> {
                 T::CURVE_ID,
                 generators.as_ptr() as *const std::ffi::c_void,
                 generators.len() as u32,
+            );
+            Self {
+                handle,
+                phantom: PhantomData,
+            }
+        }
+    }
+
+    /// New handle from a serialized file.
+    ///
+    /// Note: any MSMs computed with the handle must have length less than or equal
+    /// to the number of generators used to create the handle.
+    pub fn new_from_file(filename: &str) -> Self {
+        init_backend();
+        let filename = CString::new(filename).expect("filename cannot have null bytes");
+        unsafe {
+            let handle = blitzar_sys::sxt_multiexp_handle_new_from_file(
+                T::CURVE_ID,
+                filename.as_ptr(),
             );
             Self {
                 handle,
