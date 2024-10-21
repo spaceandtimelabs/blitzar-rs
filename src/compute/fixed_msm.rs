@@ -66,6 +66,20 @@ impl<T: CurveId> MsmHandle<T> {
         }
     }
 
+    /// Serialize the handle to a file.
+    ///
+    /// This function can be used together with new_from_file to reduce
+    /// the cost of creating a handle.
+    pub fn write(&self, filename: &str) {
+        let filename = CString::new(filename).expect("filename cannot have null bytes");
+        unsafe {
+            blitzar_sys::sxt_multiexp_handle_write_to_file(
+                self.handle,
+                filename.as_ptr(),
+            );
+        }
+    }
+
     /// Compute an MSM using pre-specified generators.
     ///
     /// Suppose g_1, ..., g_n are pre-specified generators and
