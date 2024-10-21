@@ -107,6 +107,12 @@ This example shows how to pass user-defined `bn254` `G1` point generators to the
 $ cargo run --features gpu --example pass_bn254_g1_generators_to_commitment
 ```
 
+This example shows how to pass user-defined `grumpkin` point generators to the commitment computation.
+
+```
+$ cargo run --features gpu --example pass_grumpkin_generators_to_commitment
+```
+
 ---------
 #### Example 6 - Compute Commitments with Dalek Scalars
 ---------
