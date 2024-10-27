@@ -193,7 +193,7 @@ fn we_can_convert_a_slice_of_scalars_to_a_sequence_with_correct_data() {
 #[test]
 fn we_can_convert_a_slice_of_fixed_size_binary_to_a_sequence_with_correct_data() {
     let element_size = 4;
-    let s = vec![
+    let s = [
         [0x01u8, 0x02u8, 0x03u8, 0x04u8],
         [0x05u8, 0x06u8, 0x07u8, 0x08u8],
         [0x09u8, 0x0Au8, 0x0Bu8, 0x0Cu8],

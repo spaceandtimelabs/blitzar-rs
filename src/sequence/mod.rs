@@ -82,20 +82,7 @@ impl<'a> Sequence<'a> {
     /// and between `1` and `32` bytes (inclusive) if `is_signed` is `false`.
     pub fn from_raw_parts<T>(slice: &'a [T], is_signed: bool) -> Self {
         let element_size = core::mem::size_of::<T>();
-        if is_signed {
-            assert!(element_size > 0);
-            assert!(element_size <= 16);
-        } else {
-            assert!(element_size > 0);
-            assert!(element_size <= 32);
-        }
-        let len = std::mem::size_of_val(slice);
-        let data_slice = unsafe { core::slice::from_raw_parts(slice.as_ptr() as *const u8, len) };
-        Sequence {
-            data_slice,
-            element_size,
-            is_signed,
-        }
+        Self::from_raw_parts_with_size(slice, element_size, is_signed)
     }
 
     /// Converts a slice of any type to a Sequence by calling `from_raw_parts` on it.
@@ -114,6 +101,11 @@ impl<'a> Sequence<'a> {
             assert!(element_size <= 32);
         }
         let len = std::mem::size_of_val(slice);
+        assert_eq!(
+            len % element_size,
+            0,
+            "raw data length should be a multiple of element size"
+        );
         let data_slice = unsafe { core::slice::from_raw_parts(slice.as_ptr() as *const u8, len) };
         Sequence {
             data_slice,
