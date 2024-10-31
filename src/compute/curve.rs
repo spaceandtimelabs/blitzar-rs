@@ -13,6 +13,10 @@ impl SwCurveConfig for ark_bn254::g1::Config {
     const CURVE_ID: u32 = blitzar_sys::SXT_CURVE_BN_254;
 }
 
+impl SwCurveConfig for ark_grumpkin::GrumpkinConfig {
+    const CURVE_ID: u32 = blitzar_sys::SXT_CURVE_GRUMPKIN;
+}
+
 pub trait CurveId {
     const CURVE_ID: u32;
 }
