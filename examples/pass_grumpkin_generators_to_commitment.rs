@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+use ark_ec::{CurveGroup, VariableBaseMSM};
 use ark_grumpkin::{Affine, Fr, Projective};
-// use ark_ec::{CurveGroup, VariableBaseMSM};
 use ark_std::UniformRand;
 
 extern crate blitzar;
@@ -59,31 +59,14 @@ fn main() {
         scalar_data.push(Fr::from(*d));
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////
-    //// ERROR msm - function or associated item not found in `Projective<GrumpkinConfig>` //
-    /////////////////////////////////////////////////////////////////////////////////////////
-    // let ark_commitment = Projective::msm(&generator_points, &scalar_data).unwrap();
-    /////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////
-    let mut ark_commitment = Projective::default();
-    for (&point, &scalar) in generator_points.iter().zip(scalar_data.iter()) {
-        let mul_result = point * scalar;
-        ark_commitment += mul_result;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////
-    // ark_commitment.into_affine() - method not found in `Projective<GrumpkinConfig>` //
-    /////////////////////////////////////////////////////////////////////////////////////
-    let z2 = ark_commitment.z * ark_commitment.z;
-    let z3 = z2 * ark_commitment.z;
-    let x = ark_commitment.x / z2;
-    let y = ark_commitment.y / z3;
-    let ark_commitment_affine = Affine::new(x, y);
+    /////////////////////////////////////////////
+    // Compute the commitment using Arkworks
+    /////////////////////////////////////////////
+    let ark_commitment = Projective::msm(&generator_points, &scalar_data).unwrap();
 
     /////////////////////////////////////////////
     // Compare Arkworks and our CPU/GPU commitment
     /////////////////////////////////////////////
     println!("Computed Commitment: {:?}\n", commitments[0]);
-    println!("Expected Commitment: {:?}\n", ark_commitment_affine);
+    println!("Expected Commitment: {:?}\n", ark_commitment.into_affine());
 }

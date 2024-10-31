@@ -575,34 +575,12 @@ fn sending_generators_to_gpu_produces_correct_grumpkin_commitment_results() {
     }
 
     // compute msm in Arkworks
-    /////////////////////////////////////////////////////////////////////////////////////////
-    //// ERROR msm - function or associated item not found in `Projective<GrumpkinConfig>` //
-    /////////////////////////////////////////////////////////////////////////////////////////
-    // let ark_commitment = grumpkin_projective::msm(&generator_points, &scalar_data).unwrap();
-    /////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////
-    let mut ark_commitment = grumpkin_projective::default();
-    for (&point, &scalar) in generator_points.iter().zip(scalar_data.iter()) {
-        let mul_result = point * scalar;
-        ark_commitment += mul_result;
-    }
+    let ark_commitment = grumpkin_projective::msm(&generator_points, &scalar_data)
+        .unwrap()
+        .into_affine();
 
     // verify results
-    //////////////////////////////////////////////////////////////////////
-    // into_affine() - method not found in `Projective<GrumpkinConfig>` //
-    //////////////////////////////////////////////////////////////////////
-    // assert_eq!(commitments[0], ark_commitment.into_affine());
-    //////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////
-    let z2 = ark_commitment.z * ark_commitment.z;
-    let z3 = z2 * ark_commitment.z;
-    let x = ark_commitment.x / z2;
-    let y = ark_commitment.y / z3;
-    let ark_commitment_affine = grumpkin_affine::new(x, y);
-
-    assert_eq!(commitments[0], ark_commitment_affine);
+    assert_eq!(commitments[0], ark_commitment);
     assert_ne!(grumpkin_affine::default(), commitments[0]);
 }
 
