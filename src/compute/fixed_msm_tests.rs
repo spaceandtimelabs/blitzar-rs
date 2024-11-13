@@ -4,6 +4,8 @@ use ark_bls12_381::G1Affine;
 use ark_std::UniformRand;
 use curve25519_dalek::ristretto::RistrettoPoint;
 use rand_core::OsRng;
+use std::fs::File;
+use std::io::{self, Read};
 use tempfile::TempDir;
 
 #[test]
@@ -197,4 +199,43 @@ fn for_short_weierstrass_curvs_we_can_compute_msms_with_affine_elements() {
     let output_lengths: Vec<u32> = vec![1];
     handle.affine_vlen_msm(&mut res, &output_bit_table, &output_lengths, &scalars);
     assert_eq!(res[0], g + g);
+}
+
+fn read_from_binary_file(file_path: &str) -> io::Result<Vec<u8>> {
+    let mut file = File::open(file_path)?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+    Ok(buffer)
+}
+
+fn read_u32_vector_from_binary_file(file_path: &str) -> io::Result<Vec<u32>> {
+    let mut file = File::open(file_path)?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+
+    let mut result = Vec::new();
+    for chunk in buffer.chunks_exact(4) {
+        let value = u32::from_le_bytes(chunk.try_into().unwrap());
+        result.push(value);
+    }
+    Ok(result)
+}
+
+#[test]
+fn multi_gpu_illegal_memory() {
+    // Set data paths
+    let blitzar_handle_path = "/path/to/data/blitzar_handle.bin";
+    let scalars_path = "/path/to/data/scalars.bin";
+    let output_bit_table_path = "/path/to/data/output_bit_table.bin";
+    let output_lengths_path = "/path/to/data/output_lengths.bin";
+    
+    // Load data
+    let handle = MsmHandle::new_from_file(&blitzar_handle_path);
+    let scalars = read_from_binary_file(scalars_path).unwrap();
+    let output_bit_table = read_u32_vector_from_binary_file(output_bit_table_path).unwrap();
+    let output_lengths = read_u32_vector_from_binary_file(output_lengths_path).unwrap();
+
+    let mut res = vec![ElementP2::<ark_bls12_381::g1::Config>::default(); output_bit_table.len()];
+
+    handle.vlen_msm(&mut res, &output_bit_table, &output_lengths, &scalars);
 }
