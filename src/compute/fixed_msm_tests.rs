@@ -235,7 +235,8 @@ fn multi_gpu_illegal_memory() {
     let output_bit_table = read_u32_vector_from_binary_file(output_bit_table_path).unwrap();
     let output_lengths = read_u32_vector_from_binary_file(output_lengths_path).unwrap();
 
-    let mut res = vec![ElementP2::<ark_bls12_381::g1::Config>::default(); output_bit_table.len()];
-
-    handle.vlen_msm(&mut res, &output_bit_table, &output_lengths, &scalars);
+    for _ in 0..3 {
+        let mut res = vec![ElementP2::<ark_bls12_381::g1::Config>::default(); output_bit_table.len()];
+        handle.vlen_msm(&mut res, &output_bit_table, &output_lengths, &scalars);
+    }
 }

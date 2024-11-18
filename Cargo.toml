@@ -25,6 +25,7 @@ rayon = { version = "1.5" }
 blitzar-sys = { version = "1.81.0" }
 curve25519-dalek = { version = "4", features = ["serde"] }
 merlin = "2"
+nvml-wrapper = { version = "0.10.0" }
 serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
 

@@ -1,8 +1,17 @@
 use super::backend::init_backend;
 use crate::compute::{curve::SwCurveConfig, CurveId, ElementP2};
 use ark_ec::short_weierstrass::Affine;
+use curve25519_dalek::scalar;
+use nvml_wrapper::Nvml;
 use rayon::prelude::*;
-use std::{ffi::CString, marker::PhantomData};
+use std::{ffi::CString, marker::PhantomData, mem};
+
+fn get_available_gpu_memory() -> Result<u64, Box<dyn std::error::Error>> {
+    let nvml = Nvml::init()?;
+    let device = nvml.device_by_index(0)?;
+    let memory_info = device.memory_info()?;
+    Ok(memory_info.free)
+}
 
 fn count_scalars_per_output(scalars_len: usize, output_bit_table: &[u32]) -> u32 {
     let bit_sum: usize = output_bit_table.iter().map(|s| *s as usize).sum();
@@ -174,6 +183,32 @@ impl<T: CurveId> MsmHandle<T> {
         output_lengths: &[u32],
         scalars: &[u8],
     ) {
+        let res_mem_size = mem::size_of_val(res);
+        let output_bit_table_size = mem::size_of_val(output_bit_table);
+        let output_lens_size = mem::size_of_val(output_lengths);
+        let scalar_size = mem::size_of_val(scalars);
+        let total_data_size = res_mem_size + output_bit_table_size + output_lens_size + scalar_size;
+
+        dbg!(res_mem_size);
+        dbg!(output_bit_table_size);
+        dbg!(output_lens_size);
+        dbg!(scalar_size);
+        dbg!(total_data_size);
+
+        match get_available_gpu_memory() {
+            Ok(available_gpu_memory) => {
+                dbg!(available_gpu_memory);
+                if total_data_size > available_gpu_memory as usize {
+                    panic!("Not enough GPU memory to perform the multiexponentiation");
+                } else {
+                    dbg!("Enough GPU memory to perform the multiexponentiation");
+                }
+            }
+            Err(e) => {
+                panic!("Failed to get available GPU memory: {}", e);
+            }
+        }
+
         let num_outputs = res.len() as u32;
         assert_eq!(output_bit_table.len(), num_outputs as usize);
         assert_eq!(output_lengths.len(), num_outputs as usize);
