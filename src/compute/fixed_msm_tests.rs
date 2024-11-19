@@ -225,15 +225,17 @@ fn read_u32_vector_from_binary_file(file_path: &str) -> io::Result<Vec<u32>> {
 fn multi_gpu_illegal_memory() {
     // Set data paths
     let blitzar_handle_path = "/path/to/data/blitzar_handle.bin";
-    let scalars_path = "/path/to/data/scalars.bin";
+    //let scalars_path = "/path/to/data/scalars.bin";
     let output_bit_table_path = "/path/to/data/output_bit_table.bin";
     let output_lengths_path = "/path/to/data/output_lengths.bin";
     
     // Load data
     let handle = MsmHandle::new_from_file(&blitzar_handle_path);
-    let scalars = read_from_binary_file(scalars_path).unwrap();
+    //let scalars = read_from_binary_file(scalars_path).unwrap();
     let output_bit_table = read_u32_vector_from_binary_file(output_bit_table_path).unwrap();
     let output_lengths = read_u32_vector_from_binary_file(output_lengths_path).unwrap();
+
+    let scalars: Vec<u8> = vec![0; 48_413_900_800];
 
     for _ in 0..3 {
         let mut res = vec![ElementP2::<ark_bls12_381::g1::Config>::default(); output_bit_table.len()];
