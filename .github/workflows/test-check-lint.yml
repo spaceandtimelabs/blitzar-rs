@@ -14,7 +14,7 @@ concurrency:
 jobs:
   format-code:
     name: Check Code
-    runs-on: nvidia-nc4as-t4
+    runs-on: public-blitzar-T4-gpu-vm
     env:
       CARGO_HOME: ${{ github.workspace }}/.cargo
       PATH: ${{ github.workspace }}/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -33,7 +33,7 @@ jobs:
 
   clippy-code:
     name: Clippy Code
-    runs-on: nvidia-nc4as-t4
+    runs-on: public-blitzar-T4-gpu-vm
     env:
       CARGO_HOME: ${{ github.workspace }}/.cargo
       PATH: ${{ github.workspace }}/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -51,7 +51,7 @@ jobs:
 
   test-cpu:
     name: Test the CPU backend
-    runs-on: nvidia-nc4as-t4
+    runs-on: public-blitzar-T4-gpu-vm
     env:
       CARGO_HOME: ${{ github.workspace }}/.cargo
       PATH: ${{ github.workspace }}/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -67,7 +67,7 @@ jobs:
 
   test-gpu:
     name: Test the GPU backend
-    runs-on: nvidia-nc4as-t4
+    runs-on: public-blitzar-T4-gpu-vm
     env:
       CARGO_HOME: ${{ github.workspace }}/.cargo
       PATH: ${{ github.workspace }}/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
