@@ -15,8 +15,8 @@
 use super::backend::init_backend;
 use crate::sequence::Sequence;
 use ark_bls12_381::G1Affine;
-use ark_bn254::G1Affine as bn254_g1_affine;
-use ark_grumpkin::Affine as grumpkin_affine;
+use ark_bn254::G1Affine as Bn254G1Affine;
+use ark_grumpkin::Affine as GrumpkinAffine;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 
 #[doc = include_str!("../../docs/commitments/compute_curve25519_commitments.md")]
@@ -148,9 +148,9 @@ pub fn compute_bls12_381_g1_commitments_with_generators(
 #[doc = include_str!("../../examples/pass_bn254_g1_generators_to_commitment.rs")]
 ///```
 pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
-    commitments: &mut [bn254_g1_affine],
+    commitments: &mut [Bn254G1Affine],
     data: &[Sequence],
-    generators: &[bn254_g1_affine],
+    generators: &[Bn254G1Affine],
 ) {
     init_backend();
 
@@ -217,9 +217,9 @@ pub fn update_curve25519_commitments(
 #[doc = include_str!("../../examples/pass_grumpkin_generators_to_commitment.rs")]
 ///```
 pub fn compute_grumpkin_uncompressed_commitments_with_generators(
-    commitments: &mut [grumpkin_affine],
+    commitments: &mut [GrumpkinAffine],
     data: &[Sequence],
-    generators: &[grumpkin_affine],
+    generators: &[GrumpkinAffine],
 ) {
     init_backend();
 
