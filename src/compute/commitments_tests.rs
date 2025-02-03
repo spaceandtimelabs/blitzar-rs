@@ -16,9 +16,7 @@ use super::*;
 use ark_bls12_381::{Fr, G1Affine, G1Projective};
 use ark_bn254::{Fr as bn254_fr, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
 use ark_ec::{CurveGroup, VariableBaseMSM};
-use ark_grumpkin::{
-    Affine as GrumpkinAffine, Fr as GrumpkinFr, Projective as GrumpkinProjective,
-};
+use ark_grumpkin::{Affine as GrumpkinAffine, Fr as GrumpkinFr, Projective as GrumpkinProjective};
 use ark_serialize::CanonicalSerialize;
 use ark_std::UniformRand;
 use curve25519_dalek::{
