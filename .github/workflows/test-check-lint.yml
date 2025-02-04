@@ -78,14 +78,5 @@ jobs:
       - name: Install stable toolchain
         run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
 
-      - name: Install Dependencies
-        run: |
-          export DEBIAN_FRONTEND=non-interactive
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common
-          sudo add-apt-repository ppa:graphics-drivers/ppa
-          sudo apt-get update
-          sudo apt-get install -y nvidia-open-560
-
       - name: Run GPU test
         run: cargo test --features gpu
