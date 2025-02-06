@@ -574,7 +574,7 @@ fn sending_halo2_generators_to_gpu_produces_correct_bn254_g1_commitment_results(
 
     let ark_generator_points: Vec<Bn254G1Affine> = generator_points
         .iter()
-        .map(|g| convert_halo2_to_ark_bn254_g1_affine(g))
+        .map(convert_halo2_to_ark_bn254_g1_affine)
         .collect();
 
     // compute msm in Arkworks

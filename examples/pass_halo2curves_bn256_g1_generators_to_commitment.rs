@@ -66,7 +66,7 @@ fn main() {
 
     let ark_generator_points: Vec<ArkBn254G1Affine> = generator_points
         .iter()
-        .map(|g| convert_halo2_to_ark_bn254_g1_affine(&g))
+        .map(convert_halo2_to_ark_bn254_g1_affine)
         .collect();
 
     let ark_commitment = ArkBn254G1Projective::msm(&ark_generator_points, &scalar_data).unwrap();
