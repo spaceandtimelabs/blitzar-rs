@@ -13,8 +13,9 @@
 // limitations under the License.
 
 use super::*;
+use crate::compute::conversion::convert_halo2_to_ark_bn254_g1_affine;
 use ark_bls12_381::{Fr, G1Affine, G1Projective};
-use ark_bn254::{Fr as bn254_fr, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
+use ark_bn254::{Fr as Bn254Fr, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
 use ark_ec::{CurveGroup, VariableBaseMSM};
 use ark_grumpkin::{Affine as GrumpkinAffine, Fr as GrumpkinFr, Projective as GrumpkinProjective};
 use ark_serialize::CanonicalSerialize;
@@ -23,6 +24,7 @@ use curve25519_dalek::{
     ristretto::{CompressedRistretto, RistrettoPoint},
     scalar::Scalar,
 };
+use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective};
 use rand_core::OsRng;
 
 #[test]
@@ -532,9 +534,9 @@ fn sending_generators_to_gpu_produces_correct_bn254_g1_commitment_results() {
     );
 
     // convert data to scalar
-    let mut scalar_data: Vec<bn254_fr> = Vec::new();
+    let mut scalar_data: Vec<Bn254Fr> = Vec::new();
     for d in &data {
-        scalar_data.push(bn254_fr::from(*d));
+        scalar_data.push(Bn254Fr::from(*d));
     }
 
     // compute msm in Arkworks
@@ -543,6 +545,50 @@ fn sending_generators_to_gpu_produces_correct_bn254_g1_commitment_results() {
     // verify results
     assert_eq!(commitments[0], ark_commitment.into_affine());
     assert_ne!(Bn254G1Affine::default(), commitments[0]);
+}
+
+#[test]
+fn sending_halo2_generators_to_gpu_produces_correct_bn254_g1_commitment_results() {
+    // generate input table
+    let data: Vec<u64> = vec![2, 3, 1, 5, 4, 7, 6, 8, 9, 10];
+
+    // randomly obtain the generator points
+    let mut rng = rand::thread_rng();
+
+    let generator_points: Vec<Halo2Bn256G1Affine> = (0..data.len())
+        .map(|_| Halo2Bn256G1Affine::random(&mut rng))
+        .collect();
+
+    // initialize commitments
+    let mut commitments = vec![Halo2Bn256G1Projective::default(); 1];
+
+    // compute commitment in Blitzar
+    compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
+        &mut commitments,
+        &[(&data).into()],
+        &generator_points,
+    );
+
+    // convert data to scalar
+    let scalar_data: Vec<Bn254Fr> = data.iter().map(|&d| Bn254Fr::from(d)).collect();
+
+    let ark_generator_points: Vec<Bn254G1Affine> = generator_points
+        .iter()
+        .map(|g| convert_halo2_to_ark_bn254_g1_affine(g))
+        .collect();
+
+    // compute msm in Arkworks
+    let ark_commitment = Bn254G1Projective::msm(&ark_generator_points, &scalar_data).unwrap();
+
+    // verify results
+    assert_eq!(
+        convert_halo2_to_ark_bn254_g1_affine(&commitments[0].into()),
+        ark_commitment.into_affine()
+    );
+    assert_ne!(
+        Bn254G1Affine::default(),
+        convert_halo2_to_ark_bn254_g1_affine(&commitments[0].into())
+    );
 }
 
 #[test]
