@@ -188,6 +188,11 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
 }
 
 #[doc = include_str!("../../docs/commitments/compute_halo2curves_bn256_g1_commitments_with_generators.md")]
+///
+/// # Example - Pass generators to Commitment Computation
+///```no_run
+#[doc = include_str!("../../examples/pass_halo2curves_bn256_g1_generators_to_commitment.rs")]
+///```
 pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
     commitments: &mut [Halo2Bn256G1Projective],
     data: &[Sequence],
