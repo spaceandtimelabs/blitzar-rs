@@ -74,7 +74,6 @@ fn main() {
     // Compare Arkworks and our CPU/GPU commitment
     /////////////////////////////////////////////
     let result_commitments = convert_commitments_from_halo2_to_arkworks(&commitments);
-    let result_commitment: ArkBn254G1Affine = result_commitments[0].into();
-    println!("Computed Commitment: {:?}\n", result_commitment);
+    println!("Computed Commitment: {:?}\n", result_commitments[0]);
     println!("Expected Commitment: {:?}\n", ark_commitment.into_affine());
 }

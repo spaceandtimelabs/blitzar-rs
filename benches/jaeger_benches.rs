@@ -20,7 +20,6 @@
 //! ```
 //! Then, navigate to <http://localhost:16686> to view the traces.
 
-use blitzar;
 use halo2curves::bn256::{
     Fr as Halo2Bn256Fr, G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective,
 };

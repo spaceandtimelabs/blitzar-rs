@@ -581,9 +581,8 @@ fn sending_halo2_generators_to_gpu_produces_correct_bn254_g1_commitment_results(
 
     // verify results
     let result_commitments = convert_commitments_from_halo2_to_arkworks(&commitments);
-    let result_commitment: Bn254G1Affine = result_commitments[0].into();
-    assert_eq!(result_commitment, ark_commitment.into_affine());
-    assert_ne!(Bn254G1Affine::default(), result_commitment);
+    assert_eq!(result_commitments[0], ark_commitment.into_affine());
+    assert_ne!(Bn254G1Affine::default(), result_commitments[0]);
 }
 
 #[test]
