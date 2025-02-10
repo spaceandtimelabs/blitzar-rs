@@ -196,12 +196,12 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
     // Convert the Halo2 generators to Arkworks generators
     let ark_generators = convert_bn254_g1_affine_generators_from_halo2_to_ark(generators);
 
-    // Convert the Halo2 commitments to Arkworks commitments
-    let mut ark_commitments = convert_commitments_from_halo2_to_arkworks(commitments);
+    // Create temporary commitments to store the Arkworks commitments
+    let mut ark_commitments = vec![Bn254G1Affine::default(); commitments.len()];
 
     // Compute commitments
     compute_bn254_g1_uncompressed_commitments_with_generators(
-        &mut ark_commitments,
+        ark_commitments.as_mut_slice(),
         data,
         &ark_generators,
     );
