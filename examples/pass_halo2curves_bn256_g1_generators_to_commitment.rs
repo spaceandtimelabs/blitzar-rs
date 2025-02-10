@@ -21,7 +21,8 @@ use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Proje
 extern crate blitzar;
 use blitzar::compute::{
     compute_bn254_g1_uncompressed_commitments_with_halo2_generators,
-    convert_halo2_to_ark_bn254_g1_affine, convert_halo2_to_ark_bn254_g1_projective,
+    convert_bn254_g1_affine_generators_from_halo2_to_ark,
+    convert_commitments_from_halo2_to_arkworks,
 };
 
 fn main() {
@@ -64,19 +65,16 @@ fn main() {
     /////////////////////////////////////////////
     let scalar_data: Vec<ArkBn254Fr> = data.iter().map(|&d| ArkBn254Fr::from(d)).collect();
 
-    let ark_generator_points: Vec<ArkBn254G1Affine> = generator_points
-        .iter()
-        .map(convert_halo2_to_ark_bn254_g1_affine)
-        .collect();
+    let ark_generator_points: Vec<ArkBn254G1Affine> =
+        convert_bn254_g1_affine_generators_from_halo2_to_ark(&generator_points);
 
     let ark_commitment = ArkBn254G1Projective::msm(&ark_generator_points, &scalar_data).unwrap();
 
     /////////////////////////////////////////////
     // Compare Arkworks and our CPU/GPU commitment
     /////////////////////////////////////////////
-    println!(
-        "Computed Commitment: {:?}\n",
-        convert_halo2_to_ark_bn254_g1_projective(&commitments[0]).into_affine()
-    );
+    let result_commitments = convert_commitments_from_halo2_to_arkworks(&commitments);
+    let result_commitment: ArkBn254G1Affine = result_commitments[0].into();
+    println!("Computed Commitment: {:?}\n", result_commitment);
     println!("Expected Commitment: {:?}\n", ark_commitment.into_affine());
 }

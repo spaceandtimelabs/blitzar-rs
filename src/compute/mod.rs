@@ -34,8 +34,8 @@ mod commitments_tests;
 
 mod conversion;
 pub use conversion::{
-    convert_ark_affine_to_halo2_projective_bn254_g1, convert_halo2_to_ark_bn254_g1_affine,
-    convert_halo2_to_ark_bn254_g1_projective,
+    convert_bn254_g1_affine_generators_from_halo2_to_ark, convert_commitments_from_ark_to_halo2,
+    convert_commitments_from_halo2_to_arkworks,
 };
 #[cfg(test)]
 mod conversion_tests;

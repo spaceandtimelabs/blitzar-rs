@@ -13,16 +13,9 @@
 // limitations under the License.
 
 use super::backend::init_backend;
-use crate::{
-    compute::conversion::{
-        convert_ark_affine_to_halo2_projective_bn254_g1, convert_halo2_to_ark_bn254_g1_affine,
-        convert_halo2_to_ark_bn254_g1_projective,
-    },
-    sequence::Sequence,
-};
+use crate::{compute::conversion::*, sequence::Sequence};
 use ark_bls12_381::G1Affine;
 use ark_bn254::G1Affine as Bn254G1Affine;
-use ark_ec::CurveGroup;
 use ark_grumpkin::Affine as GrumpkinAffine;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective};
@@ -155,6 +148,7 @@ pub fn compute_bls12_381_g1_commitments_with_generators(
 ///```no_run
 #[doc = include_str!("../../examples/pass_bn254_g1_generators_to_commitment.rs")]
 ///```
+#[tracing::instrument(level = "debug", skip_all)]
 pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
     commitments: &mut [Bn254G1Affine],
     data: &[Sequence],
@@ -193,23 +187,17 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
 ///```no_run
 #[doc = include_str!("../../examples/pass_halo2curves_bn256_g1_generators_to_commitment.rs")]
 ///```
+#[tracing::instrument(level = "debug", skip_all)]
 pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
     commitments: &mut [Halo2Bn256G1Projective],
     data: &[Sequence],
     generators: &[Halo2Bn256G1Affine],
 ) {
     // Convert the Halo2 generators to Arkworks generators
-    let ark_generators = generators
-        .iter()
-        .map(convert_halo2_to_ark_bn254_g1_affine)
-        .collect::<Vec<Bn254G1Affine>>();
+    let ark_generators = convert_bn254_g1_affine_generators_from_halo2_to_ark(generators);
 
     // Convert the Halo2 commitments to Arkworks commitments
-    let mut ark_commitments = commitments
-        .iter()
-        .map(convert_halo2_to_ark_bn254_g1_projective)
-        .map(|proj| proj.into_affine())
-        .collect::<Vec<Bn254G1Affine>>();
+    let mut ark_commitments = convert_commitments_from_halo2_to_arkworks(commitments);
 
     // Compute commitments
     compute_bn254_g1_uncompressed_commitments_with_generators(
@@ -219,16 +207,7 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
     );
 
     // Convert the Arkworks commitments back to Halo2 commitments
-    commitments
-        .iter_mut()
-        .zip(
-            ark_commitments
-                .iter()
-                .map(convert_ark_affine_to_halo2_projective_bn254_g1),
-        )
-        .for_each(|(c_a, c_b)| {
-            *c_a = c_b;
-        });
+    convert_commitments_from_ark_to_halo2(commitments, &ark_commitments);
 }
 
 #[doc = include_str!("../../docs/commitments/update_curve25519_commitments.md")]
