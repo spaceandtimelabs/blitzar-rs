@@ -14,7 +14,7 @@
 
 use ark_bn254::{Fq as Bn254Fq, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
 use ark_ec::CurveGroup;
-use ark_ff::PrimeField;
+use ark_ff::{BigInt, PrimeField};
 use halo2curves::bn256::{
     Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective,
 };
@@ -23,10 +23,11 @@ fn convert_bn254_g1_affine_point_from_halo2_to_ark(point: &Halo2Bn256G1Affine) -
     if *point == Halo2Bn256G1Affine::default() {
         return Bn254G1Affine::default();
     }
-    Bn254G1Affine::new(
-        Bn254Fq::from_le_bytes_mod_order(&point.x.to_bytes()),
-        Bn254Fq::from_le_bytes_mod_order(&point.y.to_bytes()),
-    )
+    let mut result = Bn254G1Affine::identity();
+    result.x = BigInt::<4>::new(bytemuck::cast(point.x.to_bytes())).into();
+    result.y = BigInt::<4>::new(bytemuck::cast(point.y.to_bytes())).into();
+    result.infinity = false;
+    result
 }
 
 /// Converts a slice of Halo2 bn256 G1 affine points to a vector of Arkworks bn254 G1 affine points

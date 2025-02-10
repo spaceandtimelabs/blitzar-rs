@@ -13,53 +13,60 @@
 // limitations under the License.
 
 use super::*;
-use ark_bn254::{G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
+use ark_bn254::{Fq as Bn254Fq, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
 use ark_ec::{AffineRepr, PrimeGroup};
 use halo2curves::{
-    bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective},
+    bn256::{Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective},
     group::{cofactor::CofactorCurveAffine, Group},
 };
 
 #[test]
 fn test_convert_bn254_g1_affine_generators_from_halo2_to_ark() {
-    let halo2_affine = [Halo2Bn256G1Affine::default(); 1];
-    let halo2_to_ark = convert_bn254_g1_affine_generators_from_halo2_to_ark(&halo2_affine);
-    assert_eq!(
-        halo2_to_ark[0],
-        Bn254G1Affine::default(),
-        "Default affine points should be equal"
-    );
-
-    let halo2_affine = [Halo2Bn256G1Affine::generator(); 1];
-    let halo2_to_ark = convert_bn254_g1_affine_generators_from_halo2_to_ark(&halo2_affine);
-    assert_eq!(
-        halo2_to_ark[0],
-        Bn254G1Affine::generator(),
-        "Generator affine points should be equal"
-    );
-
-    let halo2_affine = [Halo2Bn256G1Affine::identity(); 1];
-    let halo2_to_ark = convert_bn254_g1_affine_generators_from_halo2_to_ark(&halo2_affine);
-    assert_eq!(
-        halo2_to_ark[0],
-        Bn254G1Affine::identity(),
-        "Identity affine points should be equal"
-    );
+    // Modulus taken from https://github.com/privacy-scaling-explorations/halo2curves/blob/3bfa6562f0ddcbac941091ba3c7c9b6c322efac1/src/bn256/fq.rs#L12
+    let modulus: [u64; 4] = [4332616871279656263, 10917124144477883021, 13281191951274694749, 3486998266802970665];
 
     let halo2_affine = [
         Halo2Bn256G1Affine::default(),
         Halo2Bn256G1Affine::generator(),
         Halo2Bn256G1Affine::identity(),
+        Halo2Bn256G1Affine{
+            x: Halo2Bn256Fq::from_raw(modulus).sub(&Halo2Bn256Fq::one()),
+            y: Halo2Bn256Fq::from_raw(modulus).sub(&Halo2Bn256Fq::one()),
+        },
+        Halo2Bn256G1Affine{
+            x: Halo2Bn256Fq::from_raw(modulus),
+            y: Halo2Bn256Fq::from_raw(modulus),
+        },
+        Halo2Bn256G1Affine{
+            x: Halo2Bn256Fq::from_raw(modulus).add(&Halo2Bn256Fq::one()),
+            y: Halo2Bn256Fq::from_raw(modulus).add(&Halo2Bn256Fq::one()),
+        },
     ];
+
     let halo2_to_ark = convert_bn254_g1_affine_generators_from_halo2_to_ark(&halo2_affine);
+    
     assert_eq!(
         halo2_to_ark,
         [
             Bn254G1Affine::default(),
             Bn254G1Affine::generator(),
-            Bn254G1Affine::identity()
+            Bn254G1Affine::identity(),
+            Bn254G1Affine{
+                x: Bn254Fq::from(-1),
+                y: Bn254Fq::from(-1),
+                infinity: false,
+            },
+            Bn254G1Affine{
+                x: Bn254Fq::from(0),
+                y: Bn254Fq::from(0),
+                infinity: true,
+            },
+            Bn254G1Affine{
+                x: Bn254Fq::from(1),
+                y: Bn254Fq::from(1),
+                infinity: false,
+            },
         ],
-        "Affine points should be equal"
     );
 }
 
