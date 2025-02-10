@@ -27,8 +27,13 @@ rayon = { version = "1.5" }
 blitzar-sys = { version = "1.81.0" }
 curve25519-dalek = { version = "4", features = ["serde"] }
 merlin = "2"
+opentelemetry = { version = "0.23.0" }
+opentelemetry-jaeger = { version = "0.20.0" }
 serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
+tracing = { version = "0.1.36", features = ["attributes"] }
+tracing-opentelemetry = { version = "0.22.0" }
+tracing-subscriber = { version = "0.3.0", features = ["env-filter"] }
 
 # this sections is shared by tests, benchmarks, and examples
 [dev-dependencies]
@@ -45,6 +50,10 @@ name = "blitzar_benchmarks"
 [[bench]]
 harness = false
 name = "packed_msm_benchmarks"
+
+[[bench]]
+harness = false
+name = "jaeger_benches"
 
 [features]
 cpu = []
