@@ -87,12 +87,8 @@ pub fn convert_commitments_from_ark_to_halo2(
 ) {
     commitments
         .iter_mut()
-        .zip(
-            ark_commitments
-                .iter()
-                .map(convert_bn254_g1_point_from_ark_affine_to_halo2_projective),
-        )
+        .zip(ark_commitments)
         .for_each(|(c_a, c_b)| {
-            *c_a = c_b;
+            *c_a = convert_bn254_g1_point_from_ark_affine_to_halo2_projective(c_b);
         });
 }
