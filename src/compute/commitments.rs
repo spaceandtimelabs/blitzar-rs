@@ -69,6 +69,7 @@ pub fn compute_curve25519_commitments(
 ///```no_run
 #[doc = include_str!("../../examples/pass_generators_and_scalars_to_commitment.rs")]
 ///```
+#[tracing::instrument(level = "debug", skip_all, fields(num_outputs = commitments.len(), length = generators.len()))]
 pub fn compute_curve25519_commitments_with_generators(
     commitments: &mut [CompressedRistretto],
     data: &[Sequence],
@@ -108,6 +109,7 @@ pub fn compute_curve25519_commitments_with_generators(
 ///```no_run
 #[doc = include_str!("../../examples/pass_bls12_381_g1_generators_to_commitment.rs")]
 ///```
+#[tracing::instrument(level = "debug", skip_all, fields(num_outputs = commitments.len(), length = generators.len()))]
 pub fn compute_bls12_381_g1_commitments_with_generators(
     commitments: &mut [[u8; 48]],
     data: &[Sequence],
@@ -147,6 +149,7 @@ pub fn compute_bls12_381_g1_commitments_with_generators(
 ///```no_run
 #[doc = include_str!("../../examples/pass_bn254_g1_generators_to_commitment.rs")]
 ///```
+#[tracing::instrument(level = "debug", skip_all, fields(num_outputs = commitments.len(), length = generators.len()))]
 pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
     commitments: &mut [Bn254G1Affine],
     data: &[Sequence],
@@ -216,6 +219,7 @@ pub fn update_curve25519_commitments(
 ///```no_run
 #[doc = include_str!("../../examples/pass_grumpkin_generators_to_commitment.rs")]
 ///```
+#[tracing::instrument(level = "debug", skip_all, fields(num_outputs = commitments.len(), length = generators.len()))]
 pub fn compute_grumpkin_uncompressed_commitments_with_generators(
     commitments: &mut [GrumpkinAffine],
     data: &[Sequence],
