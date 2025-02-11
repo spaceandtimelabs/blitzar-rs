@@ -43,7 +43,19 @@ tempfile = "3.13.0"
 
 [[bench]]
 harness = false
-name = "blitzar_benchmarks"
+name = "blitzar_bls12_381_benchmarks"
+
+[[bench]]
+harness = false
+name = "blitzar_bn254_benchmarks"
+
+[[bench]]
+harness = false
+name = "blitzar_curve25519_benchmarks"
+
+[[bench]]
+harness = false
+name = "blitzar_grumpkin_benchmarks"
 
 [[bench]]
 harness = false
