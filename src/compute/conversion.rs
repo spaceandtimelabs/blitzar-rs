@@ -31,6 +31,7 @@ fn convert_bn254_g1_affine_point_from_halo2_to_ark(point: &Halo2Bn256G1Affine) -
 }
 
 /// Converts a slice of Halo2 bn256 G1 affine points to a vector of Arkworks bn254 G1 affine points
+#[tracing::instrument(level = "debug", skip_all)]
 pub fn convert_bn254_g1_affine_generators_from_halo2_to_ark(
     generators: &[Halo2Bn256G1Affine],
 ) -> Vec<Bn254G1Affine> {
@@ -51,6 +52,7 @@ fn convert_bn254_g1_projective_from_halo2_to_ark(
 }
 
 /// Converts a slice of Halo2 bn256 G1 projective points to a vector of Arkworks bn254 G1 affine points
+#[tracing::instrument(level = "debug", skip_all)]
 pub fn convert_commitments_from_halo2_to_arkworks(
     commitments: &[Halo2Bn256G1Projective],
 ) -> Vec<Bn254G1Affine> {
@@ -79,6 +81,7 @@ fn convert_bn254_g1_point_from_ark_affine_to_halo2_projective(
 }
 
 /// Maps a slice of Arkworks bn254 G1 affine points to a mutable slice of Halo2 bn256 G1 projective points
+#[tracing::instrument(level = "debug", skip_all)]
 pub fn convert_commitments_from_ark_to_halo2(
     commitments: &mut [Halo2Bn256G1Projective],
     ark_commitments: &[Bn254G1Affine],

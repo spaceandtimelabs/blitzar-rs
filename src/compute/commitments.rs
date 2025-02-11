@@ -203,12 +203,14 @@ struct SxtHalo2Bn256G1 {
 ///```no_run
 #[doc = include_str!("../../examples/pass_halo2curves_bn256_g1_generators_to_commitment.rs")]
 ///```
+#[tracing::instrument(level = "debug", skip_all, fields(num_outputs = commitments.len(), length = generators.len()))]
 pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
     commitments: &mut [Halo2Bn256G1Projective],
     data: &[Sequence],
     generators: &[Halo2Bn256G1Affine],
 ) {
     // Add infinity flag to the Halo2 affine points to convert to the blitzar_sys::sxt_bn254_g1 struct
+    let span = tracing::span!(tracing::Level::DEBUG, "map Halo2 affine to SxtHalo2Bn256G1").entered();
     let ark_generators: Vec<SxtHalo2Bn256G1> = generators
         .iter()
         .map(|gen| SxtHalo2Bn256G1 {
@@ -217,6 +219,7 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
             infinity: gen.x != Halo2Bn256Fq::zero() && gen.y == Halo2Bn256Fq::zero(),
         })
         .collect();
+    span.exit();
 
     // Create temporary commitments to store the Arkworks commitments
     let mut ark_commitments = vec![Bn254G1Affine::default(); commitments.len()];
