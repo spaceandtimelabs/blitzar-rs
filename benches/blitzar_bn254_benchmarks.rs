@@ -15,19 +15,15 @@
 use ark_bn254::{Fr, G1Affine};
 use ark_ff::BigInt;
 use ark_std::UniformRand;
-
 use criterion::{criterion_group, criterion_main, Criterion};
 
 extern crate rand;
 use crate::rand::Rng;
-
-use blitzar::compute::*;
-use blitzar::sequence::*;
+use blitzar::{compute::*, sequence::*};
 
 mod blitzar_bn254_benchmarks {
-    use ark_ff::PrimeField;
-
     use super::*;
+    use ark_ff::PrimeField;
 
     fn construct_scalars_data(num_commits: usize, num_rows: usize) -> Vec<Vec<BigInt<4>>> {
         let mut rng = ark_std::test_rng();
