@@ -210,7 +210,8 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
     generators: &[Halo2Bn256G1Affine],
 ) {
     // Add infinity flag to the Halo2 affine points to convert to the blitzar_sys::sxt_bn254_g1 struct
-    let span = tracing::span!(tracing::Level::DEBUG, "map Halo2 affine to SxtHalo2Bn256G1").entered();
+    let span =
+        tracing::span!(tracing::Level::DEBUG, "map Halo2 affine to SxtHalo2Bn256G1").entered();
     let ark_generators: Vec<SxtHalo2Bn256G1> = generators
         .iter()
         .map(|gen| SxtHalo2Bn256G1 {
