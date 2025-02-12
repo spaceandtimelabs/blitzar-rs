@@ -170,14 +170,19 @@ Check [EXAMPLES](docs/EXAMPLES.md) file.
 ### Running benchmarks:
 
 Benchmarks are run using [criterion.rs](https://github.com/bheisler/criterion.rs):
-
 ```
 cargo bench --features <cpu | gpu>
 ```
 To run individual tests:
 ```
-cargo bench --features <cpu | gpu> --bench <blitzar_benchmarks | packed_msm_benchmarks>
+cargo bench --features <cpu | gpu> --bench <benchmark_name>
 ```
+and replace the `benchmark_name` with one of the following available benchmarks
+- `blitzar_bls12_381_benchmarks`
+- `blitzar_bn254_benchmarks`
+- `blitzar_curve25519_benchmarks`
+- `blitzar_grumpkin_benchmarks`
+- `packed_msm_benchmarks`
 
 ## Development Process
 

@@ -12,26 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern crate rand;
-
-use crate::rand::Rng;
-use blitzar::{compute::*, sequence::Sequence};
+use ark_ff::BigInt;
+use ark_grumpkin::{Affine, Fr};
+use ark_std::UniformRand;
 use criterion::{criterion_group, criterion_main, Criterion};
-use curve25519_dalek::{
-    constants,
-    ristretto::{CompressedRistretto, RistrettoPoint},
-    scalar::Scalar,
-};
-use rand::thread_rng;
 
-mod blitzar_benches {
+extern crate rand;
+use crate::rand::Rng;
+use blitzar::{compute::*, sequence::*};
+
+mod blitzar_grumpkin_benchmarks {
     use super::*;
+    use ark_ff::PrimeField;
 
-    fn construct_scalars_data(num_commits: usize, num_rows: usize) -> Vec<Vec<Scalar>> {
-        let mut rng = thread_rng();
+    fn construct_scalars_data(num_commits: usize, num_rows: usize) -> Vec<Vec<BigInt<4>>> {
+        let mut rng = ark_std::test_rng();
 
         (0..num_commits)
-            .map(|_| ((0..num_rows).map(|_| Scalar::random(&mut rng)).collect()))
+            .map(|_| {
+                (0..num_rows)
+                    .map(|_| Fr::rand(&mut rng).into_bigint())
+                    .collect()
+            })
             .collect()
     }
 
@@ -43,32 +45,26 @@ mod blitzar_benches {
             .collect()
     }
 
-    fn construct_generators(n: usize) -> Vec<RistrettoPoint> {
-        let mut rng = thread_rng();
-        (0..n)
-            .map(|_| (&Scalar::random(&mut rng) * constants::RISTRETTO_BASEPOINT_TABLE))
-            .collect()
+    fn construct_generators(num_commits: usize) -> Vec<Affine> {
+        let mut rng = ark_std::test_rng();
+        (0..num_commits).map(|_| Affine::rand(&mut rng)).collect()
     }
 
     fn run_computation(num_commits: usize, num_rows: usize, c: &mut Criterion, use_scalars: bool) {
         let generators = construct_generators(num_rows);
-        let mut commitments = vec![CompressedRistretto::default(); num_commits];
+        let mut commitments = vec![Affine::default(); num_commits];
 
+        let benchmark_label: String = "grumpkin ".to_string();
         let num_commits_label: String = num_commits.to_string() + " commits";
-
-        let without_generators_label: String = num_rows.to_string()
-            + " rows"
-            + " - use scalars ("
-            + if use_scalars { "yes" } else { "no" }
-            + ") - use generators (no)";
+        let benchmark_group_label: String = benchmark_label + &num_commits_label;
 
         let with_generators_label: String = num_rows.to_string()
             + " rows"
             + " - use scalars ("
             + if use_scalars { "yes" } else { "no" }
-            + ") - use generators (yes)";
+            + ")";
 
-        let mut group = c.benchmark_group(&num_commits_label);
+        let mut group = c.benchmark_group(&benchmark_group_label);
 
         group.throughput(criterion::Throughput::Elements(
             (num_commits * num_rows) as u64,
@@ -76,18 +72,14 @@ mod blitzar_benches {
 
         if use_scalars {
             let data = construct_scalars_data(num_commits, num_rows);
-            let table: Vec<Sequence> = (0..num_commits).map(|i| (&data[i]).into()).collect();
-
-            group.bench_function(
-                &without_generators_label,
-                |b: &mut criterion::Bencher<'_>| {
-                    b.iter(|| compute_curve25519_commitments(&mut commitments, &table, 0_u64))
-                },
-            );
+            let table: Vec<Sequence> = data
+                .iter()
+                .map(|v| Sequence::from_raw_parts(v.as_slice(), false))
+                .collect();
 
             group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
-                    compute_curve25519_commitments_with_generators(
+                    compute_grumpkin_uncompressed_commitments_with_generators(
                         &mut commitments,
                         &table,
                         &generators,
@@ -98,13 +90,9 @@ mod blitzar_benches {
             let data = construct_sequences_data(num_commits, num_rows);
             let table: Vec<Sequence> = (0..num_commits).map(|i| (&data[i]).into()).collect();
 
-            group.bench_function(&without_generators_label, |b| {
-                b.iter(|| compute_curve25519_commitments(&mut commitments, &table, 0_u64))
-            });
-
             group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
-                    compute_curve25519_commitments_with_generators(
+                    compute_grumpkin_uncompressed_commitments_with_generators(
                         &mut commitments,
                         &table,
                         &generators,
@@ -137,7 +125,7 @@ mod blitzar_benches {
     }
 
     criterion_group! {
-        name = blitzar_compute_commitments;
+        name = blitzar_compute_grumpkin_commitments;
         // Lower the sample size to run the benchmarks faster
         config = Criterion::default().sample_size(15);
         targets =
@@ -145,4 +133,4 @@ mod blitzar_benches {
     }
 }
 
-criterion_main!(blitzar_benches::blitzar_compute_commitments);
+criterion_main!(blitzar_grumpkin_benchmarks::blitzar_compute_grumpkin_commitments);
