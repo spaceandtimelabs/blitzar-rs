@@ -190,12 +190,11 @@ impl_dense_sequence_for_unsigned_array!(bool, u8, u16, u32, u64, u128);
 
 impl<'a> From<&'a [halo2curves::bn256::Fr]> for Sequence<'a> {
     fn from(other: &'a [halo2curves::bn256::Fr]) -> Self {
-        let data_slice: &'static [u8] = Box::leak(
+        let data_slice: &[u8] = Box::leak(
             other
                 .iter()
                 .flat_map(|fr| fr.to_bytes())
-                .collect::<Vec<u8>>()
-                .into_boxed_slice(),
+                .collect::<Box<[u8]>>(),
         );
         let element_size = std::mem::size_of::<halo2curves::bn256::Fr>();
         let is_signed = false;
