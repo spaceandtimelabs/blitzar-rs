@@ -1,5 +1,6 @@
 use super::Sequence;
 use curve25519_dalek::scalar::Scalar;
+use halo2curves::bn256::Fr as Halo2Bn256Fr;
 
 #[test]
 fn we_can_convert_an_empty_slice_of_uints_to_a_sequence() {
@@ -21,6 +22,13 @@ fn we_can_convert_an_empty_slice_of_scalars_to_a_sequence() {
     let s = Vec::<Scalar>::new();
     let d = Sequence::from(&s[..]);
     assert_eq!(d.element_size, std::mem::size_of::<Scalar>());
+    assert!(d.is_empty());
+}
+#[test]
+fn we_can_convert_an_empty_slice_of_halo2_bn256_scalars_to_a_sequence() {
+    let s = Vec::<Halo2Bn256Fr>::new();
+    let d = Sequence::from(&s[..]);
+    assert_eq!(d.element_size, std::mem::size_of::<Halo2Bn256Fr>());
     assert!(d.is_empty());
 }
 #[test]
@@ -187,6 +195,31 @@ fn we_can_convert_a_slice_of_scalars_to_a_sequence_with_correct_data() {
     assert_eq!(
         d.data_slice[2 * d.element_size..3 * d.element_size],
         Scalar::from(789u32).as_bytes()[..]
+    );
+}
+
+#[test]
+fn we_can_convert_a_slice_of_halo2_bn256_scalars_to_a_sequence_with_correct_data() {
+    let s = [
+        Halo2Bn256Fr::from(123u64),
+        -Halo2Bn256Fr::from(456u64),
+        Halo2Bn256Fr::from(789u64),
+    ];
+    let d = Sequence::from(&s[..]);
+    assert_eq!(d.element_size, std::mem::size_of::<Halo2Bn256Fr>());
+    assert_eq!(d.len(), 3);
+
+    assert_eq!(
+        d.data_slice[0..d.element_size],
+        Halo2Bn256Fr::from(123u64).to_bytes()
+    );
+    assert_eq!(
+        d.data_slice[d.element_size..2 * d.element_size],
+        (-Halo2Bn256Fr::from(456u64)).to_bytes()[..]
+    );
+    assert_eq!(
+        d.data_slice[2 * d.element_size..3 * d.element_size],
+        Halo2Bn256Fr::from(789u64).to_bytes()[..]
     );
 }
 
