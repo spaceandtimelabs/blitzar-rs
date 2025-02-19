@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ark_bn254::{Fq as Bn254Fq, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
+use ark_bn254::{G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
 use ark_ec::CurveGroup;
 use ark_ff::{BigInt, PrimeField};
 use halo2curves::bn256::{
@@ -23,11 +23,12 @@ fn convert_bn254_g1_affine_point_from_halo2_to_ark(point: &Halo2Bn256G1Affine) -
     if *point == Halo2Bn256G1Affine::default() {
         return Bn254G1Affine::default();
     }
-    let mut result = Bn254G1Affine::identity();
-    result.x = BigInt::<4>::new(bytemuck::cast(point.x.to_bytes())).into();
-    result.y = BigInt::<4>::new(bytemuck::cast(point.y.to_bytes())).into();
-    result.infinity = false;
-    result
+
+    Bn254G1Affine {
+        x: BigInt::<4>::new(bytemuck::cast(point.x.to_bytes())).into(),
+        y: BigInt::<4>::new(bytemuck::cast(point.y.to_bytes())).into(),
+        infinity: false,
+    }
 }
 
 /// Converts a slice of Halo2 bn256 G1 affine points to a vector of Arkworks bn254 G1 affine points
@@ -44,11 +45,11 @@ pub fn convert_bn254_g1_affine_generators_from_halo2_to_ark(
 fn convert_bn254_g1_projective_from_halo2_to_ark(
     point: &Halo2Bn256G1Projective,
 ) -> Bn254G1Projective {
-    Bn254G1Projective::new(
-        Bn254Fq::from_le_bytes_mod_order(&point.x.to_bytes()),
-        Bn254Fq::from_le_bytes_mod_order(&point.y.to_bytes()),
-        Bn254Fq::from_le_bytes_mod_order(&point.z.to_bytes()),
-    )
+    Bn254G1Projective {
+        x: BigInt::<4>::new(bytemuck::cast(point.x.to_bytes())).into(),
+        y: BigInt::<4>::new(bytemuck::cast(point.y.to_bytes())).into(),
+        z: BigInt::<4>::new(bytemuck::cast(point.z.to_bytes())).into(),
+    }
 }
 
 /// Converts a slice of Halo2 bn256 G1 projective points to a vector of Arkworks bn254 G1 affine points
