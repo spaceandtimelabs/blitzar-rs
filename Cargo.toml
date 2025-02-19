@@ -25,6 +25,7 @@ opentelemetry = { version = "0.23.0" }
 opentelemetry-jaeger = { version = "0.20.0" }
 rayon = { version = "1.5" }
 blitzar-sys = { version = "1.81.0" }
+bytemuck = {version = "1.16.3", features = ["derive"]}
 curve25519-dalek = { version = "4", features = ["serde"] }
 halo2curves = { version = "0.8.0" }
 merlin = "2"
