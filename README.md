@@ -184,6 +184,8 @@ and replace the `benchmark_name` with one of the following available benchmarks
 - `blitzar_grumpkin_benchmarks`
 - `packed_msm_benchmarks`
 
+Additionally [Jaeger tracing](https://www.jaegertracing.io/) is supported. For more information on how to run the benchmarks, see the [/benches/jaeger_benches.rs](benches/jaeger_benches.rs) file.
+
 ## Development Process
 
 The main branch is regularly built and tested, being the only source of truth. [Tags](https://github.com/spaceandtimelabs/blitzar-rs/tags) are created regularly from automated semantic release executions. 
