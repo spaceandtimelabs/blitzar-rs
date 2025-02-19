@@ -14,7 +14,7 @@
 
 use super::*;
 use ark_bls12_381::{Fr, G1Affine, G1Projective};
-use ark_bn254::{Fr as bn254_fr, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
+use ark_bn254::{Fr as Bn254Fr, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
 use ark_ec::{CurveGroup, VariableBaseMSM};
 use ark_grumpkin::{Affine as GrumpkinAffine, Fr as GrumpkinFr, Projective as GrumpkinProjective};
 use ark_serialize::CanonicalSerialize;
@@ -532,9 +532,9 @@ fn sending_generators_to_gpu_produces_correct_bn254_g1_commitment_results() {
     );
 
     // convert data to scalar
-    let mut scalar_data: Vec<bn254_fr> = Vec::new();
+    let mut scalar_data: Vec<Bn254Fr> = Vec::new();
     for d in &data {
-        scalar_data.push(bn254_fr::from(*d));
+        scalar_data.push(Bn254Fr::from(*d));
     }
 
     // compute msm in Arkworks
