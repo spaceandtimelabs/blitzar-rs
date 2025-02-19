@@ -26,6 +26,7 @@ opentelemetry-jaeger = { version = "0.20.0" }
 rayon = { version = "1.5" }
 blitzar-sys = { version = "1.81.0" }
 curve25519-dalek = { version = "4", features = ["serde"] }
+halo2curves = { version = "0.8.0" }
 merlin = "2"
 serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
