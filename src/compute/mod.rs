@@ -31,6 +31,14 @@ pub use commitments::{
 #[cfg(test)]
 mod commitments_tests;
 
+mod conversion;
+pub use conversion::{
+    convert_bn254_g1_affine_generators_from_halo2_to_ark, convert_commitments_from_ark_to_halo2,
+    convert_commitments_from_halo2_to_arkworks,
+};
+#[cfg(test)]
+mod conversion_tests;
+
 mod element_p2;
 pub use element_p2::ElementP2;
 #[cfg(test)]
