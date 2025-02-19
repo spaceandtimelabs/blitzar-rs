@@ -181,6 +181,7 @@ and replace the `benchmark_name` with one of the following available benchmarks
 - `blitzar_bls12_381_benchmarks`
 - `blitzar_bn254_benchmarks`
 - `blitzar_curve25519_benchmarks`
+- `blitzar_halo2_bn256_benchmarks`
 - `blitzar_grumpkin_benchmarks`
 - `packed_msm_benchmarks`
 

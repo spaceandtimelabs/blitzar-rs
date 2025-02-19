@@ -61,6 +61,10 @@ name = "blitzar_grumpkin_benchmarks"
 
 [[bench]]
 harness = false
+name = "blitzar_halo2_bn256_benchmarks"
+
+[[bench]]
+harness = false
 name = "jaeger_benches"
 
 [[bench]]
