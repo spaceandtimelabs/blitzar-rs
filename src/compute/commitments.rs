@@ -217,7 +217,7 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
         .map(|gen| SxtHalo2Bn256G1 {
             x: gen.x,
             y: gen.y,
-            infinity: gen.x != Halo2Bn256Fq::zero() && gen.y == Halo2Bn256Fq::zero(),
+            infinity: gen.x == Halo2Bn256Fq::zero() && gen.y == Halo2Bn256Fq::zero(),
         })
         .collect();
     span.exit();
