@@ -16,7 +16,7 @@ use ark_bn254::{
     Fr as ArkBn254Fr, G1Affine as ArkBn254G1Affine, G1Projective as ArkBn254G1Projective,
 };
 use ark_ec::{CurveGroup, VariableBaseMSM};
-use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective};
+use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective, Fr as Halo2Bn256Fr};
 
 extern crate blitzar;
 use blitzar::compute::{
@@ -36,7 +36,13 @@ fn main() {
     //
     // Alternatively, in this example, we provide a generator vector `gs`.
     /////////////////////////////////////////////
-    let data: Vec<u16> = vec![2, 3, 1, 5, 4, 7, 6, 8, 9, 10];
+    let data: Vec<u64> = vec![2, 3, 1, 5, 4, 7, 6, 8, 9, 10];
+
+    /////////////////////////////////////////////
+    // Halo2curves BN256 Fr points will need to be converted to bytes.
+    /////////////////////////////////////////////
+    let data_as_halo2_fr: Vec<Halo2Bn256Fr> = data.iter().map(|&d| Halo2Bn256Fr::from(d)).collect();
+    let data_from_halo2_fr_as_bytes: Vec<[u8; 32]> = data_as_halo2_fr.iter().map(|d| d.to_bytes()).collect();
 
     /////////////////////////////////////////////
     // randomly obtain the generator points
@@ -52,7 +58,7 @@ fn main() {
     let mut commitments = vec![Halo2Bn256G1Projective::default(); 1];
     compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
         &mut commitments,
-        &[(&data).into()],
+        &[(&data_from_halo2_fr_as_bytes).into()],
         &generator_points,
     );
 
