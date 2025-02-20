@@ -137,9 +137,11 @@ fn we_can_update_multiple_commitments() {
     // verify if commitment results are correct
     assert_eq!(commitments, expected_commitments);
     // If the two vectors are equal we only need to verify that one doesn't contain the default
-    assert!(commitments
-        .iter()
-        .all(|&c| c != CompressedRistretto::default()));
+    assert!(
+        commitments
+            .iter()
+            .all(|&c| c != CompressedRistretto::default())
+    );
 }
 
 #[test]

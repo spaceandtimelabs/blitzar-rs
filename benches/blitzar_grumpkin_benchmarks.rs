@@ -15,7 +15,7 @@
 use ark_ff::BigInt;
 use ark_grumpkin::{Affine, Fr};
 use ark_std::UniformRand;
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 
 extern crate rand;
 use crate::rand::Rng;

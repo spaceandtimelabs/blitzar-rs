@@ -16,7 +16,7 @@ extern crate rand;
 
 use crate::rand::Rng;
 use blitzar::{compute::*, sequence::Sequence};
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use curve25519_dalek::{
     constants,
     ristretto::{CompressedRistretto, RistrettoPoint},

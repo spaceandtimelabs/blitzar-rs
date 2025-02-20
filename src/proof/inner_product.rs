@@ -174,10 +174,10 @@ impl InnerProductProof {
     ///
     /// - `transcript` (in/out): a single strobe-based transcript
     /// - `a_commit` (in): a single Ristretto point,
-    ///                  represented by `<a, G>` (the inner product of the two vectors)
+    ///   represented by `<a, G>` (the inner product of the two vectors)
     /// - `product` (in): a single scalar, represented by `<a, b>`,
-    ///                 the inner product of the two vectors `a` and `b` used by
-    ///                 `InnerProductProof::create(...)`
+    ///   the inner product of the two vectors `a` and `b` used by
+    ///   `InnerProductProof::create(...)`
     /// - `b` (in): array with non-zero length `n`, the same one used by `InnerProductProof::create(...)`
     /// - `generators_offset` (in): offset used to fetch the bases
     pub fn verify(
