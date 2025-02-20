@@ -188,26 +188,6 @@ macro_rules! impl_dense_sequence_for_unsigned_array {
 }
 impl_dense_sequence_for_unsigned_array!(bool, u8, u16, u32, u64, u128);
 
-impl<'a> From<&'a [halo2curves::bn256::Fr]> for Sequence<'a> {
-    fn from(other: &'a [halo2curves::bn256::Fr]) -> Self {
-        let data_slice: &'static [u8] = Box::leak(
-            other
-                .iter()
-                .flat_map(|fr| fr.to_bytes())
-                .collect::<Vec<u8>>()
-                .into_boxed_slice(),
-        );
-        let element_size = std::mem::size_of::<halo2curves::bn256::Fr>();
-        let is_signed = false;
-
-        Sequence {
-            data_slice,
-            element_size,
-            is_signed,
-        }
-    }
-}
-
 #[cfg(feature = "arkworks")]
 impl<'a, const N: usize> From<&'a [ark_ff::BigInt<N>]> for Sequence<'a> {
     fn from(other: &'a [ark_ff::BigInt<N>]) -> Self {
