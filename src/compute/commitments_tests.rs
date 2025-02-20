@@ -572,7 +572,7 @@ fn sending_halo2_generators_to_gpu_produces_correct_bn254_g1_commitment_results(
     );
 
     // convert data to scalar
-    let scalar_data: Vec<bn254_fr> = data.iter().map(|&d| bn254_fr::from(d)).collect();
+    let scalar_data: Vec<Bn254Fr> = data.iter().map(|&d| Bn254Fr::from(d)).collect();
 
     // convert generators to Arkworks
     let ark_generator_points: Vec<Bn254G1Affine> =
