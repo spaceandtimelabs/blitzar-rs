@@ -19,7 +19,7 @@ use ark_bn254::G1Affine as Bn254G1Affine;
 use ark_grumpkin::Affine as GrumpkinAffine;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 use halo2curves::bn256::{
-    Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective,
+    Fq as Halo2Bn256Fq, G1 as Halo2Bn256G1Projective, G1Affine as Halo2Bn256G1Affine,
 };
 
 #[doc = include_str!("../../docs/commitments/compute_curve25519_commitments.md")]
@@ -214,10 +214,10 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
         tracing::span!(tracing::Level::DEBUG, "map Halo2 affine to SxtHalo2Bn256G1").entered();
     let ark_generators: Vec<SxtHalo2Bn256G1> = generators
         .iter()
-        .map(|gen| SxtHalo2Bn256G1 {
-            x: gen.x,
-            y: gen.y,
-            infinity: gen.x == Halo2Bn256Fq::zero() && gen.y == Halo2Bn256Fq::zero(),
+        .map(|generator| SxtHalo2Bn256G1 {
+            x: generator.x,
+            y: generator.y,
+            infinity: generator.x == Halo2Bn256Fq::zero() && generator.y == Halo2Bn256Fq::zero(),
         })
         .collect();
     span.exit();
