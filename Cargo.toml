@@ -2,7 +2,7 @@
 version = "0.0.0" # This version will be automatically updated
 readme = "README.md"
 name = "blitzar"
-edition = "2024"
+edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/spaceandtimelabs/blitzar-rs"
 keywords = ["gpu-cryptography", "curve25519", "ristretto255", "bls12-381", "bn254"]

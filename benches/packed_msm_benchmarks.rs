@@ -19,7 +19,7 @@ use ark_bls12_381::G1Affine as Bls12381G1Affine;
 use ark_bn254::G1Affine as Bn254G1Affine;
 use ark_std::UniformRand;
 use blitzar::compute::*;
-use criterion::{Criterion, criterion_group, criterion_main};
+use criterion::{criterion_group, criterion_main, Criterion};
 use curve25519_dalek::ristretto::RistrettoPoint;
 use rand_core::OsRng;
 
