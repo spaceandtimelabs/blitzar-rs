@@ -16,7 +16,7 @@ use ark_bn254::{
     Fr as ArkBn254Fr, G1Affine as ArkBn254G1Affine, G1Projective as ArkBn254G1Projective,
 };
 use ark_ec::{CurveGroup, VariableBaseMSM};
-use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective};
+use halo2curves::bn256::{G1 as Halo2Bn256G1Projective, G1Affine as Halo2Bn256G1Affine};
 
 extern crate blitzar;
 use blitzar::compute::{
