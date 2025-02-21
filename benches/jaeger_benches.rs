@@ -28,7 +28,7 @@ use ark_grumpkin::Affine as GrumpkinAffine;
 use ark_std::UniformRand;
 use blitzar::sequence::Sequence;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
-use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective};
+use halo2curves::bn256::{G1 as Halo2Bn256G1Projective, G1Affine as Halo2Bn256G1Affine};
 use rand::Rng;
 use rand_core::OsRng;
 use std::env;

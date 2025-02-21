@@ -14,8 +14,8 @@
 
 extern crate rand;
 use blitzar::{compute::*, sequence::*};
-use criterion::{criterion_group, criterion_main, Criterion};
-use halo2curves::bn256::{Fr, G1Affine, G1};
+use criterion::{Criterion, criterion_group, criterion_main};
+use halo2curves::bn256::{Fr, G1, G1Affine};
 use rand::Rng;
 
 mod blitzar_halo2_bn256_benchmarks {
@@ -34,7 +34,7 @@ mod blitzar_halo2_bn256_benchmarks {
         let mut rng = rand::thread_rng();
 
         (0..num_commits)
-            .map(|_| ((0..num_rows).map(|_| rng.gen::<u8>()).collect()))
+            .map(|_| ((0..num_rows).map(|_| rng.r#gen::<u8>()).collect()))
             .collect()
     }
 
