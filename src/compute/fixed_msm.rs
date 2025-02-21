@@ -1,5 +1,5 @@
 use super::backend::init_backend;
-use crate::compute::{CurveId, ElementP2, curve::SwCurveConfig};
+use crate::compute::{curve::SwCurveConfig, CurveId, ElementP2};
 use ark_ec::short_weierstrass::Affine;
 use rayon::prelude::*;
 use std::{ffi::CString, marker::PhantomData};

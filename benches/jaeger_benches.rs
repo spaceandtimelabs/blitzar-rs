@@ -189,7 +189,7 @@ fn run_benchmark(benchmark_type: &str) {
 }
 
 fn main() {
-    use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
+    use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
     let tracer = opentelemetry_jaeger::new_agent_pipeline()
         .with_service_name("benches")
