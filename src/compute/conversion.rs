@@ -16,7 +16,7 @@ use ark_bn254::{G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
 use ark_ec::CurveGroup;
 use ark_ff::{BigInt, PrimeField};
 use halo2curves::bn256::{
-    Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective,
+    Fq as Halo2Bn256Fq, G1 as Halo2Bn256G1Projective, G1Affine as Halo2Bn256G1Affine,
 };
 
 fn convert_bn254_g1_affine_point_from_halo2_to_ark(point: &Halo2Bn256G1Affine) -> Bn254G1Affine {

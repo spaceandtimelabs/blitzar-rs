@@ -16,8 +16,8 @@ use super::*;
 use ark_bn254::{Fq as Bn254Fq, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
 use ark_ec::{AffineRepr, PrimeGroup};
 use halo2curves::{
-    bn256::{Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective},
-    group::{cofactor::CofactorCurveAffine, Group},
+    bn256::{Fq as Halo2Bn256Fq, G1 as Halo2Bn256G1Projective, G1Affine as Halo2Bn256G1Affine},
+    group::{Group, cofactor::CofactorCurveAffine},
 };
 
 #[test]
