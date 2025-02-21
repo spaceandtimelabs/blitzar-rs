@@ -16,7 +16,7 @@ extern crate rand;
 
 use crate::rand::Rng;
 use blitzar::{compute::*, sequence::Sequence};
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use curve25519_dalek::{
     constants,
     ristretto::{CompressedRistretto, RistrettoPoint},
@@ -39,7 +39,7 @@ mod blitzar_curve25519_benchmarks {
         let mut rng = rand::thread_rng();
 
         (0..num_commits)
-            .map(|_| ((0..num_rows).map(|_| rng.gen::<u8>()).collect()))
+            .map(|_| ((0..num_rows).map(|_| rng.r#gen::<u8>()).collect()))
             .collect()
     }
 

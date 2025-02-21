@@ -1,12 +1,12 @@
 use super::backend::init_backend;
-use crate::compute::{curve::SwCurveConfig, CurveId, ElementP2};
+use crate::compute::{CurveId, ElementP2, curve::SwCurveConfig};
 use ark_ec::short_weierstrass::Affine;
 use rayon::prelude::*;
 use std::{ffi::CString, marker::PhantomData};
 
 fn count_scalars_per_output(scalars_len: usize, output_bit_table: &[u32]) -> u32 {
     let bit_sum: usize = output_bit_table.iter().map(|s| *s as usize).sum();
-    let num_output_bytes = (bit_sum + 7) / 8;
+    let num_output_bytes = bit_sum.div_ceil(8);
     assert!(scalars_len % num_output_bytes == 0);
     (scalars_len / num_output_bytes).try_into().unwrap()
 }

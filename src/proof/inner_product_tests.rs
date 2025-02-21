@@ -49,9 +49,11 @@ fn test_prove_and_verify_with_given_n_and_generators_offset(n: u64, generators_o
     // We can verify a proof using a valid input data
     {
         let mut transcript = Transcript::new(b"innerproducttest");
-        assert!(proof
-            .verify(&mut transcript, &a_commit, &product, &b, generators_offset)
-            .is_ok());
+        assert!(
+            proof
+                .verify(&mut transcript, &a_commit, &product, &b, generators_offset)
+                .is_ok()
+        );
     }
 
     // We cannot verify a proof using an invalid transcript
@@ -59,9 +61,11 @@ fn test_prove_and_verify_with_given_n_and_generators_offset(n: u64, generators_o
         // we only use the transcript with arrays containing at least one element
         if n > 1 {
             let mut transcript = Transcript::new(b"invalid");
-            assert!(proof
-                .verify(&mut transcript, &a_commit, &product, &b, generators_offset)
-                .is_err());
+            assert!(
+                proof
+                    .verify(&mut transcript, &a_commit, &product, &b, generators_offset)
+                    .is_err()
+            );
         }
     }
 
@@ -69,46 +73,54 @@ fn test_prove_and_verify_with_given_n_and_generators_offset(n: u64, generators_o
     {
         let mut transcript = Transcript::new(b"innerproducttest");
         let a_commit_p = Scalar::from(123_u64) * g[0];
-        assert!(proof
-            .verify(
-                &mut transcript,
-                &a_commit_p,
-                &product,
-                &b,
-                generators_offset
-            )
-            .is_err());
+        assert!(
+            proof
+                .verify(
+                    &mut transcript,
+                    &a_commit_p,
+                    &product,
+                    &b,
+                    generators_offset
+                )
+                .is_err()
+        );
     }
 
     // We cannot verify a proof using an invalid product
     {
         let mut transcript = Transcript::new(b"innerproducttest");
         let product_p = product + Scalar::from(123_u64);
-        assert!(proof
-            .verify(
-                &mut transcript,
-                &a_commit,
-                &product_p,
-                &b,
-                generators_offset
-            )
-            .is_err());
+        assert!(
+            proof
+                .verify(
+                    &mut transcript,
+                    &a_commit,
+                    &product_p,
+                    &b,
+                    generators_offset
+                )
+                .is_err()
+        );
     }
 
     // We cannot verify a proof using an invalid b
     {
         let mut transcript = Transcript::new(b"innerproducttest");
-        assert!(proof
-            .verify(&mut transcript, &a_commit, &product, &a, generators_offset)
-            .is_err());
+        assert!(
+            proof
+                .verify(&mut transcript, &a_commit, &product, &a, generators_offset)
+                .is_err()
+        );
     }
 
     // We can verify the transcript compatibility
     {
         let mut transcript = Transcript::new(b"innerproducttest");
-        assert!(proof
-            .verify(&mut transcript, &a_commit, &product, &b, generators_offset)
-            .is_ok());
+        assert!(
+            proof
+                .verify(&mut transcript, &a_commit, &product, &b, generators_offset)
+                .is_ok()
+        );
 
         // Initialize transcript
         let mut expected_transcript = Transcript::new(b"innerproducttest");
@@ -152,9 +164,11 @@ fn test_prove_and_verify_with_given_n_and_generators_offset(n: u64, generators_o
             let mut tampered_proof = proof;
             tampered_proof.l_vector = Vec::new();
 
-            assert!(tampered_proof
-                .verify(&mut transcript, &a_commit, &product, &b, generators_offset)
-                .is_err());
+            assert!(
+                tampered_proof
+                    .verify(&mut transcript, &a_commit, &product, &b, generators_offset)
+                    .is_err()
+            );
         }
     }
 }

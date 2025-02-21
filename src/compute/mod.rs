@@ -15,7 +15,7 @@
 //! commitment and generator computation
 
 mod backend;
-pub use backend::{init_backend, init_backend_with_config, BackendConfig};
+pub use backend::{BackendConfig, init_backend, init_backend_with_config};
 
 mod curve;
 use curve::CurveId;

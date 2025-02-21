@@ -15,7 +15,7 @@
 use ark_ff::BigInt;
 use ark_grumpkin::{Affine, Fr};
 use ark_std::UniformRand;
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 
 extern crate rand;
 use crate::rand::Rng;
@@ -41,7 +41,7 @@ mod blitzar_grumpkin_benchmarks {
         let mut rng = rand::thread_rng();
 
         (0..num_commits)
-            .map(|_| ((0..num_rows).map(|_| rng.gen::<u8>()).collect()))
+            .map(|_| ((0..num_rows).map(|_| rng.r#gen::<u8>()).collect()))
             .collect()
     }
 
