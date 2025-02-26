@@ -13,13 +13,13 @@
 // limitations under the License.
 
 use super::backend::init_backend;
-use crate::{compute::conversion::*, sequence::Sequence};
+use crate::{compute::arkworks_halo2_interop::*, sequence::Sequence};
 use ark_bls12_381::G1Affine;
 use ark_bn254::G1Affine as Bn254G1Affine;
 use ark_grumpkin::Affine as GrumpkinAffine;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
 use halo2curves::bn256::{
-    Fq as Halo2Bn256Fq, G1 as Halo2Bn256G1Projective, G1Affine as Halo2Bn256G1Affine,
+    Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective,
 };
 
 #[doc = include_str!("../../docs/commitments/compute_curve25519_commitments.md")]
@@ -185,8 +185,8 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
     }
 }
 
-/// Halo2 affine point representation does not have an infinity flag, where the
-/// Arkworks affine point representation does. This struct converts the Halo2 affine
+/// Halo2 G1 affine point representation does not have an infinity flag, where the
+/// Arkworks G1 affine point representation does. This struct converts the Halo2 G1 affine
 /// point to a struct that includes the infinity flag before passing it to the backend.
 ///
 /// This struct will allow conversion to the `blitzar_sys::sxt_bn254_g1` struct.
@@ -217,7 +217,7 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
         .map(|generator| SxtHalo2Bn256G1 {
             x: generator.x,
             y: generator.y,
-            infinity: generator.x != Halo2Bn256Fq::zero() && generator.y == Halo2Bn256Fq::zero(),
+            infinity: *generator == Halo2Bn256G1Affine::default(),
         })
         .collect();
     span.exit();
@@ -252,7 +252,12 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
     }
 
     // Convert the Arkworks commitments back to Halo2 commitments
-    convert_commitments_from_ark_to_halo2(commitments, &ark_commitments);
+    commitments
+        .iter_mut()
+        .zip(ark_commitments)
+        .for_each(|(c_a, c_b)| {
+            *c_a = convert_to_halo2_bn256_g1_affine(&c_b).into();
+        });
 }
 
 #[doc = include_str!("../../docs/commitments/update_curve25519_commitments.md")]

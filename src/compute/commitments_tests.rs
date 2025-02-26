@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::*;
-use crate::compute::conversion::*;
 use ark_bls12_381::{Fr, G1Affine, G1Projective};
 use ark_bn254::{Fr as Bn254Fr, G1Affine as Bn254G1Affine, G1Projective as Bn254G1Projective};
 use ark_ec::{CurveGroup, VariableBaseMSM};
@@ -24,7 +23,10 @@ use curve25519_dalek::{
     ristretto::{CompressedRistretto, RistrettoPoint},
     scalar::Scalar,
 };
-use halo2curves::bn256::{G1 as Halo2Bn256G1Projective, G1Affine as Halo2Bn256G1Affine};
+use halo2curves::{
+    bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective},
+    group::Curve,
+};
 use rand_core::OsRng;
 
 #[test]
@@ -573,14 +575,21 @@ fn sending_halo2_generators_to_gpu_produces_correct_bn254_g1_commitment_results(
     let scalar_data: Vec<Bn254Fr> = data.iter().map(|&d| Bn254Fr::from(d)).collect();
 
     // convert generators to Arkworks
-    let ark_generator_points: Vec<Bn254G1Affine> =
-        convert_bn254_g1_affine_generators_from_halo2_to_ark(&generator_points);
+    let ark_generator_points: Vec<Bn254G1Affine> = generator_points
+        .iter()
+        .map(convert_to_ark_bn254_g1_affine)
+        .collect();
 
     // compute msm in Arkworks
     let ark_commitment = Bn254G1Projective::msm(&ark_generator_points, &scalar_data).unwrap();
 
     // verify results
-    let result_commitments = convert_commitments_from_halo2_to_arkworks(&commitments);
+    let result_commitments: Vec<Bn254G1Affine> = commitments
+        .iter()
+        .map(|proj| proj.to_affine())
+        .map(|affine| convert_to_ark_bn254_g1_affine(&affine))
+        .collect();
+
     assert_eq!(result_commitments[0], ark_commitment.into_affine());
     assert_ne!(Bn254G1Affine::default(), result_commitments[0]);
 }
