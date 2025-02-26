@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use ark_bn254::{Fq as Bn254Fq, G1Affine as Bn254G1Affine};
-use ark_ff::{BigInteger256, PrimeField};
+use ark_ff::BigInteger256;
 use halo2curves::{
     bn256::{Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine},
     serde::SerdeObject,
@@ -40,11 +40,11 @@ pub fn convert_to_halo2_bn256_g1_affine(point: &Bn254G1Affine) -> Halo2Bn256G1Af
         return Halo2Bn256G1Affine::default();
     }
 
-    let x_bytes = bytemuck::cast::<[u64; 4], [u8; 32]>(point.x.into_bigint().0);
-    let y_bytes = bytemuck::cast::<[u64; 4], [u8; 32]>(point.y.into_bigint().0);
+    let x_bytes = bytemuck::cast::<[u64; 4], [u8; 32]>(point.x.0 .0);
+    let y_bytes = bytemuck::cast::<[u64; 4], [u8; 32]>(point.y.0 .0);
 
     Halo2Bn256G1Affine {
-        x: Halo2Bn256Fq::from_bytes(&x_bytes).unwrap(),
-        y: Halo2Bn256Fq::from_bytes(&y_bytes).unwrap(),
+        x: Halo2Bn256Fq::from_raw_bytes_unchecked(&x_bytes),
+        y: Halo2Bn256Fq::from_raw_bytes_unchecked(&y_bytes),
     }
 }
