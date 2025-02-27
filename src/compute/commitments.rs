@@ -18,9 +18,7 @@ use ark_bls12_381::G1Affine;
 use ark_bn254::G1Affine as Bn254G1Affine;
 use ark_grumpkin::Affine as GrumpkinAffine;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
-use halo2curves::bn256::{
-    Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective,
-};
+use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective};
 
 #[doc = include_str!("../../docs/commitments/compute_curve25519_commitments.md")]
 ///
@@ -185,18 +183,6 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
     }
 }
 
-/// Halo2 G1 affine point representation does not have an infinity flag, where the
-/// Arkworks G1 affine point representation does. This struct converts the Halo2 G1 affine
-/// point to a struct that includes the infinity flag before passing it to the backend.
-///
-/// This struct will allow conversion to the `blitzar_sys::sxt_bn254_g1` struct.
-#[repr(C)]
-struct SxtHalo2Bn256G1 {
-    x: Halo2Bn256Fq,
-    y: Halo2Bn256Fq,
-    infinity: bool,
-}
-
 #[doc = include_str!("../../docs/commitments/compute_halo2curves_bn256_g1_commitments_with_generators.md")]
 ///
 /// # Example - Pass generators to Commitment Computation
@@ -209,55 +195,32 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
     data: &[Sequence],
     generators: &[Halo2Bn256G1Affine],
 ) {
-    // Add infinity flag to the Halo2 affine points to convert to the blitzar_sys::sxt_bn254_g1 struct
-    let span =
-        tracing::span!(tracing::Level::DEBUG, "map Halo2 affine to SxtHalo2Bn256G1").entered();
-    let ark_generators: Vec<SxtHalo2Bn256G1> = generators
+    // Convert the Halo2 generators to Arkworks generators
+    let span = tracing::span!(tracing::Level::DEBUG, "convert_generators_to_ark").entered();
+    let ark_generators: Vec<Bn254G1Affine> = generators
         .iter()
-        .map(|generator| SxtHalo2Bn256G1 {
-            x: generator.x,
-            y: generator.y,
-            infinity: *generator == Halo2Bn256G1Affine::default(),
-        })
+        .map(convert_to_ark_bn254_g1_affine)
         .collect();
     span.exit();
 
     // Create temporary commitments to store the Arkworks commitments
     let mut ark_commitments = vec![Bn254G1Affine::default(); commitments.len()];
 
-    init_backend();
+    compute_bn254_g1_uncompressed_commitments_with_generators(
+        &mut ark_commitments,
+        data,
+        &ark_generators,
+    );
 
-    let sxt_descriptors: Vec<blitzar_sys::sxt_sequence_descriptor> = data
-        .iter()
-        .map(|s| {
-            assert!(
-                s.len() <= generators.len(),
-                "generators has a length smaller than the longest sequence in the input data"
-            );
-            s.into()
-        })
-        .collect();
-
-    let sxt_bn254_g1_generators = ark_generators.as_ptr() as *const blitzar_sys::sxt_bn254_g1;
-
-    let sxt_bn254_g1_uncompressed = ark_commitments.as_mut_ptr() as *mut blitzar_sys::sxt_bn254_g1;
-
-    unsafe {
-        blitzar_sys::sxt_bn254_g1_uncompressed_compute_pedersen_commitments_with_generators(
-            sxt_bn254_g1_uncompressed,
-            sxt_descriptors.len() as u32,
-            sxt_descriptors.as_ptr(),
-            sxt_bn254_g1_generators,
-        );
-    }
-
-    // Convert the Arkworks commitments back to Halo2 commitments
+    // Convert the Arkworks commitments to Halo2 commitments
+    let span = tracing::span!(tracing::Level::DEBUG, "convert_commitments_to_halo2").entered();
     commitments
         .iter_mut()
         .zip(ark_commitments)
         .for_each(|(c_a, c_b)| {
             *c_a = convert_to_halo2_bn256_g1_affine(&c_b).into();
         });
+    span.exit();
 }
 
 #[doc = include_str!("../../docs/commitments/update_curve25519_commitments.md")]
