@@ -14,8 +14,6 @@
 use ark_ec::{CurveGroup, VariableBaseMSM};
 use ark_grumpkin::{Affine, Fr, Projective};
 use ark_std::UniformRand;
-
-extern crate blitzar;
 use blitzar::compute::*;
 
 fn main() {

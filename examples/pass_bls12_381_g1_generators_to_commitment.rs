@@ -15,8 +15,6 @@ use ark_bls12_381::{Fr, G1Affine, G1Projective};
 use ark_ec::VariableBaseMSM;
 use ark_serialize::CanonicalSerialize;
 use ark_std::UniformRand;
-
-extern crate blitzar;
 use blitzar::compute::*;
 
 fn main() {
