@@ -14,6 +14,13 @@
 
 //! commitment and generator computation
 
+mod arkworks_halo2_interop;
+pub use arkworks_halo2_interop::{
+    convert_to_ark_bn254_g1_affine, convert_to_halo2_bn256_g1_affine,
+};
+#[cfg(test)]
+mod arkworks_halo2_interop_tests;
+
 mod backend;
 pub use backend::{init_backend, init_backend_with_config, BackendConfig};
 
