@@ -16,14 +16,12 @@ use ark_bn254::{
     Fr as ArkBn254Fr, G1Affine as ArkBn254G1Affine, G1Projective as ArkBn254G1Projective,
 };
 use ark_ec::{CurveGroup, VariableBaseMSM};
+use blitzar::compute::{
+    compute_bn254_g1_uncompressed_commitments_with_halo2_generators, convert_to_ark_bn254_g1_affine,
+};
 use halo2curves::{
     bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective},
     group::Curve,
-};
-
-extern crate blitzar;
-use blitzar::compute::{
-    compute_bn254_g1_uncompressed_commitments_with_halo2_generators, convert_to_ark_bn254_g1_affine,
 };
 
 fn main() {
