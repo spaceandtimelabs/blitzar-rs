@@ -13,11 +13,12 @@
 // limitations under the License.
 
 use super::backend::init_backend;
-use crate::sequence::Sequence;
+use crate::{compute::arkworks_halo2_interop::*, sequence::Sequence};
 use ark_bls12_381::G1Affine;
 use ark_bn254::G1Affine as Bn254G1Affine;
 use ark_grumpkin::Affine as GrumpkinAffine;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
+use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective};
 
 #[doc = include_str!("../../docs/commitments/compute_curve25519_commitments.md")]
 ///
@@ -180,6 +181,46 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
             sxt_bn254_g1_generators,
         );
     }
+}
+
+#[doc = include_str!("../../docs/commitments/compute_halo2curves_bn256_g1_commitments_with_generators.md")]
+///
+/// # Example - Pass generators to Commitment Computation
+///```no_run
+#[doc = include_str!("../../examples/pass_halo2curves_bn256_g1_generators_to_commitment.rs")]
+///```
+#[tracing::instrument(level = "debug", skip_all, fields(num_outputs = commitments.len(), length = generators.len()))]
+pub fn compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
+    commitments: &mut [Halo2Bn256G1Projective],
+    data: &[Sequence],
+    generators: &[Halo2Bn256G1Affine],
+) {
+    // Convert the Halo2 generators to Arkworks generators
+    let span = tracing::span!(tracing::Level::DEBUG, "convert_generators_to_ark").entered();
+    let ark_generators: Vec<Bn254G1Affine> = generators
+        .iter()
+        .map(convert_to_ark_bn254_g1_affine)
+        .collect();
+    span.exit();
+
+    // Create temporary commitments to store the Arkworks commitments
+    let mut ark_commitments = vec![Bn254G1Affine::default(); commitments.len()];
+
+    compute_bn254_g1_uncompressed_commitments_with_generators(
+        &mut ark_commitments,
+        data,
+        &ark_generators,
+    );
+
+    // Convert the Arkworks commitments to Halo2 commitments
+    let span = tracing::span!(tracing::Level::DEBUG, "convert_commitments_to_halo2").entered();
+    commitments
+        .iter_mut()
+        .zip(ark_commitments)
+        .for_each(|(c_a, c_b)| {
+            *c_a = convert_to_halo2_bn256_g1_affine(&c_b).into();
+        });
+    span.exit();
 }
 
 #[doc = include_str!("../../docs/commitments/update_curve25519_commitments.md")]
