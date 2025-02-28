@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern crate rand;
-
-use crate::rand::Rng;
 use blitzar::{compute::*, sequence::Sequence};
 use criterion::{criterion_group, criterion_main, Criterion};
 use curve25519_dalek::{
@@ -22,7 +19,7 @@ use curve25519_dalek::{
     ristretto::{CompressedRistretto, RistrettoPoint},
     scalar::Scalar,
 };
-use rand::thread_rng;
+use rand::{thread_rng, Rng};
 
 mod blitzar_curve25519_benchmarks {
     use super::*;

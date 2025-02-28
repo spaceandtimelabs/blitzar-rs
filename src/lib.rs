@@ -59,8 +59,6 @@
 //!
 //! Import the necessary modules to your rust code:
 //! ```text
-//! extern crate blitzar;
-//!
 //! use blitzar::sequence::*;
 //! use blitzar::compute::*;
 //! ```

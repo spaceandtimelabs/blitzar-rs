@@ -15,11 +15,9 @@
 use ark_bls12_381::{Fr, G1Affine};
 use ark_ff::BigInt;
 use ark_std::UniformRand;
-use criterion::{criterion_group, criterion_main, Criterion};
-
-extern crate rand;
-use crate::rand::Rng;
 use blitzar::{compute::*, sequence::*};
+use criterion::{criterion_group, criterion_main, Criterion};
+use rand::Rng;
 
 mod blitzar_bls12_381_benchmarks {
     use super::*;

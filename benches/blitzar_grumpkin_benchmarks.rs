@@ -15,11 +15,9 @@
 use ark_ff::BigInt;
 use ark_grumpkin::{Affine, Fr};
 use ark_std::UniformRand;
-use criterion::{criterion_group, criterion_main, Criterion};
-
-extern crate rand;
-use crate::rand::Rng;
 use blitzar::{compute::*, sequence::*};
+use criterion::{criterion_group, criterion_main, Criterion};
+use rand::Rng;
 
 mod blitzar_grumpkin_benchmarks {
     use super::*;
