@@ -20,7 +20,8 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
     ) -> Self {
         let num_rounds = n.next_power_of_two().trailing_zeros() as usize;
         let mut evaluation_point = vec![T::default(); num_rounds];
-        let round_len = product_table.iter().map(|entry| entry.1).max().unwrap() as usize;
+        let round_degree = product_table.iter().map(|entry| entry.1).max().unwrap() as usize;
+        let round_len = round_degree + 1;
         let mut round_polynomials = vec![T::default(); round_len * num_rounds];
 
         Self{
