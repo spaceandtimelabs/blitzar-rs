@@ -14,6 +14,13 @@
 
 //! commitment and generator computation
 
+mod arkworks_halo2_interop;
+pub use arkworks_halo2_interop::{
+    convert_to_ark_bn254_g1_affine, convert_to_halo2_bn256_g1_affine,
+};
+#[cfg(test)]
+mod arkworks_halo2_interop_tests;
+
 mod backend;
 pub use backend::{init_backend, init_backend_with_config, BackendConfig};
 
@@ -23,8 +30,9 @@ use curve::CurveId;
 mod commitments;
 pub use commitments::{
     compute_bls12_381_g1_commitments_with_generators,
-    compute_bn254_g1_uncompressed_commitments_with_generators, compute_curve25519_commitments,
-    compute_curve25519_commitments_with_generators,
+    compute_bn254_g1_uncompressed_commitments_with_generators,
+    compute_bn254_g1_uncompressed_commitments_with_halo2_generators,
+    compute_curve25519_commitments, compute_curve25519_commitments_with_generators,
     compute_grumpkin_uncompressed_commitments_with_generators, update_curve25519_commitments,
 };
 

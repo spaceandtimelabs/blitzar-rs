@@ -11,17 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+// use super::error::ProofError;
+use serde::{Deserialize, Serialize};
 
-//! proof primitives
-
-mod error;
-pub use error::ProofError;
-
-mod inner_product;
-pub use inner_product::InnerProductProof;
-
-#[cfg(test)]
-mod inner_product_tests;
-
-mod sumcheck;
-pub use sumcheck::SumcheckProof;
+/// SumcheckProof construct
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SumcheckProof {
+    // pub(crate) l_vector: Vec<CompressedRistretto>,
+    // pub(crate) r_vector: Vec<CompressedRistretto>,
+    // pub(crate) ap_value: Scalar,
+}

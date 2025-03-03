@@ -48,7 +48,7 @@ mod packed_msm_benches {
 
             let scalars: Vec<u8> = if bit_size > 1 {
                 (0..num_rows * bit_size as usize)
-                    .map(|_| rng.gen::<u8>())
+                    .map(|_| rng.r#gen::<u8>())
                     .collect()
             } else {
                 (0..num_rows).map(|_| 255).collect()
@@ -87,7 +87,7 @@ mod packed_msm_benches {
 
             let scalars: Vec<u8> = if bit_size > 1 {
                 (0..num_rows * bit_size as usize)
-                    .map(|_| rng.gen::<u8>())
+                    .map(|_| rng.r#gen::<u8>())
                     .collect()
             } else {
                 (0..num_rows).map(|_| 255).collect()
@@ -126,7 +126,7 @@ mod packed_msm_benches {
 
             let scalars: Vec<u8> = if bit_size > 1 {
                 (0..num_rows * bit_size as usize)
-                    .map(|_| rng.gen::<u8>())
+                    .map(|_| rng.r#gen::<u8>())
                     .collect()
             } else {
                 (0..num_rows).map(|_| 255).collect()

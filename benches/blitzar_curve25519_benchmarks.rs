@@ -39,7 +39,7 @@ mod blitzar_curve25519_benchmarks {
         let mut rng = rand::thread_rng();
 
         (0..num_commits)
-            .map(|_| ((0..num_rows).map(|_| rng.gen::<u8>()).collect()))
+            .map(|_| ((0..num_rows).map(|_| rng.r#gen::<u8>()).collect()))
             .collect()
     }
 
