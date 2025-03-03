@@ -15,6 +15,7 @@
 use super::*;
 use ark_bn254::{Fq as Bn254Fq, G1Affine as Bn254G1Affine};
 use ark_ec::AffineRepr;
+use ark_ff::UniformRand;
 use halo2curves::{
     bn256::{Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine},
     group::cofactor::CofactorCurveAffine,
@@ -119,5 +120,35 @@ fn test_convert_ark_bn254_g1_affine_to_halo2_bn256_g1_affine() {
     for (ark, halo2) in ark_affine.iter().zip(expected.iter()) {
         let converted = convert_to_halo2_bn256_g1_affine(ark);
         assert_eq!(converted, *halo2);
+    }
+}
+
+#[test]
+fn test_convert_to_halo2_bn256_g1_affine_with_random_points() {
+    let num_points = 1024;
+    let mut rnd = ark_std::test_rng();
+    let ark_affine = (0..num_points)
+        .map(|_| Bn254G1Affine::rand(&mut rnd))
+        .collect::<Vec<Bn254G1Affine>>();
+
+    for point in &ark_affine {
+        let halo2 = convert_to_halo2_bn256_g1_affine(point);
+        let converted = convert_to_ark_bn254_g1_affine(&halo2);
+        assert_eq!(converted, *point);
+    }
+}
+
+#[test]
+fn test_convert_to_ark_bn254_g1_affine_with_random_points() {
+    let num_points = 1024;
+    let mut rnd = rand::thread_rng();
+    let halo2_affine = (0..num_points)
+        .map(|_| Halo2Bn256G1Affine::random(&mut rnd))
+        .collect::<Vec<Halo2Bn256G1Affine>>();
+
+    for point in &halo2_affine {
+        let ark = convert_to_ark_bn254_g1_affine(point);
+        let converted = convert_to_halo2_bn256_g1_affine(&ark);
+        assert_eq!(converted, *point);
     }
 }
