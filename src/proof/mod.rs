@@ -23,5 +23,7 @@ pub use inner_product::InnerProductProof;
 #[cfg(test)]
 mod inner_product_tests;
 
+mod field;
+
 mod sumcheck;
 pub use sumcheck::SumcheckProof;
