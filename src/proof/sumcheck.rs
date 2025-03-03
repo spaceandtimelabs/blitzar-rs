@@ -9,7 +9,7 @@ pub struct SumcheckProof<T: FieldId> {
     round_polynomials: Vec<T>,
 }
 
-impl<T: FieldId> SumcheckProof<T> {
+impl<T: FieldId + Default + Clone> SumcheckProof<T> {
     /// TODO: doc me
     pub fn new(
         transcript: &mut dyn SumcheckTranscript<T>,
@@ -18,9 +18,14 @@ impl<T: FieldId> SumcheckProof<T> {
         product_terms: &[u32],
         n: u32
     ) -> Self {
+        let num_rounds = n.next_power_of_two().trailing_zeros() as usize;
+        let mut evaluation_point = vec![T::default(); num_rounds];
+        let round_len = product_table.iter().map(|entry| entry.1).max().unwrap() as usize;
+        let mut round_polynomials = vec![T::default(); round_len * num_rounds];
+
         Self{
-            evaluation_point: Vec::new(),
-            round_polynomials: Vec::new(),
+            evaluation_point: evaluation_point,
+            round_polynomials: round_polynomials,
         }
     }
 }
