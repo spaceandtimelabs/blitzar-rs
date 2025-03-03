@@ -14,6 +14,7 @@
 
 use ark_bn254::{Fq as Bn254Fq, G1Affine as Bn254G1Affine};
 use ark_ff::BigInteger256;
+use core::mem;
 use halo2curves::{
     bn256::{Fq as Halo2Bn256Fq, G1Affine as Halo2Bn256G1Affine},
     serde::SerdeObject,
@@ -21,11 +22,8 @@ use halo2curves::{
 
 /// Converts a Halo2 BN256 G1 Affine point to an Arkworks BN254 G1 Affine point.
 pub fn convert_to_ark_bn254_g1_affine(point: &Halo2Bn256G1Affine) -> Bn254G1Affine {
-    let x_bytes: [u8; 32] = point.x.to_raw_bytes().try_into().unwrap();
-    let y_bytes: [u8; 32] = point.y.to_raw_bytes().try_into().unwrap();
-
-    let x_limbs = bytemuck::cast::<[u8; 32], [u64; 4]>(x_bytes);
-    let y_limbs = bytemuck::cast::<[u8; 32], [u64; 4]>(y_bytes);
+    let x_limbs: [u64; 4] = unsafe { mem::transmute(point.x) };
+    let y_limbs: [u64; 4] = unsafe { mem::transmute(point.y) };
 
     Bn254G1Affine {
         x: Bn254Fq::new_unchecked(BigInteger256::new(x_limbs)),
