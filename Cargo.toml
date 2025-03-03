@@ -45,6 +45,10 @@ tempfile = "3.13.0"
 
 [[bench]]
 harness = false
+name = "arkworks_halo2_interop_benchmarks"
+
+[[bench]]
+harness = false
 name = "blitzar_bls12_381_benchmarks"
 
 [[bench]]
