@@ -12,6 +12,11 @@ pub struct SumcheckProof<T: FieldId> {
 impl<T: FieldId> SumcheckProof<T> {
     /// TODO: doc me
     pub fn new(
+        transcript: &mut dyn SumcheckTranscript<T>,
+        mles: & [T],
+        product_table: &[(T, u32)],
+        product_terms: &[u32],
+        n: u32
     ) -> Self {
         Self{
             evaluation_point: Vec::new(),
