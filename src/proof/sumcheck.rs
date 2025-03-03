@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use crate::proof::field::FieldId;
+use crate::proof::sumcheck_transcript::SumcheckTranscript;
 
 /// SumcheckProof construct
 #[derive(Clone, Debug, Serialize, Deserialize)]

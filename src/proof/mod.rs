@@ -24,6 +24,7 @@ pub use inner_product::InnerProductProof;
 mod inner_product_tests;
 
 mod field;
+mod sumcheck_transcript;
 
 mod sumcheck;
 pub use sumcheck::SumcheckProof;
