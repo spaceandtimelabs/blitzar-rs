@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use crate::proof::field::FieldId;
 use crate::proof::sumcheck_transcript::SumcheckTranscript;
+use std::os::raw::c_void;
 
 /// SumcheckProof construct
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -26,9 +27,19 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
 
         transcript.init(num_rounds, round_degree);
 
+        // fn f(ctx: *mut c_void, polynomial: *const T) {
+        // }
+        // void (*)(T* r, void* context, const T* polynomial, unsigned polynomial_len);
+
         Self{
             evaluation_point: evaluation_point,
             round_polynomials: round_polynomials,
         }
     }
+}
+
+fn round_challenge<T>(ctx: *mut c_void, polynomial: *const T, len: u32) {
+    let trascript = unsafe {
+        ctx as *mut &mut dyn SumcheckTranscript<T>
+    };
 }
