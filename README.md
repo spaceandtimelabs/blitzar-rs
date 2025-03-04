@@ -178,6 +178,7 @@ To run individual tests:
 cargo bench --features <cpu | gpu> --bench <benchmark_name>
 ```
 and replace the `benchmark_name` with one of the following available benchmarks
+- `arkworks_halo2_interop_benchmarks`
 - `blitzar_bls12_381_benchmarks`
 - `blitzar_bn254_benchmarks`
 - `blitzar_curve25519_benchmarks`
