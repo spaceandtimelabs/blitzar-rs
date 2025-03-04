@@ -22,11 +22,14 @@ jobs:
       - name: Checkout Code Format
         uses: actions/checkout@v3
 
-      - name: Install stable toolchain
+      - name: Install Rust
         run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
-
-      - name: Install Dependencies
-        run: rustup component add rustfmt
+          
+      - name: Install stable toolchain and dependencies
+        run: |
+          rustup toolchain install 1.85.0
+          rustup default 1.85.0
+          rustup component add rustfmt
 
       - name: Run Code Format
         run: cargo fmt --all -- --config imports_granularity=Crate,group_imports=One --check
@@ -41,9 +44,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install stable toolchain
+      - name: Install Rust
+        run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
+
+      - name: Install stable toolchain and dependencies
         run: |
-          curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
+          rustup toolchain install 1.85.0
+          rustup default 1.85.0
           rustup component add clippy
 
       - name: Run Clippy
@@ -62,6 +69,11 @@ jobs:
       - name: Install stable toolchain
         run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
 
+      - name: Install stable toolchain
+        run: |
+          rustup toolchain install 1.85.0
+          rustup default 1.85.0
+
       - name: Run CPU test
         run: cargo test --features cpu
 
@@ -77,6 +89,11 @@ jobs:
 
       - name: Install stable toolchain
         run: curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal
+
+      - name: Install stable toolchain
+        run: |
+          rustup toolchain install 1.85.0
+          rustup default 1.85.0
 
       - name: Run GPU test
         run: cargo test --features gpu
