@@ -24,6 +24,8 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
         let round_len = round_degree + 1;
         let mut round_polynomials = vec![T::default(); round_len * num_rounds];
 
+        transcript.init(num_rounds, round_degree);
+
         Self{
             evaluation_point: evaluation_point,
             round_polynomials: round_polynomials,
