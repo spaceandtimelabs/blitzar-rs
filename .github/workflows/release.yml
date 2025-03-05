@@ -15,7 +15,7 @@ jobs:
     needs: [test-check-lint]
     environment: deploy #!! DO NOT CHANGE THIS LINE !! #
     container:
-      image: rust:1.84
+      image: rust:1.85
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
