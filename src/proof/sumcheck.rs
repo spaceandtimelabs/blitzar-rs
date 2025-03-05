@@ -12,8 +12,8 @@ pub struct SumcheckProof<T: FieldId> {
 
 impl<T: FieldId + Default + Clone> SumcheckProof<T> {
     /// TODO: doc me
-    pub fn new(
-        transcript: &mut dyn SumcheckTranscript<T>,
+    pub fn new<Transcript: SumcheckTranscript<T>>(
+        transcript: &mut Transcript,
         mles: & [T],
         product_table: &[(T, u32)],
         product_terms: &[u32],
@@ -27,6 +27,7 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
 
         transcript.init(num_rounds, round_degree);
 
+        let fptr : fn(*mut T, *mut c_void, *const T, u32) = round_challenge::<T, Transcript>;
         // fn f(ctx: *mut c_void, polynomial: *const T) {
         // }
         // void (*)(T* r, void* context, const T* polynomial, unsigned polynomial_len);
@@ -38,8 +39,12 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
     }
 }
 
-fn round_challenge<T>(ctx: *mut c_void, polynomial: *const T, len: u32) {
-    let trascript = unsafe {
-        ctx as *mut &mut dyn SumcheckTranscript<T>
-    };
+fn round_challenge<T, Transcript: SumcheckTranscript<T>>(
+    r: *mut T,
+    ctx: *mut c_void, polynomial: *const T, len: u32) {
+    unsafe {
+    let mut transcript = &mut *(ctx as *mut Transcript);
+    let p = std::slice::from_raw_parts(polynomial, len as usize);
+    *r.as_mut().unwrap() = transcript.round_challenge(p);
+    }
 }
