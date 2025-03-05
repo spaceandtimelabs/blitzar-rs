@@ -20,6 +20,9 @@ impl SumcheckTranscript<Fr> for TestTranscript {
     }
 
     fn round_challenge(&mut self, polynomial: &[Fr]) -> Fr {
+        let bytes: &[u8] = unsafe { std::slice::from_raw_parts(polynomial.as_ptr() as *const u8,
+        polynomial.len() * std::mem::size_of::<Fr>())};
+        self.base.append_message(b"p", bytes);
         Fr::from(123)
     }
 }
