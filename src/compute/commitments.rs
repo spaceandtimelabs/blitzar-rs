@@ -173,6 +173,11 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
 
     let sxt_bn254_g1_uncompressed = commitments.as_mut_ptr() as *mut blitzar_sys::sxt_bn254_g1;
 
+    let span = tracing::span!(
+        tracing::Level::DEBUG,
+        "blitzar_sys::sxt_bn254_g1_uncompressed_compute_pedersen_commitments_with_generators"
+    )
+    .entered();
     unsafe {
         blitzar_sys::sxt_bn254_g1_uncompressed_compute_pedersen_commitments_with_generators(
             sxt_bn254_g1_uncompressed,
@@ -181,6 +186,7 @@ pub fn compute_bn254_g1_uncompressed_commitments_with_generators(
             sxt_bn254_g1_generators,
         );
     }
+    span.exit();
 }
 
 #[doc = include_str!("../../docs/commitments/compute_halo2curves_bn256_g1_commitments_with_generators.md")]
