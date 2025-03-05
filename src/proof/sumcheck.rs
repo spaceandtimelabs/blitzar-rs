@@ -6,8 +6,11 @@ use std::os::raw::c_void;
 /// SumcheckProof construct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SumcheckProof<T: FieldId> {
-    evaluation_point: Vec<T>,
-    round_polynomials: Vec<T>,
+    /// TODO: doc me
+    pub evaluation_point: Vec<T>,
+
+    /// TODO: doc me
+    pub round_polynomials: Vec<T>,
 }
 
 impl<T: FieldId + Default + Clone> SumcheckProof<T> {
@@ -48,7 +51,6 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
                 T::FIELD_ID,
                 &descriptor,
                 fptr as *mut c_void,
-                // transcript_ptr as *mut c_void,
                 std::ptr::from_ref(transcript) as *mut c_void,
             );
         }
