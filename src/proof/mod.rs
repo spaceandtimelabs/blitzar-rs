@@ -25,6 +25,10 @@ mod inner_product_tests;
 
 mod field;
 mod sumcheck_transcript;
+pub use sumcheck_transcript::SumcheckTranscript;
 
 mod sumcheck;
 pub use sumcheck::SumcheckProof;
+
+#[cfg(test)]
+mod sumcheck_tests;
