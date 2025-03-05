@@ -1,7 +1,7 @@
 use super::*;
+use crate::proof::SumcheckTranscript;
 use ark_grumpkin::Fr;
 use merlin::Transcript;
-use crate::proof::SumcheckTranscript;
 
 struct TestTranscript {
     base: Transcript,
@@ -9,24 +9,27 @@ struct TestTranscript {
 
 impl TestTranscript {
     pub fn new() -> Self {
-        Self{
-            base: Transcript::new(b"abc123")
+        Self {
+            base: Transcript::new(b"abc123"),
         }
     }
 }
 
 impl SumcheckTranscript<Fr> for TestTranscript {
-    fn init(&mut self, num_variables: usize, round_degree: usize) {
-    }
+    fn init(&mut self, num_variables: usize, round_degree: usize) {}
 
     fn round_challenge(&mut self, polynomial: &[Fr]) -> Fr {
-        let bytes: &[u8] = unsafe { std::slice::from_raw_parts(polynomial.as_ptr() as *const u8,
-        polynomial.len() * std::mem::size_of::<Fr>())};
+        let bytes: &[u8] = unsafe {
+            std::slice::from_raw_parts(
+                polynomial.as_ptr() as *const u8,
+                polynomial.len() * std::mem::size_of::<Fr>(),
+            )
+        };
         self.base.append_message(b"p", bytes);
         Fr::from(123)
     }
 }
-    // let mut transcript = Transcript::new(b"innerproducttest");
+// let mut transcript = Transcript::new(b"innerproducttest");
 
 #[test]
 fn we_can_prove_sumcheck_with_an_mle_with_a_single_element() {
