@@ -32,16 +32,22 @@ impl SumcheckTranscript<Fr> for TestTranscript {
         Fr::from_random_bytes(&challenge).unwrap()
     }
 }
-// let mut transcript = Transcript::new(b"innerproducttest");
 
 #[test]
 fn we_can_prove_sumcheck_with_an_mle_with_a_single_element() {
     let mles = vec![Fr::from(123)];
-    // pub fn new<Transcript: SumcheckTranscript<T>>(
-    //     transcript: &mut Transcript,
-    //     mles: &[T],
-    //     product_table: &[(T, u32)],
-    //     product_terms: &[u32],
-    //     n: u32,
-    // ) -> Self {
+    let product_table = vec![
+        (Fr::from(1), 1),
+    ];
+    let product_terms = vec![
+        0,
+    ];
+    let mut transcript = TestTranscript::new();
+    let proof = SumcheckProof::new(
+        &mut transcript,
+        &mles,
+        &product_table,
+        &product_terms,
+        1
+    );
 }

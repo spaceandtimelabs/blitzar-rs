@@ -1,7 +1,9 @@
+use crate::compute::init_backend;
 use crate::proof::field::FieldId;
 use crate::proof::sumcheck_transcript::SumcheckTranscript;
 use serde::{Deserialize, Serialize};
 use std::os::raw::c_void;
+use std::cmp::max;
 
 /// SumcheckProof construct
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -22,9 +24,11 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
         product_terms: &[u32],
         n: u32,
     ) -> Self {
+        init_backend();
         let num_mles = mles.len() / n as usize;
         assert_eq!(mles.len(), num_mles * n as usize);
-        let num_rounds = n.next_power_of_two().trailing_zeros() as usize;
+        let num_rounds = max(n.next_power_of_two().trailing_zeros(), 1) as usize;
+        println!("num_rounds = {}", num_rounds);
         let evaluation_point = vec![T::default(); num_rounds];
         let round_degree = product_table.iter().map(|entry| entry.1).max().unwrap() as usize;
         let round_len = round_degree + 1;
