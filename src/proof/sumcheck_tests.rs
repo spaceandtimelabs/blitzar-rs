@@ -35,7 +35,10 @@ impl SumcheckTranscript<Fr> for TestTranscript {
 
 #[test]
 fn we_can_prove_sumcheck_with_an_mle_with_a_single_element() {
-    let mles = vec![Fr::from(123)];
+    let mles = vec![
+        Fr::from(8),
+        Fr::from(3),
+    ];
     let product_table = vec![
         (Fr::from(1), 1),
     ];
@@ -48,6 +51,7 @@ fn we_can_prove_sumcheck_with_an_mle_with_a_single_element() {
         &mles,
         &product_table,
         &product_terms,
-        1
+        2
     );
+    assert_eq!(proof.round_polynomials[0], mles[0]);
 }

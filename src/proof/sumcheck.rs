@@ -33,6 +33,8 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
         let round_degree = product_table.iter().map(|entry| entry.1).max().unwrap() as usize;
         let round_len = round_degree + 1;
         let round_polynomials = vec![T::default(); round_len * num_rounds];
+        println!("round_degree = {}", round_degree);
+        println!("num_mles = {}", num_mles);
 
         transcript.init(num_rounds, round_degree);
 
