@@ -1,6 +1,7 @@
 use super::*;
 use crate::proof::SumcheckTranscript;
 use ark_grumpkin::Fr;
+use ark_ff::Field;
 use merlin::Transcript;
 
 struct TestTranscript {
@@ -26,7 +27,9 @@ impl SumcheckTranscript<Fr> for TestTranscript {
             )
         };
         self.base.append_message(b"p", bytes);
-        Fr::from(123)
+        let mut challenge : [u8; 32] = [0; 32];
+        self.base.challenge_bytes(b"r", &mut challenge);
+        Fr::from_random_bytes(&challenge).unwrap()
     }
 }
 // let mut transcript = Transcript::new(b"innerproducttest");
