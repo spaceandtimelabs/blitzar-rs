@@ -2,8 +2,8 @@ use crate::compute::init_backend;
 use crate::proof::field::FieldId;
 use crate::proof::sumcheck_transcript::SumcheckTranscript;
 use serde::{Deserialize, Serialize};
-use std::os::raw::c_void;
 use std::cmp::max;
+use std::os::raw::c_void;
 
 /// SumcheckProof construct
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -38,7 +38,8 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
 
         transcript.init(num_rounds, round_degree);
 
-        let fptr: extern "C" fn(*mut T, *mut c_void, *const T, u32) = round_challenge::<T, Transcript>;
+        let fptr: extern "C" fn(*mut T, *mut c_void, *const T, u32) =
+            round_challenge::<T, Transcript>;
 
         let descriptor: blitzar_sys::sumcheck_descriptor = blitzar_sys::sumcheck_descriptor {
             mles: mles.as_ptr() as *const c_void,

@@ -1,7 +1,7 @@
 use super::*;
 use crate::proof::SumcheckTranscript;
-use ark_grumpkin::Fq;
 use ark_ff::Field;
+use ark_grumpkin::Fq;
 use merlin::Transcript;
 
 struct TestTranscript {
@@ -27,31 +27,24 @@ impl SumcheckTranscript<Fq> for TestTranscript {
             )
         };
         self.base.append_message(b"p", bytes);
-        let mut challenge : [u8; 32] = [0; 32];
+        let mut challenge: [u8; 8] = [0; 8];
         self.base.challenge_bytes(b"r", &mut challenge);
-        Fq::from_random_bytes(&challenge).unwrap()
+        Fq::from(u64::from_be_bytes(challenge))
     }
 }
 
 #[test]
 fn we_can_prove_sumcheck_with_an_mle_with_a_single_element() {
-    let mles = vec![
-        Fq::from(8),
-        Fq::from(3),
-    ];
-    let product_table = vec![
-        (Fq::from(1), 1),
-    ];
-    let product_terms = vec![
-        0,
-    ];
+    let mles = vec![Fq::from(8)];
+    let product_table = vec![(Fq::from(1), 1)];
+    let product_terms = vec![0];
     let mut transcript = TestTranscript::new();
-    let proof = SumcheckProof::new(
-        &mut transcript,
-        &mles,
-        &product_table,
-        &product_terms,
-        2
-    );
+    let proof = SumcheckProof::new(&mut transcript, &mles, &product_table, &product_terms, 1);
     assert_eq!(proof.round_polynomials[0], mles[0]);
+    assert_eq!(proof.round_polynomials[1], -mles[0]);
+    let mut transcript = TestTranscript::new();
+    assert_eq!(
+        proof.evaluation_point[0],
+        transcript.round_challenge(&proof.round_polynomials)
+    );
 }
