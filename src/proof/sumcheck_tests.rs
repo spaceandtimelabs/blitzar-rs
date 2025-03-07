@@ -48,3 +48,19 @@ fn we_can_prove_sumcheck_with_an_mle_with_a_single_element() {
         transcript.round_challenge(&proof.round_polynomials)
     );
 }
+
+#[test]
+fn we_can_prove_sumcheck_with_an_mle_with_two_elements() {
+    let mles = vec![Fq::from(8), Fq::from(10)];
+    let product_table = vec![(Fq::from(1), 1)];
+    let product_terms = vec![0];
+    let mut transcript = TestTranscript::new();
+    let proof = SumcheckProof::new(&mut transcript, &mles, &product_table, &product_terms, 2);
+    assert_eq!(proof.round_polynomials[0], mles[0]);
+    assert_eq!(proof.round_polynomials[1], mles[1] - mles[0]);
+    let mut transcript = TestTranscript::new();
+    assert_eq!(
+        proof.evaluation_point[0],
+        transcript.round_challenge(&proof.round_polynomials)
+    );
+}
