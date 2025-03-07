@@ -38,7 +38,7 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
 
         transcript.init(num_rounds, round_degree);
 
-        let fptr: fn(*mut T, *mut c_void, *const T, u32) = round_challenge::<T, Transcript>;
+        let fptr: extern "C" fn(*mut T, *mut c_void, *const T, u32) = round_challenge::<T, Transcript>;
 
         let descriptor: blitzar_sys::sumcheck_descriptor = blitzar_sys::sumcheck_descriptor {
             mles: mles.as_ptr() as *const c_void,
@@ -67,7 +67,7 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
     }
 }
 
-fn round_challenge<T, Transcript: SumcheckTranscript<T>>(
+extern "C" fn round_challenge<T, Transcript: SumcheckTranscript<T>>(
     r: *mut T,
     ctx: *mut c_void,
     polynomial: *const T,

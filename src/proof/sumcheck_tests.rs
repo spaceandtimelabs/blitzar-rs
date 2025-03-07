@@ -1,6 +1,6 @@
 use super::*;
 use crate::proof::SumcheckTranscript;
-use ark_grumpkin::Fr;
+use ark_grumpkin::Fq;
 use ark_ff::Field;
 use merlin::Transcript;
 
@@ -16,31 +16,31 @@ impl TestTranscript {
     }
 }
 
-impl SumcheckTranscript<Fr> for TestTranscript {
+impl SumcheckTranscript<Fq> for TestTranscript {
     fn init(&mut self, num_variables: usize, round_degree: usize) {}
 
-    fn round_challenge(&mut self, polynomial: &[Fr]) -> Fr {
+    fn round_challenge(&mut self, polynomial: &[Fq]) -> Fq {
         let bytes: &[u8] = unsafe {
             std::slice::from_raw_parts(
                 polynomial.as_ptr() as *const u8,
-                polynomial.len() * std::mem::size_of::<Fr>(),
+                polynomial.len() * std::mem::size_of::<Fq>(),
             )
         };
         self.base.append_message(b"p", bytes);
         let mut challenge : [u8; 32] = [0; 32];
         self.base.challenge_bytes(b"r", &mut challenge);
-        Fr::from_random_bytes(&challenge).unwrap()
+        Fq::from_random_bytes(&challenge).unwrap()
     }
 }
 
 #[test]
 fn we_can_prove_sumcheck_with_an_mle_with_a_single_element() {
     let mles = vec![
-        Fr::from(8),
-        Fr::from(3),
+        Fq::from(8),
+        Fq::from(3),
     ];
     let product_table = vec![
-        (Fr::from(1), 1),
+        (Fq::from(1), 1),
     ];
     let product_terms = vec![
         0,
