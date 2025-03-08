@@ -112,3 +112,26 @@ fn we_can_prove_sumcheck_with_two_rounds() {
         transcript.round_challenge(&proof.round_polynomials[2..])
     );
 }
+
+#[test]
+fn we_can_prove_sumcheck_with_two_products() {
+    let mles = vec![Fq::from(8), Fq::from(3), Fq::from(11), Fq::from(51)];
+    let product_table = vec![(Fq::from(1), 2)];
+    let product_terms = vec![0, 1];
+    let mut transcript = TestTranscript::new();
+    let proof = SumcheckProof::new(&mut transcript, &mles, &product_table, &product_terms, 2);
+    assert_eq!(proof.round_polynomials[0], mles[0] * mles[2]);
+    assert_eq!(
+        proof.round_polynomials[1],
+        (mles[1] - mles[0]) * mles[2] + (mles[3] - mles[2]) * mles[0]
+    );
+    assert_eq!(
+        proof.round_polynomials[2],
+        (mles[1] - mles[0]) * (mles[3] - mles[2])
+    );
+    let mut transcript = TestTranscript::new();
+    assert_eq!(
+        proof.evaluation_point[0],
+        transcript.round_challenge(&proof.round_polynomials)
+    );
+}
