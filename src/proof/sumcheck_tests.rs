@@ -64,3 +64,25 @@ fn we_can_prove_sumcheck_with_an_mle_with_two_elements() {
         transcript.round_challenge(&proof.round_polynomials)
     );
 }
+
+#[test]
+fn we_can_prove_sumcheck_with_multiple_mles() {
+    let mles = vec![
+        Fq::from(8),
+        Fq::from(3),
+    ];
+    let product_table = vec![
+        (Fq::from(1), 1),
+        (Fq::from(2), 1)
+    ];
+    let product_terms = vec![0, 1];
+    let mut transcript = TestTranscript::new();
+    let proof = SumcheckProof::new(&mut transcript, &mles, &product_table, &product_terms, 1);
+    assert_eq!(proof.round_polynomials[0], mles[0] + Fq::from(2) * mles[1]);
+    assert_eq!(proof.round_polynomials[1], -mles[0] - Fq::from(2) * mles[1]);
+    let mut transcript = TestTranscript::new();
+    assert_eq!(
+        proof.evaluation_point[0],
+        transcript.round_challenge(&proof.round_polynomials)
+    );
+}
