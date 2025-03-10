@@ -18,7 +18,7 @@ impl TestTranscript {
 }
 
 impl SumcheckTranscript<Fq> for TestTranscript {
-    fn init(&mut self, num_variables: usize, round_degree: usize) {}
+    fn init(&mut self, _num_variables: usize, _round_degree: usize) {}
 
     fn round_challenge(&mut self, polynomial: &[Fq]) -> Fq {
         let bytes: &[u8] = unsafe {

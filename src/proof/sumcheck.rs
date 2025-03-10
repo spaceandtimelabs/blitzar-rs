@@ -17,7 +17,7 @@ pub struct SumcheckProof<T: FieldId> {
     /// Univariate polynomials produced in the rounds of sumcheck.
     /// If d denotes the degree of the round polynomial, then
     /// the polynomial for the ith round is given by
-    ///     round_polynomial[i * (d + 1)] + 
+    ///     round_polynomial[i * (d + 1)] +
     ///     round_polynomial[i * (d + 1) + 1] * X +
     ///     round_polynomial[i * (d + 1) + 2] * X^2 +
     ///     ...
@@ -35,16 +35,19 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
         n: u32,
     ) -> Self {
         init_backend();
+        assert!(n > 0);
+        assert!(product_table.len() > 0);
         let num_mles = mles.len() / n as usize;
         assert_eq!(mles.len(), num_mles * n as usize);
+        for mle_index in product_terms {
+            assert!((*mle_index as usize) < num_mles);
+        }
+
         let num_rounds = max(n.next_power_of_two().trailing_zeros(), 1) as usize;
-        println!("num_rounds = {}", num_rounds);
         let evaluation_point = vec![T::default(); num_rounds];
         let round_degree = product_table.iter().map(|entry| entry.1).max().unwrap() as usize;
         let round_len = round_degree + 1;
         let round_polynomials = vec![T::default(); round_len * num_rounds];
-        println!("round_degree = {}", round_degree);
-        println!("num_mles = {}", num_mles);
 
         transcript.init(num_rounds, round_degree);
 
