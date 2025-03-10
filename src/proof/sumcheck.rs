@@ -5,13 +5,23 @@ use serde::{Deserialize, Serialize};
 use std::cmp::max;
 use std::os::raw::c_void;
 
-/// SumcheckProof construct
+/// Proof in sumcheck protocol up to evaluation at a random point
+///
+/// See https://people.cs.georgetown.edu/jthaler/sumcheck.pdf
+/// for background.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SumcheckProof<T: FieldId> {
-    /// TODO: doc me
+    /// Random elements chosen for each round of siiumcheck
     pub evaluation_point: Vec<T>,
 
-    /// TODO: doc me
+    /// Univariate polynomials produced in the rounds of sumcheck.
+    /// If d denotes the degree of the round polynomial, then
+    /// the polynomial for the ith round is given by
+    ///     round_polynomial[i * (d + 1)] + 
+    ///     round_polynomial[i * (d + 1) + 1] * X +
+    ///     round_polynomial[i * (d + 1) + 2] * X^2 +
+    ///     ...
+    ///     round_polynomial[i * (d + 1) + d] * X^d +
     pub round_polynomials: Vec<T>,
 }
 
