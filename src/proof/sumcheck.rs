@@ -14,7 +14,8 @@ pub struct SumcheckProof<T: FieldId> {
     /// Random elements chosen for each round of siiumcheck
     pub evaluation_point: Vec<T>,
 
-    /// Univariate polynomials produced in the rounds of sumcheck.
+    /// Univariate polynomials produced for each round of sumcheck.
+    ///
     /// If d denotes the degree of the round polynomial, then
     /// the polynomial for the ith round is given by
     ///     round_polynomial[i * (d + 1)] +
@@ -42,6 +43,8 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
         for mle_index in product_terms {
             assert!((*mle_index as usize) < num_mles);
         }
+        let num_product_terms: u32 = product_table.iter().map(|entry| entry.1).sum();
+        assert!(product_terms.len() == num_product_terms as usize);
 
         let num_rounds = max(n.next_power_of_two().trailing_zeros(), 1) as usize;
         let evaluation_point = vec![T::default(); num_rounds];

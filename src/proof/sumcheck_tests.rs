@@ -1,6 +1,5 @@
 use super::*;
 use crate::proof::SumcheckTranscript;
-use ark_ff::Field;
 use ark_grumpkin::Fq;
 use ark_std::One;
 use merlin::Transcript;
