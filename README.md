@@ -36,7 +36,7 @@
   </a>
 
   <a href="https://www.rust-lang.org/">
-    <img alt="Rust" src="https://img.shields.io/badge/rust-1.84-blue">
+    <img alt="Rust" src="https://img.shields.io/badge/rust-1.85-blue">
     </a>
   </a>
 
@@ -117,7 +117,7 @@ To get a local copy up and running, consider the following steps.
 <details open>
 <summary>GPU backend prerequisites:</summary>
 
-* [Rust 1.84](https://www.rust-lang.org/tools/install)
+* [Rust 1.85](https://www.rust-lang.org/tools/install)
 * `x86_64` Linux instance.
 * NVIDIA driver version >= 560.35.03 (check the [compatibility list here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)).
 
@@ -128,7 +128,7 @@ To get a local copy up and running, consider the following steps.
 
 You'll need the following requirements to run the environment:
 
-* [Rust 1.84](https://www.rust-lang.org/tools/install)
+* [Rust 1.85](https://www.rust-lang.org/tools/install)
 * `x86_64` Linux instance.
 
 </details>
@@ -178,11 +178,15 @@ To run individual tests:
 cargo bench --features <cpu | gpu> --bench <benchmark_name>
 ```
 and replace the `benchmark_name` with one of the following available benchmarks
+- `arkworks_halo2_interop_benchmarks`
 - `blitzar_bls12_381_benchmarks`
 - `blitzar_bn254_benchmarks`
 - `blitzar_curve25519_benchmarks`
+- `blitzar_halo2_bn256_benchmarks`
 - `blitzar_grumpkin_benchmarks`
 - `packed_msm_benchmarks`
+
+Additionally [Jaeger tracing](https://www.jaegertracing.io/) is supported. For more information on how to run the benchmarks, see the [/benches/jaeger_benches.rs](benches/jaeger_benches.rs) file.
 
 ## Development Process
 

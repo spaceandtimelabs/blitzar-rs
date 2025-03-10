@@ -21,13 +21,13 @@
 //! ```
 //! Then, navigate to <http://localhost:16686> to view the traces.
 
-extern crate blitzar;
 use ark_bls12_381::G1Affine as Bls12381G1Affine;
 use ark_bn254::G1Affine as Bn254G1Affine;
 use ark_grumpkin::Affine as GrumpkinAffine;
 use ark_std::UniformRand;
 use blitzar::sequence::Sequence;
 use curve25519_dalek::ristretto::{CompressedRistretto, RistrettoPoint};
+use halo2curves::bn256::{G1Affine as Halo2Bn256G1Affine, G1 as Halo2Bn256G1Projective};
 use rand::Rng;
 use rand_core::OsRng;
 use std::env;
@@ -39,6 +39,7 @@ const BENCHMARK_TYPES: &[&str] = &[
     "compute_curve25519_commitments_with_generators",
     "compute_bls12_381_g1_commitments_with_generators",
     "compute_bn254_g1_uncompressed_commitments_with_generators",
+    "compute_bn254_g1_uncompressed_commitments_with_halo2_generators",
     "compute_grumpkin_uncompressed_commitments_with_generators",
 ];
 
@@ -142,6 +143,41 @@ fn run_benchmark(benchmark_type: &str) {
 
                 for _ in 0..ITERATIONS {
                     blitzar::compute::compute_bn254_g1_uncompressed_commitments_with_generators(
+                        &mut commitments,
+                        &data,
+                        &generators,
+                    );
+                }
+            }
+        }
+        "compute_bn254_g1_uncompressed_commitments_with_halo2_generators" => {
+            for (length, num_outputs) in LENGTH.iter().zip(NUM_OUTPUTS.iter()) {
+                let mut rng = ark_std::test_rng();
+
+                // Generate random data
+                let scalars: Vec<Vec<u64>> = (0..*num_outputs)
+                    .map(|_| {
+                        (0..*length)
+                            .map(|_| rng.gen_range(u64::MIN..u64::MAX))
+                            .collect()
+                    })
+                    .collect();
+
+                let data: Vec<Sequence> = scalars
+                    .iter()
+                    .map(|v| Sequence::from_raw_parts(v.as_slice(), false))
+                    .collect();
+
+                // Generate random generators
+                let generators: Vec<Halo2Bn256G1Affine> = (0..*length)
+                    .map(|_| Halo2Bn256G1Affine::random(&mut rng))
+                    .collect();
+
+                // Create commitments
+                let mut commitments = vec![Halo2Bn256G1Projective::default(); *num_outputs];
+
+                for _ in 0..3 {
+                    blitzar::compute::compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
                         &mut commitments,
                         &data,
                         &generators,

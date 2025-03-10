@@ -12,23 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use blitzar::{compute::*, sequence::Sequence};
+use blitzar::{compute::*, sequence::*};
 use criterion::{criterion_group, criterion_main, Criterion};
-use curve25519_dalek::{
-    constants,
-    ristretto::{CompressedRistretto, RistrettoPoint},
-    scalar::Scalar,
-};
-use rand::{thread_rng, Rng};
+use halo2curves::bn256::{Fr, G1Affine, G1};
+use rand::Rng;
 
-mod blitzar_curve25519_benchmarks {
+mod blitzar_halo2_bn256_benchmarks {
     use super::*;
+    use halo2curves::ff::Field;
 
-    fn construct_scalars_data(num_commits: usize, num_rows: usize) -> Vec<Vec<Scalar>> {
-        let mut rng = thread_rng();
+    fn construct_scalars_data(num_commits: usize, num_rows: usize) -> Vec<Vec<Fr>> {
+        let mut rng = rand::thread_rng();
 
         (0..num_commits)
-            .map(|_| ((0..num_rows).map(|_| Scalar::random(&mut rng)).collect()))
+            .map(|_| (0..num_rows).map(|_| Fr::random(&mut rng)).collect())
             .collect()
     }
 
@@ -40,32 +37,26 @@ mod blitzar_curve25519_benchmarks {
             .collect()
     }
 
-    fn construct_generators(n: usize) -> Vec<RistrettoPoint> {
-        let mut rng = thread_rng();
-        (0..n)
-            .map(|_| (&Scalar::random(&mut rng) * constants::RISTRETTO_BASEPOINT_TABLE))
+    fn construct_generators(num_commits: usize) -> Vec<G1Affine> {
+        let mut rng = ark_std::test_rng();
+        (0..num_commits)
+            .map(|_| G1Affine::random(&mut rng))
             .collect()
     }
 
     fn run_computation(num_commits: usize, num_rows: usize, c: &mut Criterion, use_scalars: bool) {
         let generators = construct_generators(num_rows);
-        let mut commitments = vec![CompressedRistretto::default(); num_commits];
+        let mut commitments = vec![G1::default(); num_commits];
 
-        let benchmark_label: String = "curve25519 ".to_string();
+        let benchmark_label: String = "halo2_bn256_g1 ".to_string();
         let num_commits_label: String = num_commits.to_string() + " commits";
         let benchmark_group_label: String = benchmark_label + &num_commits_label;
-
-        let without_generators_label: String = num_rows.to_string()
-            + " rows"
-            + " - use scalars ("
-            + if use_scalars { "yes" } else { "no" }
-            + ") - use generators (no)";
 
         let with_generators_label: String = num_rows.to_string()
             + " rows"
             + " - use scalars ("
             + if use_scalars { "yes" } else { "no" }
-            + ") - use generators (yes)";
+            + ")";
 
         let mut group = c.benchmark_group(&benchmark_group_label);
 
@@ -75,18 +66,14 @@ mod blitzar_curve25519_benchmarks {
 
         if use_scalars {
             let data = construct_scalars_data(num_commits, num_rows);
-            let table: Vec<Sequence> = (0..num_commits).map(|i| (&data[i]).into()).collect();
-
-            group.bench_function(
-                &without_generators_label,
-                |b: &mut criterion::Bencher<'_>| {
-                    b.iter(|| compute_curve25519_commitments(&mut commitments, &table, 0_u64))
-                },
-            );
+            let table: Vec<Sequence> = data
+                .iter()
+                .map(|v| Sequence::from_raw_parts(v.as_slice(), false))
+                .collect();
 
             group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
-                    compute_curve25519_commitments_with_generators(
+                    compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
                         &mut commitments,
                         &table,
                         &generators,
@@ -97,13 +84,9 @@ mod blitzar_curve25519_benchmarks {
             let data = construct_sequences_data(num_commits, num_rows);
             let table: Vec<Sequence> = (0..num_commits).map(|i| (&data[i]).into()).collect();
 
-            group.bench_function(&without_generators_label, |b| {
-                b.iter(|| compute_curve25519_commitments(&mut commitments, &table, 0_u64))
-            });
-
             group.bench_function(&with_generators_label, |b| {
                 b.iter(|| {
-                    compute_curve25519_commitments_with_generators(
+                    compute_bn254_g1_uncompressed_commitments_with_halo2_generators(
                         &mut commitments,
                         &table,
                         &generators,
@@ -136,7 +119,7 @@ mod blitzar_curve25519_benchmarks {
     }
 
     criterion_group! {
-        name = blitzar_compute_curve25519_commitments;
+        name = blitzar_compute_halo2_bn256_g1_commitments;
         // Lower the sample size to run the benchmarks faster
         config = Criterion::default().sample_size(15);
         targets =
@@ -144,4 +127,4 @@ mod blitzar_curve25519_benchmarks {
     }
 }
 
-criterion_main!(blitzar_curve25519_benchmarks::blitzar_compute_curve25519_commitments);
+criterion_main!(blitzar_halo2_bn256_benchmarks::blitzar_compute_halo2_bn256_g1_commitments);

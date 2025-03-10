@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern crate rand;
-
-use crate::rand::Rng;
 use ark_bls12_381::G1Affine as Bls12381G1Affine;
 use ark_bn254::G1Affine as Bn254G1Affine;
 use ark_std::UniformRand;
 use blitzar::compute::*;
 use criterion::{criterion_group, criterion_main, Criterion};
 use curve25519_dalek::ristretto::RistrettoPoint;
+use rand::Rng;
 use rand_core::OsRng;
 
 mod packed_msm_benches {

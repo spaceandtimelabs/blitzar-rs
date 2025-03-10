@@ -11,12 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-extern crate blitzar;
-extern crate curve25519_dalek;
-
 use blitzar::compute::*;
-
-extern crate rand_core;
 use curve25519_dalek::{
     ristretto::{CompressedRistretto, RistrettoPoint},
     scalar::Scalar,
