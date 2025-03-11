@@ -3,8 +3,7 @@ use crate::{
     proof::{field::FieldId, sumcheck_transcript::SumcheckTranscript},
 };
 use serde::{Deserialize, Serialize};
-use std::cmp::max;
-use std::os::raw::c_void;
+use std::{cmp::max, os::raw::c_void};
 
 /// Proof in sumcheck protocol up to evaluation at a random point
 ///
