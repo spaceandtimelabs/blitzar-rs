@@ -11,7 +11,7 @@ use std::{cmp::max, os::raw::c_void};
 /// for background.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SumcheckProof<T: FieldId> {
-    /// Random elements chosen for each round of siiumcheck
+    /// Random elements chosen for each round of sumcheck
     pub evaluation_point: Vec<T>,
 
     /// Univariate polynomials produced for each round of sumcheck.
