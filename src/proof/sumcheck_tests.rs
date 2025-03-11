@@ -23,7 +23,7 @@ impl SumcheckTranscript<Fq> for TestTranscript {
         let bytes: &[u8] = unsafe {
             std::slice::from_raw_parts(
                 polynomial.as_ptr() as *const u8,
-                polynomial.len() * std::mem::size_of::<Fq>(),
+                std::mem::size_of_val(polynomial),
             )
         };
         self.base.append_message(b"p", bytes);
@@ -35,9 +35,9 @@ impl SumcheckTranscript<Fq> for TestTranscript {
 
 #[test]
 fn we_can_prove_sumcheck_with_an_mle_with_a_single_element() {
-    let mles = vec![Fq::from(8)];
-    let product_table = vec![(Fq::from(1), 1)];
-    let product_terms = vec![0];
+    let mles = [Fq::from(8)];
+    let product_table = [(Fq::from(1), 1)];
+    let product_terms = [0];
     let mut transcript = TestTranscript::new();
     let proof = SumcheckProof::new(&mut transcript, &mles, &product_table, &product_terms, 1);
     assert_eq!(proof.round_polynomials[0], mles[0]);
@@ -51,9 +51,9 @@ fn we_can_prove_sumcheck_with_an_mle_with_a_single_element() {
 
 #[test]
 fn we_can_prove_sumcheck_with_an_mle_with_two_elements() {
-    let mles = vec![Fq::from(8), Fq::from(10)];
-    let product_table = vec![(Fq::from(1), 1)];
-    let product_terms = vec![0];
+    let mles = [Fq::from(8), Fq::from(10)];
+    let product_table = [(Fq::from(1), 1)];
+    let product_terms = [0];
     let mut transcript = TestTranscript::new();
     let proof = SumcheckProof::new(&mut transcript, &mles, &product_table, &product_terms, 2);
     assert_eq!(proof.round_polynomials[0], mles[0]);
@@ -67,9 +67,9 @@ fn we_can_prove_sumcheck_with_an_mle_with_two_elements() {
 
 #[test]
 fn we_can_prove_sumcheck_with_multiple_mles() {
-    let mles = vec![Fq::from(8), Fq::from(3)];
-    let product_table = vec![(Fq::from(1), 1), (Fq::from(2), 1)];
-    let product_terms = vec![0, 1];
+    let mles = [Fq::from(8), Fq::from(3)];
+    let product_table = [(Fq::from(1), 1), (Fq::from(2), 1)];
+    let product_terms = [0, 1];
     let mut transcript = TestTranscript::new();
     let proof = SumcheckProof::new(&mut transcript, &mles, &product_table, &product_terms, 1);
     assert_eq!(proof.round_polynomials[0], mles[0] + Fq::from(2) * mles[1]);
@@ -83,9 +83,9 @@ fn we_can_prove_sumcheck_with_multiple_mles() {
 
 #[test]
 fn we_can_prove_sumcheck_with_two_rounds() {
-    let mles = vec![Fq::from(8), Fq::from(3), Fq::from(11), Fq::from(51)];
-    let product_table = vec![(Fq::from(1), 1)];
-    let product_terms = vec![0];
+    let mles = [Fq::from(8), Fq::from(3), Fq::from(11), Fq::from(51)];
+    let product_table = [(Fq::from(1), 1)];
+    let product_terms = [0];
     let mut transcript = TestTranscript::new();
     let proof = SumcheckProof::new(&mut transcript, &mles, &product_table, &product_terms, 4);
     assert_eq!(proof.round_polynomials[0], mles[0] + mles[1]);
@@ -94,7 +94,7 @@ fn we_can_prove_sumcheck_with_two_rounds() {
         (mles[2] - mles[0]) + (mles[3] - mles[1])
     );
     let r = proof.evaluation_point[0];
-    let mles = vec![
+    let mles = [
         mles[0] * (Fq::one() - r) + mles[2] * r,
         mles[1] * (Fq::one() - r) + mles[3] * r,
     ];
@@ -114,9 +114,9 @@ fn we_can_prove_sumcheck_with_two_rounds() {
 
 #[test]
 fn we_can_prove_sumcheck_with_two_products() {
-    let mles = vec![Fq::from(8), Fq::from(3), Fq::from(11), Fq::from(51)];
-    let product_table = vec![(Fq::from(1), 2)];
-    let product_terms = vec![0, 1];
+    let mles = [Fq::from(8), Fq::from(3), Fq::from(11), Fq::from(51)];
+    let product_table = [(Fq::from(1), 2)];
+    let product_terms = [0, 1];
     let mut transcript = TestTranscript::new();
     let proof = SumcheckProof::new(&mut transcript, &mles, &product_table, &product_terms, 2);
     assert_eq!(proof.round_polynomials[0], mles[0] * mles[2]);
