@@ -1,6 +1,7 @@
-use crate::compute::init_backend;
-use crate::proof::field::FieldId;
-use crate::proof::sumcheck_transcript::SumcheckTranscript;
+use crate::{
+    compute::init_backend,
+    proof::{field::FieldId, sumcheck_transcript::SumcheckTranscript},
+};
 use serde::{Deserialize, Serialize};
 use std::cmp::max;
 use std::os::raw::c_void;
