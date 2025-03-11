@@ -27,7 +27,22 @@ pub struct SumcheckProof<T: FieldId> {
 }
 
 impl<T: FieldId + Default + Clone> SumcheckProof<T> {
-    /// TODO: doc me
+    /// Construct a proof for sumcheck using a polynomial of the form
+    ///
+    ///    sum_i^num_products {mult_i x prod_j^product_length_i f_j(X1, ..., Xr)}
+    ///
+    ///  where f_j(X1, ..., Xr) denotes a multilinear extension of r variables.
+    ///
+    /// transcript provides the random challenge for each round of sumcheck
+    ///
+    /// mles describes an n by (num_mles) column major matrix
+    /// reference by sumcheck
+    ///
+    /// product_table describes each product of the sumcheck polynomial
+    /// with entries of the form
+    ///    (multiplier, product_length)
+    ///
+    /// product_terms identifies which MLEs the sumcheck product terms reference.
     pub fn new<Transcript: SumcheckTranscript<T>>(
         transcript: &mut Transcript,
         mles: &[T],
