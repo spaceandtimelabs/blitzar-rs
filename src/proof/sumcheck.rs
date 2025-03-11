@@ -52,7 +52,7 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
     ) -> Self {
         init_backend();
         assert!(n > 0);
-        assert!(product_table.len() > 0);
+        assert!(!product_table.is_empty());
         let num_mles = mles.len() / n as usize;
         assert_eq!(mles.len(), num_mles * n as usize);
         for mle_index in product_terms {
@@ -76,7 +76,7 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
             mles: mles.as_ptr() as *const c_void,
             product_table: product_table.as_ptr() as *const c_void,
             product_terms: product_terms.as_ptr(),
-            n: n,
+            n,
             num_mles: num_mles as u32,
             num_products: product_table.len() as u32,
             num_product_terms: product_terms.len() as u32,
@@ -93,8 +93,8 @@ impl<T: FieldId + Default + Clone> SumcheckProof<T> {
             );
         }
         Self {
-            evaluation_point: evaluation_point,
-            round_polynomials: round_polynomials,
+            evaluation_point,
+            round_polynomials,
         }
     }
 }
