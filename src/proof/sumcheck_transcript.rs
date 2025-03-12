@@ -1,4 +1,4 @@
-// Copyright 2023-present Space and Time Labs, Inc.
+// Copyright 2024-present Space and Time Labs, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,23 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! proof primitives
+/// Provide random challenges for sumcheck proof.
+pub trait SumcheckTranscript<T> {
+    /// Provides dimensions of sumcheck proof.
+    fn init(&mut self, num_variables: usize, round_degree: usize);
 
-mod error;
-pub use error::ProofError;
-
-mod inner_product;
-pub use inner_product::InnerProductProof;
-
-#[cfg(test)]
-mod inner_product_tests;
-
-mod field;
-mod sumcheck_transcript;
-pub use sumcheck_transcript::SumcheckTranscript;
-
-mod sumcheck;
-pub use sumcheck::SumcheckProof;
-
-#[cfg(test)]
-mod sumcheck_tests;
+    /// Produce the challenge field element for a sumcheck
+    /// round given the round polynomial
+    ///   polynomial[0] + polynomial[1] X^1 + ... + polynomial[d] X^d
+    fn round_challenge(&mut self, polynomial: &[T]) -> T;
+}
